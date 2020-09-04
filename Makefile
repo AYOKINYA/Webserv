@@ -4,19 +4,18 @@ CC = clang++
 
 CFLAGS = -g -Wall -Wextra -Werror
 
-SRCS =  Server.cpp
+SRCS =  Client.cpp#Server.cpp
 
-OBJS = $(SRCS:.c=.o)
+OBJS = $(SRCS:.cpp=.o)
 
 LIB_FT = libft/libft.a #-L./libft -lft 로 해도 같다!
 
 RM = rm -f
 
-
 $(NAME) : ${OBJS} ${LIB_FT}
 		${CC} ${CFLAGS} ${OBJS} ${LIB_FT} -o $(NAME)
 
-%.o : %.c
+%.o : %.cpp
 		${CC} ${CFLAGS} -c $< -o $@
 
 ${LIB_FT} :

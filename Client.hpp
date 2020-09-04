@@ -1,5 +1,6 @@
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
+
 # include "./libft/libft.h"
 # include <iostream>
 # include <sys/time.h>
@@ -9,6 +10,9 @@
 # include <netinet/ip.h>
 # include <fcntl.h>
 # include <errno.h>
+# include <arpa/inet.h>
+//# include "Client.hpp"
+# include <vector>
 
 class Client
 {
@@ -19,10 +23,25 @@ class Client
 			struct sockaddr_in	client_addr_;
 			Client();
 	public:
-			Client(std::string name, int port);
-			Client(const Client &copy);
-			Client& operator=(const Sever &Client);
-			~Client(close(sockfd_));
+			Client(std::string name, int port) : name_(name), port_(port) {};
+			Client(const Client &copy)
+			{
+				*this = copy;
+			}
+			Client& operator=(const Client &client)
+			{
+				if (this == &client)
+					return (*this);
+				name_ = client.name_;
+				port_ = client.port_;
+				sockfd_ = client.sockfd_;
+				client_addr_ = client.client_addr_;
+				return (*this);
+			}
+			~Client()
+			{
+				close(sockfd_);
+			}
 			
 			int	getSockfd(void)
 			{
@@ -31,30 +50,36 @@ class Client
 
 			void init_client(void)
 			{
-				if ((sockfd_ = socket(AF_INET, SOCK_STREAM, 0) == -1))
-				{
-					std::cerr << "Error: " << name_ < "init_client(): "  << std::string(strerror(errno)) << std::endl;
-					exit(1);
-				}
-
-				int opt = 1;
-				if (setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, 
-                                                  &opt, sizeof(opt))) 
+				if ((sockfd_ = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
 				{ 
-					std::cerr << "Error: " << name_ < "init_client(): "  << std::string(strerror(errno)) << std::endl;
-					exit(1);
+					std::cerr << "Error: " << name_ << " init_client() socket: " << strerror(errno) << std::endl;
+					exit(1); 
+				} 
+				
+				int opt = 1;
+				// Forcefully attaching socket to the port 8080
+				if (setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, 
+															&opt, sizeof(opt)) == -1) 
+				{ 
+					std::cerr << "Error: " << name_ << " init_client() setsockopt: " << strerror(errno) << std::endl;
+					exit(1); 
 				}
 
-				ft_memset(&client_addr_, 0, sizeof(client_addr_));
+				//ft_memset(&client_addr_, 0, sizeof(client_addr_));
 				client_addr_.sin_family     = AF_INET;
-				client_addr_.sin_port       = htons(4000);
+				client_addr_.sin_port       = htons(port_);
 				client_addr_.sin_addr.s_addr= inet_addr("127.0.0.1");
 
 				if (-1 == connect(sockfd_, (struct sockaddr*)&client_addr_, sizeof(client_addr_)))
 				{
-					std::cerr << "Error: " << name_ < "init_client(): "  << std::string(strerror(errno)) << std::endl;
+					std::cerr << "Error: " << name_ << " init_client() connect: " << strerror(errno) << std::endl;
 					exit(1);
 				}
+				char buf[1024];
+				send(sockfd_, "hello", 5, 0);
+				std::cout << "Client sent message" << std::endl;
+				read(sockfd_, buf, 1023);
+				std::cout << buf << std::endl;
 			}
 };
 

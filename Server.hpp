@@ -96,7 +96,7 @@ class Server
 				} 
 				char buf[1024];
 				read(new_socket, buf, 1023);
-				std::cout << buf << std::endl;
+				std::cout << buf << std::endl; // read message from client
 				send(new_socket, "hiii", 5, 0);
 				std::cout << "Server sent message" << std::endl;
 				close(sockfd_);

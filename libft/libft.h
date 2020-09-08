@@ -6,12 +6,16 @@
 /*   By: jkang <jkang@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 12:12:25 by jkang             #+#    #+#             */
-/*   Updated: 2020/09/04 15:48:25 by jkang            ###   ########.fr       */
+/*   Updated: 2020/09/08 14:59:29 by jkang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LIBFT_H
 # define LIBFT_H
+
+# ifdef __cplusplus
+	extern "C"	{
+# endif
 
 # include <string.h>
 # include <stdlib.h>
@@ -71,5 +75,9 @@ void				ft_lstclear(t_list **lst, void (*del)(void *));
 void				ft_lstiter(t_list *lst, void (*f)(void *));
 t_list				*ft_lstmap(t_list *lst, void *(*f)(void *),\
 											void (*del)(void *));
+
+# ifdef __cplusplus
+	}
+# endif
 
 #endif

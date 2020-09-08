@@ -21,6 +21,7 @@ class Server
 			int					port_;
 			int					sockfd_;
 			struct sockaddr_in	server_addr_;
+			std::string			msg_;
 			//std::vector<Client>		clients_;
 			Server() {};
 	public:
@@ -69,7 +70,8 @@ class Server
 					std::cerr << "Error: " << name_ << " init_server() setsockopt: " << strerror(errno) << std::endl;
 					exit(1); 
 				}
-				//ft_memset((void *)&server_addr_, 0, (unsigned long)sizeof(server_addr_)); // 왜 libft ft_memset link가 안 될까?
+
+				ft_memset((void *)&server_addr_, 0, (unsigned long)sizeof(server_addr_)); // 왜 libft ft_memset link가 안 될까?
 				server_addr_.sin_family = AF_INET; 
 				server_addr_.sin_addr.s_addr = INADDR_ANY; 
 				server_addr_.sin_port = htons( this->port_ ); 
@@ -87,19 +89,40 @@ class Server
 					exit(1); 
 				}
 
+				msg_ = "HTTP/1.1 200 OK\n";
+				msg_ += "Content-Type: text/html\n";
+				msg_ += "Content-Length: ";
+
+				int fd = open("index.html", O_RDWR, 0644);
+				char rbuf[1024];
+				int nread = read(fd, rbuf, 1023);
+				rbuf[nread] = '\0';
+				char *tmp = ft_itoa(ft_strlen(rbuf));
+				msg_ += tmp;
+				free(tmp);
+				msg_ += "\n\n";
+				msg_ += rbuf;
+
+				char buf[3001];
 				int new_socket;
 				socklen_t addrlen = sizeof(server_addr_);
-				if ((new_socket = accept(sockfd_, (struct sockaddr *)&server_addr_, &addrlen)) == -1) 
-				{ 
-					std::cerr << "Error: " << name_ << " init_server() accept: " << strerror(errno) << std::endl;
-					exit(1);
-				} 
-				char buf[1024];
-				read(new_socket, buf, 1023);
-				std::cout << buf << std::endl; // read message from client
-				send(new_socket, "hiii", 5, 0);
-				std::cout << "Server sent message" << std::endl;
-				close(sockfd_);
+				while (1)
+				{
+					if ((new_socket = accept(sockfd_, (struct sockaddr *)&server_addr_, &addrlen)) == -1) 
+					{ 
+						std::cerr << "Error: " << name_ << " init_server() accept: " << strerror(errno) << std::endl;
+						exit(1);
+					}
+					
+					ft_memset(buf, 0, 3001);
+					recv(new_socket, buf, 3000, 0);
+					std::cout << "====Client Request====" << std::endl;
+					std::cout << buf << std::endl; // read message from client
+					std::cout << "======================" << std::endl;
+					send(new_socket, msg_.c_str(), msg_.length() + 1, 0);
+					std::cout << "Server sent message" << std::endl;
+					close(new_socket);	
+				}	
 			}
 
 };

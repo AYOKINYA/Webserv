@@ -108,6 +108,7 @@ class Server
 				socklen_t addrlen = sizeof(server_addr_);
 				while (1)
 				{
+
 					if ((new_socket = accept(sockfd_, (struct sockaddr *)&server_addr_, &addrlen)) == -1) 
 					{ 
 						std::cerr << "Error: " << name_ << " init_server() accept: " << strerror(errno) << std::endl;
@@ -115,12 +116,23 @@ class Server
 					}
 					
 					ft_memset(buf, 0, 3001);
-					recv(new_socket, buf, 3000, 0);
+					read(new_socket, buf, 3000);
 					std::cout << "====Client Request====" << std::endl;
 					std::cout << buf << std::endl; // read message from client
 					std::cout << "======================" << std::endl;
-					send(new_socket, msg_.c_str(), msg_.length() + 1, 0);
+					if (ft_strncmp(buf, "GET", 3) == 0)
+						write(new_socket, msg_.c_str(), msg_.length());
+					else if (ft_strncmp(buf, "POST", 3) == 0)
+					{
+						ft_memset((void *)msg_.c_str(), 0, sizeof(msg_.c_str()));
+						msg_ = "HTTP/1.1 405 Not Allowed\n\n";
+						write(new_socket, msg_.c_str(), msg_.length());
+					}
+					else
+						write(new_socket, msg_.c_str(), msg_.length());
+
 					std::cout << "Server sent message" << std::endl;
+					usleep(1000);
 					close(new_socket);	
 				}	
 			}

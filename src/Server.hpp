@@ -103,7 +103,10 @@ class Server
 				int	max_sd, client_socket[30], max_clients = 30, sd, activity;
 
 				socklen_t addrlen = sizeof(server_addr_);
-
+				for (int i = 0; i < max_clients; i++)
+				{
+					client_socket[i] = 0;
+				}
 				while (1)
 				{
 					FD_ZERO(&readfds);

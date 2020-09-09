@@ -132,7 +132,6 @@ class Server
 						write(new_socket, msg_.c_str(), msg_.length());
 
 					std::cout << "Server sent message" << std::endl;
-					usleep(1000);
 					close(new_socket);	
 				}	
 			}

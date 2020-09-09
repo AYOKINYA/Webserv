@@ -43,7 +43,7 @@ void	Message::receiveRequest(char *buf)
 void	Message::sendRespond(int sd)
 {
 	std::string	msg_ = "";
-
+	std::cout << "!!!!!!!!!!" <<method << std::endl;
 	if (method == 0)
 	{
 		msg_ = "HTTP/1.1 200 OK\n";
@@ -62,6 +62,7 @@ void	Message::sendRespond(int sd)
 	}
 	else if (method == 1)
 	{
+		std::cout << "hhhhhgjsakfhajsdhfksjd" << std::endl;
 		msg_ ="HTTP/1.1 405 Not Allowed\n";
 		msg_ += "Content-Type: text/html\n";
 		msg_ += "Content-Length: ";
@@ -73,7 +74,7 @@ void	Message::sendRespond(int sd)
 		char *tmp = ft_itoa(ft_strlen(rbuf));
 		msg_ += tmp;
 		free(tmp);
-		msg_ += "\n\n";
+		msg_ += "\n";
 		msg_ += rbuf;
 	}
 	else if (method == 2)
@@ -89,9 +90,9 @@ void	Message::sendRespond(int sd)
 		char *tmp = ft_itoa(ft_strlen(rbuf));
 		msg_ += tmp;
 		free(tmp);
-		msg_ += "\n";
+		msg_ += "\n\n";
 	}
-	
+
 	else
 	{
 		//msg_ = "HTTP/1.1 405 Method Not Allowed\n\n";

@@ -4,13 +4,14 @@
 #include <iostream>
 #include "libft/libft.h"
 #include <fcntl.h>
-
+#include <algorithm>
+#include <map>
 class Message
 {
 	private:
 		int	method;
 		std::string	path;
-
+		std::map<char, char> vars;
 	public:
 		Message();
 		~Message();

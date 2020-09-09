@@ -89,7 +89,7 @@ void	Message::sendRespond(int sd)
 		char *tmp = ft_itoa(ft_strlen(rbuf));
 		msg_ += tmp;
 		free(tmp);
-		msg_ += "\n";
+		msg_ += "\n\n";
 	}
 	
 	else

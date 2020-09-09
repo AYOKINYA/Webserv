@@ -168,7 +168,7 @@ class Server
 
 					for (int i = 0; i < max_clients; i++)   
 					{
-						sd = client_socket[i];   
+						sd = client_socket[i];  
 							
 						if (FD_ISSET(sd , &readfds))   
 						{   
@@ -184,9 +184,20 @@ class Server
 							//Echo back the message that came in  
 							else 
 							{
+								if (fcntl(sd, F_SETFL, O_NONBLOCK) == -1)
+								{
+									std::cerr << "Error: " << name_ << " init_server() fcntl: " << strerror(errno) << std::endl;
+									exit(1);
+								}
+								//while (valread = read)
 								//set the string terminating NULL byte on the end  
 								//of the data read 
-								
+								int n = valread;
+								while ((valread = read(sd , buf + n, 1024)) > 0 && n < 1024)
+								{
+									n += valread;
+									std::cout << "n is " << n << std::endl;
+								}
 								Message m;
 								
 								m.receiveRequest(buf);
@@ -195,7 +206,8 @@ class Server
 
 								//buffer[valread] = '\0';   
 								//send(sd , buffer , strlen(buffer) , 0 );   
-							}   
+							} 
+							ft_memset(buf, 0, 3001); 
 						}   
 					}  
 

@@ -74,12 +74,12 @@ void	Message::sendRespond(int sd)
 		char *tmp = ft_itoa(ft_strlen(rbuf));
 		msg_ += tmp;
 		free(tmp);
-		msg_ += "\n";
+		msg_ += "\n\n";
 		msg_ += rbuf;
 	}
 	else if (method == 2)
 	{
-		msg_ = "HTTP/1.1 200 OK\n";
+		msg_ = "HTTP/1.1 405 Method Not Allowed\n"; //head - 405
 		msg_ += "Content-Type: text/html\n";
 		msg_ += "Content-Length: ";
 
@@ -92,11 +92,10 @@ void	Message::sendRespond(int sd)
 		free(tmp);
 		msg_ += "\n\n";
 	}
-
 	else
 	{
 		//msg_ = "HTTP/1.1 405 Method Not Allowed\n\n";
-		msg_ = "HTTP/1.1 400 Bad Request\n\n";
+		msg_ = "HTTP/1.1 404 Not Found\n\n";
 		msg_ += "Content-Type: text/html\n";
 		msg_ += "Content-Length: ";
 
@@ -111,7 +110,6 @@ void	Message::sendRespond(int sd)
 		msg_ += rbuf;
 	}
 	write(sd, msg_.c_str(), msg_.length());
-
 }
 
 

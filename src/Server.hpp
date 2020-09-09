@@ -132,7 +132,8 @@ class Server
 					{
 						printf("select error");
 					}
-
+					printf("1111111");
+					usleep(2000);
 					if (FD_ISSET(sockfd_, &readfds))
 					{
 						if ((new_socket = accept(sockfd_, (struct sockaddr *)&server_addr_, &addrlen)) == -1)
@@ -140,6 +141,7 @@ class Server
 							std::cerr << "Error: " << name_ << " init_server() accept: " << strerror(errno) << std::endl;
 							exit(1);
 						}
+						usleep(2000);
 						ft_memset(buf, 0, 3001);
 						for (int i = 0; i < max_clients; i++)
 						{

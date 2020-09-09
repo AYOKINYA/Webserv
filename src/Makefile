@@ -32,6 +32,10 @@ fclean:	clean
 		${RM} ${NAME}
 		make -C ./libft fclean
 
+a: 
+	${CC} ${CFLAGS} -c ${SRCS} -o ${OBJS}
+	${CC} ${CFLAGS} ${OBJS} ${LIB_FT} -o $(NAME)
+
 re : fclean all
 
 .PHONY : all re clean fclean

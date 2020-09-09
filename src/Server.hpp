@@ -88,7 +88,9 @@ class Server
 					std::cerr << "Error: " << name_ << " init_server() listen: " << strerror(errno) << std::endl;
 					exit(1); 
 				}
+				fcntl(sockfd_, F_SETFL, O_NONBLOCK);
 
+			//message
 				msg_ = "HTTP/1.1 200 OK\n";
 				msg_ += "Content-Type: text/html\n";
 				msg_ += "Content-Length: ";
@@ -102,37 +104,116 @@ class Server
 				free(tmp);
 				msg_ += "\n\n";
 				msg_ += rbuf;
+/////////////////////////////////////////
 
 				char buf[3001];
 				int new_socket;
+
+				fd_set readfds;
+				int	max_sd, client_socket[10], max_clients = 10, sd, activity;
+				//bool	is_connected;
+				//int  client_socket[30] , max_clients = 30 , activity, i , valread , sd; 
+				
 				socklen_t addrlen = sizeof(server_addr_);
+				
+
 				while (1)
 				{
+					FD_ZERO(&readfds);
+					FD_SET(sockfd_, &readfds);
+					max_sd = sockfd_;
+					for (int i = 0 ; i < max_clients; i++)   
+					{   
+						//socket descriptor  
+						sd = client_socket[i];   
+								
+						//if valid socket descriptor then add to read list  
+						if(sd > 0)   
+							FD_SET( sd , &readfds);   
+								
+						//highest file descriptor number, need it for the select function  
+						if(sd > max_sd)   
+							max_sd = sd;   
+					}
 
+					activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);   
+						
+					if ((activity < 0) && (errno!=EINTR))   
+					{   
+						printf("select error");   
+					}   
+
+					if (FD_ISSET(sockfd_, &readfds))   
+					{   
 					if ((new_socket = accept(sockfd_, (struct sockaddr *)&server_addr_, &addrlen)) == -1) 
 					{ 
 						std::cerr << "Error: " << name_ << " init_server() accept: " << strerror(errno) << std::endl;
 						exit(1);
 					}
-					
 					ft_memset(buf, 0, 3001);
-					read(new_socket, buf, 3000);
-					std::cout << "====Client Request====" << std::endl;
-					std::cout << buf << std::endl; // read message from client
-					std::cout << "======================" << std::endl;
-					if (ft_strncmp(buf, "GET", 3) == 0)
-						write(new_socket, msg_.c_str(), msg_.length());
-					else if (ft_strncmp(buf, "POST", 3) == 0)
-					{
-						ft_memset((void *)msg_.c_str(), 0, sizeof(msg_.c_str()));
-						msg_ = "HTTP/1.1 405 Not Allowed\n\n";
-						write(new_socket, msg_.c_str(), msg_.length());
-					}
-					else
-						write(new_socket, msg_.c_str(), msg_.length());
+					 for (int i = 0; i < max_clients; i++)   
+					{   
+						//if position is empty  
+						if(client_socket[i] == 0)   
+						{   
+							client_socket[i] = new_socket;   
+							printf("Adding to list of sockets as %d\n" , i);   
+								
+							break;   
+						}   
+       			     }   
+					}	
 
-					std::cout << "Server sent message" << std::endl;
-					close(new_socket);	
+					for (int i = 0; i < max_clients; i++)   
+					{   
+						sd = client_socket[i];   
+							
+						if (FD_ISSET( sd , &readfds))   
+						{   
+							//Check if it was for closing , and also read the  
+							//incoming message  
+							int	valread;
+							if ((valread = read( sd , buf, 1024)) == 0)   
+							{   
+								//Somebody disconnected , get his details and print  
+								//getpeername(sd , (struct sockaddr*)&address , 
+								//	(socklen_t*)&addrlen);   
+								//printf("Host disconnected , ip %s , port %d \n" ,  
+								//	inet_ntoa(address.sin_addr) , ntohs(address.sin_port));   
+									
+								//Close the socket and mark as 0 in list for reuse  
+								close( sd );
+								client_socket[i] = 0;   
+							}   
+								
+							//Echo back the message that came in  
+							else 
+							{   
+								//set the string terminating NULL byte on the end  
+								//of the data read 
+								
+								std::cout <<"Client Request====" << std::endl;
+								std::cout << buf << std::endl; // read message from client
+								std::cout << "======================" << std::endl;
+								if (ft_strncmp(buf, "GET", 3) == 0)
+									write(new_socket, msg_.c_str(), msg_.length());
+								else if (ft_strncmp(buf, "POST", 3) == 0)
+								{
+									ft_memset((void *)msg_.c_str(), 0, sizeof(msg_.c_str()));
+									msg_ = "HTTP/1.1 405 Not Allowed\n\n";
+									write(new_socket, msg_.c_str(), msg_.length());
+								}
+								else
+									write(new_socket, msg_.c_str(), msg_.length());
+								std::cout << "Server sent message" << std::endl;
+
+								//buffer[valread] = '\0';   
+								//send(sd , buffer , strlen(buffer) , 0 );   
+							}   
+						}   
+					}  
+
+
 				}	
 			}
 

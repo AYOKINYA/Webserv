@@ -65,13 +65,12 @@ class Server
 				
 				int opt = 1;
 				// Forcefully attaching socket to the port 8080
-				if (setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, 
-															&opt, sizeof(opt)) == -1) 
-				{ 
-					std::cerr << "Error: " << name_ << " init_server() setsockopt: " << strerror(errno) << std::endl;
-					exit(1); 
+					if( setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0 )
+				{
+					perror("setsockopt");
+					exit(EXIT_FAILURE);
 				}
-
+			
 				ft_memset((void *)&server_addr_, 0, (unsigned long)sizeof(server_addr_)); // 왜 libft ft_memset link가 안 될까?
 				server_addr_.sin_family = AF_INET; 
 				server_addr_.sin_addr.s_addr = INADDR_ANY; 
@@ -95,21 +94,7 @@ class Server
 					exit(1);
 				}
 
-			//message
-				msg_ = "HTTP/1.1 200 OK\n";
-				msg_ += "Content-Type: text/html\n";
-				msg_ += "Content-Length: ";
-
-				int fd = open("index.html", O_RDWR, 0644);
-				char rbuf[1024];
-				int nread = read(fd, rbuf, 1023);
-				rbuf[nread] = '\0';
-				char *tmp = ft_itoa(ft_strlen(rbuf));
-				msg_ += tmp;
-				free(tmp);
-				msg_ += "\n\n";
-				msg_ += rbuf;
-/////////////////////////////////////////
+		
 
 				char buf[3001];
 				int new_socket;
@@ -117,7 +102,6 @@ class Server
 				fd_set readfds;
 				int	max_sd, client_socket[30], max_clients = 30, sd, activity;
 				
-				socklen_t addrlen = sizeof(server_addr_);
 				
 
 				while (1)
@@ -198,6 +182,7 @@ class Server
 									n += valread;
 									std::cout << "n is " << n << std::endl;
 								}
+								
 								Message m;
 								
 								m.receiveRequest(buf);

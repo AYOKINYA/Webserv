@@ -25,6 +25,7 @@ class   Request
 		void	parse_request(std::string req);
 		void	parse_first_line();
 		void	parse_file();
+		void	receiveRequest(std::string req);
 
 };
 

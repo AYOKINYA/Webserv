@@ -78,6 +78,26 @@ void	Request::parse_file(std::string uri)
 	}
 }
 
+void	Request::receiveRequest(std::string req)
+{
+	std::cout <<"====Client Request====" << std::endl;
+	std::cout << req << std::endl; // read message from client
+	std::cout << "======================" << std::endl;
+
+	Request r;
+	r->parse_file();
+
+	const char *c_req = req.c_str();
+	if (ft_strncmp(c_req, "GET", 3) == 0)
+		this->method = 0;
+	else if (ft_strncmp(c_req, "POST", 4) == 0)
+		this->method = 1;
+	else if (ft_strncmp(c_req, "HEAD", 4) == 0)
+		this->method = 2;
+	else
+		this->method = 9;
+}
+
 void	ft_getline(std::string &b, std::string &line)
 {
     size_t					pos;

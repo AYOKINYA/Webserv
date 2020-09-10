@@ -14,7 +14,9 @@
 class Response
 {
 	private:
-			std::map<std::string, std::string> vars;
+			//int 								_status_code;
+			//std::string 						_status_msg;
+			std::map<std::string, std::string>	vars;
 	public:
 			Response();
 			Response(std::map<std::string, std::string> vars);
@@ -22,6 +24,7 @@ class Response
 			Response(const Response &copy);
 			virtual ~Response();
 			
+			void getStartLine(void);
 			void getDate(void);
 			void getContentType(const std::string &content);
 			void getContentLocation(const std::string &loc);

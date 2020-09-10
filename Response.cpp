@@ -16,13 +16,20 @@ Response& Response::operator=(const Response &copy)
 	if (this == &copy)
 		return (*this);
 	vars = copy.vars;
+	// _status_code = copy._status_code;
+	// _status_msg = copy._status_msg;
 	return (*this);
 }
 
 Response::~Response()
 {};
 
-//template으로 만들까?
+
+void Response::getStartLine(void)
+{
+
+}
+
 void Response::getDate()
 {
 	struct timeval 	cur_time;

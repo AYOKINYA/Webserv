@@ -1,12 +1,29 @@
-#include <ctime>
-#include <iostream>
-#include <sys/time.h>
-#include <algorithm>
-#include <map>
-#include <string>
+#include "Response.hpp"
+
+Response::Response()
+{};
+
+Response::Response(std::map<std::string, std::string> vars)
+	: vars(vars) {};
+
+Response::Response(const Response &copy)
+{
+	*this = copy;
+}
+
+Response& Response::operator=(const Response &copy)
+{
+	if (this == &copy)
+		return (*this);
+	vars = copy.vars;
+	return (*this);
+}
+
+Response::~Response()
+{};
 
 //template으로 만들까?
-void getDate(std::map<std::string, std::string> &vars)
+void Response::getDate()
 {
 	struct timeval 	cur_time;
 	struct tm 		time;
@@ -17,13 +34,11 @@ void getDate(std::map<std::string, std::string> &vars)
 	strptime(std::to_string(cur_time.tv_sec).c_str(), "%s", &time); // seconds in tm format
 	// ft_itoa대신 std::to_string(cur_time.tv_sec).c_str()을 쓰면 free할 필요도 없고 간편해진다.
 	strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S KST", &time); // tm to regexp format
-	std::cout << buf << std::endl;
 
 	vars.insert(std::pair<std::string, std::string>("Date", buf));
-
 }
 
-void getContentType(std::map<std::string, std::string> &vars, const std::string &content)
+void Response::getContentType(const std::string &content)
 {
 	/* mime.types 참고. excel 텍스트 나누기로 split했다*/
 	std::string extensions[103] = 
@@ -81,20 +96,115 @@ void getContentType(std::map<std::string, std::string> &vars, const std::string 
 	
 }
 
+void Response::getContentLocation(const std::string &loc)
+{
+	vars.insert(std::pair<std::string, std::string>("Content-Location", loc));
+}
+
+void Response::getContentLanguage()
+{
+	vars.insert(std::pair<std::string, std::string>("Content-Language", "en"));
+}
+
+void Response::getContentLength(const std::string &content)
+{
+	// 일단 요청하는 컨텐트가 없다고 가정! 기본 index.html 읽는다.
+	// 올바른 메소드가 아니면 error.html 읽어서 내보내고 
+	const char *dir = content.c_str();
+	int fd = open(dir, O_RDWR, 0644);
+	int count = 0;
+	if (fd > 0)
+	{
+		char buf[2];
+		buf[0] = 0;
+		buf[1] = 0;
+		while (read(fd, buf, 1) > 0)
+			++count;
+	}
+	else
+	{
+		std::cout << "404 Not Found Error should be thrown." << std::endl;
+		return ;
+	}
+
+	vars.insert(std::pair<std::string, std::string>("Content-Length", std::to_string(count)));
+}
+
+
+void Response::getAllow()
+{
+	//if METHOD does not match any of these, return 405 Not Allowed
+	std::string str = "GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS";
+	vars.insert(std::pair<std::string, std::string>("Allow", str));
+
+}
+
+void Response::getLastModified(const std::string &content)
+{
+	struct	stat info;
+	struct	tm	time;
+	char	buf[1024];
+
+	stat(content.c_str(), &info);
+	strptime(std::to_string(info.st_mtime).c_str(), "%s", &time);
+	strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S KST", &time); // tm to regexp format
+
+	vars.insert(std::pair<std::string, std::string>("Last-Modified", buf));
+
+}
+
+void Response::getServer()
+{
+	vars.insert(std::pair<std::string, std::string>("Server", "42-Webserv"));
+}
+
+void Response::getTransferEncoding()
+{
+	vars.insert(std::pair<std::string, std::string>("Transfer-Encoding", "identity"));
+}
+
+void Response::printItem(const std::string &key)
+{
+	//나중에 send할 소켓에 넣어줘야 한다.
+
+	std::map<std::string, std::string>::iterator it;
+	it = vars.find(key);
+	if (it != vars.end())
+		std::cout << it->first << ": " << it->second << std::endl;
+}
+
+void Response::header()
+{
+	getServer();
+	getDate();
+	getAllow();
+	getContentType("aa.html");
+	getContentLanguage();
+	getContentLocation("./src/index.html");
+	getTransferEncoding();
+	getContentLength("./src/index.html"); // Request에서 파싱한 거 거의 그대로 넣으면 될 듯?
+	getLastModified("./src/index.html"); // Request에서 파싱한 거 거의 그대로 넣으면 될 듯?
+	
+	printItem("Server");
+	printItem("Date");
+	printItem("Content-Type");
+	printItem("Content-Length");
+	printItem("Last-Modified");
+}
+
+void Response::body()
+{
+	(void)vars;
+}
+
 int main(void)
 {
 	//나중에 vars를 멤버변수로 하고, 파싱 함수를 멤버함수로 하는 클래스 Response를 만들면 좋을 것 같다.
 	//그렇게 되면 각 멤버함수 인자에 vars 제거!
 
 	//map with string key & string value
-	std::map<std::string, std::string> vars;
+	Response vars;
 	
-	//Date	
-	getDate(vars);
-
-	//Content-Type
-	getContentType(vars, "aa.html");
-
-	for (std::map<std::string, std::string>::iterator it = vars.begin() ; it != vars.end(); ++it)
-		std::cout << it->first << ": " << it->second << std::endl;
+	vars.header();
+	
 }

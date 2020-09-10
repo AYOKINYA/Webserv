@@ -20,195 +20,65 @@ void getDate(std::map<std::string, std::string> &vars)
 	std::cout << buf << std::endl;
 
 	vars.insert(std::pair<std::string, std::string>("Date", buf));
-	
-	for (std::map<std::string, std::string>::iterator it = vars.begin() ; it != vars.end(); ++it)
-		std::cout << it->first << ": " << it->second << std::endl;
+
 }
 
 void getContentType(std::map<std::string, std::string> &vars, const std::string &content)
 {
 	/* mime.types 참고. excel 텍스트 나누기로 split했다*/
-	std::string extensions[104] = 
+	std::string extensions[103] = 
 	{
-		"xml",
-		"gif",
-		"jpeg", "jpg",
+		"html", "htm", "shtml", "css", "xml", "gif","jpeg", "jpg", "js", "atom",
+		"rss", "mml", "txt", "jad", "wml", "htc", "png", "tif", "tiff", "wbmp",
+		"ico", "jng", "bmp", "svg", "svgz", "webp", "woff", "jar", "war", "ear",
+		"json", "hqx", "doc", "pdf", "ps", "eps", "ai", "rtf", "m3u8", "xls",
+		"eot", "ppt", "wmlc", "kml", "kmz", "7z", "cco", "jardiff", "jnlp", "run",
+		"pl", "pm", "prc", "pdb", "rar", "rpm", "sea", "swf", "sit", "tcl",
+		"tk", "der", "pem",	"crt", "xpi", "xhtml", "xspf", "zip", "bin", "exe",
+		"dll", "deb", "dmg", "iso", "img", "msi", "msp", "msm", "docx", "xlsx",
+		"pptx", "mid", "midi","kar","mp3", "ogg","m4a", "ra", "3gpp", "3gp",
+		"ts","mp4","mpeg", "mpg", "mov", "webm", "flv", "m4v", "mng", "asx", 
+		"asf","wmv","avi"
+	};
 
-		"js",
-		"atom",
-		"rss",
-		"mml",
-		"txt",
-		"jad",
-		"wml",
-		"htc",
-		"png",
-		"tif", "tiff",
-
-		"wbmp",
-		"ico",
-		"jng",
-		"bmp",
-		"svg", "svgz",
-
-		"webp",
-		"woff",
-		"jar", "war",	"ear",
-
-		"json",
-		"hqx",
-		"doc",
-		"pdf",
-		"ps", "eps",	"ai",
-
-		"rtf",
-		"m3u8",
-		"xls",
-		"eot",
-		"ppt",
-		"wmlc",
-		"kml",
-		"kmz",
-		"7z",
-		"cco",
-		"jardiff",
-		"jnlp",
-		"run",
-		"pl", "pm",
-
-		"prc", "pdb",
-
-		"rar",
-		"rpm",
-		"sea",
-		"swf",
-		"sit",
-		"tcl", "tk",
-
-		"der", "pem",	"crt",
-
-		"xpi",
-		"xhtml",
-		"xspf",
-		"zip",
-		"bin", "exe",	"dll",
-
-		"deb",
-		"dmg",
-		"iso", "img",
-
-		"msi","msp",	"msm",
-
-		"docx",
-		"xlsx",
-		"pptx",
-		"mid", "midi",	"kar",
-
-		"mp3",
-		"ogg",
-		"m4a",
-		"ra",
-		"3gpp", "3gp",
-
-		"ts",
-		"mp4",
-		"mpeg", "mpg",
-
-		"mov",
-		"webm",
-		"flv",
-		"m4v",
-		"mng",
-		"asx", "asf",
-
-		"wmv",
-		"avi"
-	}
-
-	std::string types[80] = 
+	std::string types[103] = 
 	{
-		"text/html", 
-		"text/css",
-		"text/xml",
-		"image/gif",
-		"image/jpeg",
-		"application/javascript",
-		"application/atom+xml",
-		"application/rss+xml",
-		"text/mathml",
-		"text/plain",
-		"text/vnd.sun.j2me.app-descriptor",
-		"text/vnd.wap.wml",
-		"text/x-component",
-		"image/png",
-		"image/tiff",
-		"image/vnd.wap.wbmp",
-		"image/x-icon",
-		"image/x-jng",
-		"image/x-ms-bmp",
-		"image/svg+xml",
-		"image/webp",
-		"application/font-woff",
-		"application/java-archive",
-		"application/json",
-		"application/mac-binhex40",
-		"application/msword",
-		"application/pdf",
-		"application/postscript",
-		"application/rtf",
-		"application/vnd.apple.mpegurl",
-		"application/vnd.ms-excel",
-		"application/vnd.ms-fontobject",
-		"application/vnd.ms-powerpoint",
-		"application/vnd.wap.wmlc",
-		"application/vnd.google-earth.kml+xml",
-		"application/vnd.google-earth.kmz",
-		"application/x-7z-compressed",
-		"application/x-cocoa",
-		"application/x-java-archive-diff",
-		"application/x-java-jnlp-file",
-		"application/x-makeself",
-		"application/x-perl",
-		"application/x-pilot",
-		"application/x-rar-compressed",
-		"application/x-redhat-package-manager",
-		"application/x-sea",
-		"application/x-shockwave-flash",
-		"application/x-stuffit",
-		"application/x-tcl",
-		"application/x-x509-ca-cert",
-		"application/x-xpinstall",
-		"application/xhtml+xml",
-		"application/xspf+xml",
-		"application/zip",
-		"application/octet-stream",
-		"application/octet-stream",
-		"application/octet-stream",
-		"application/octet-stream",
-		"application/octet-stream",
-		"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-		"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-		"application/vnd.openxmlformats-officedocument.presentationml.presentation",
-		"audio/midi",
-		"audio/mpeg",
-		"audio/ogg",
-		"audio/x-m4a",
-		"audio/x-realaudio",
-		"video/3gpp",
-		"video/mp2t",
-		"video/mp4",
-		"video/mpeg",
-		"video/quicktime",
-		"video/webm",
-		"video/x-flv",
-		"video/x-m4v",
-		"video/x-mng",
-		"video/x-ms-asf",
-		"video/x-ms-wmv",
-		"video/x-msvideo"
+		"text/html", "text/html", "text/html", "text/css", "text/xml","image/gif", "image/jpeg", "image/jpeg","application/javascript","application/atom+xml",
+		"application/rss+xml","text/mathml","text/plain","text/vnd.sun.j2me.app-descriptor","text/vnd.wap.wml","text/x-component","image/png","image/tiff", "image/tiff","image/vnd.wap.wbmp",
+		"image/x-icon","image/x-jng","image/x-ms-bmp","image/svg+xml", "image/svg+xml", "image/webp","application/font-woff","application/java-archive", "application/java-archive", "application/java-archive",
+		"application/json","application/mac-binhex40","application/msword","application/pdf","application/postscript",
+		"application/postscript", "application/postscript","application/rtf","application/vnd.apple.mpegurl","application/vnd.ms-excel",
+		"application/vnd.ms-fontobject", "application/vnd.ms-powerpoint","application/vnd.wap.wmlc","application/vnd.google-earth.kml+xml","application/vnd.google-earth.kmz",
+		"application/x-7z-compressed","application/x-cocoa","application/x-java-archive-diff","application/x-java-jnlp-file","application/x-makeself",
+		"application/x-perl", "application/x-perl","application/x-pilot", "application/x-pilot","application/x-rar-compressed",
+		"application/x-redhat-package-manager","application/x-sea","application/x-shockwave-flash","application/x-stuffit","application/x-tcl", 
+		"application/x-tcl","application/x-x509-ca-cert", "application/x-x509-ca-cert", "application/x-x509-ca-cert","application/x-xpinstall",
+		"application/xhtml+xml","application/xspf+xml","application/zip","application/octet-stream", "application/octet-stream",
+		"application/octet-stream","application/octet-stream","application/octet-stream","application/octet-stream", "application/octet-stream",
+		"application/octet-stream", "application/octet-stream",  "application/octet-stream", "application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+		"application/vnd.openxmlformats-officedocument.presentationml.presentation","audio/midi", "audio/midi", "audio/midi","audio/mpeg",
+		"audio/ogg","audio/x-m4a","audio/x-realaudio","video/3gpp", "video/3gpp", 
+		"video/mp2t","video/mp4","video/mpeg", "video/mpeg","video/quicktime",
+		"video/webm","video/x-flv","video/x-m4v","video/x-mng","video/x-ms-asf", 
+		"video/x-ms-asf", "video/x-ms-wmv", "video/x-msvideo"
+	};
+
+	std::size_t pos = content.find(".");
+	std::string res = "";
+	if (pos != std::string::npos)
+	{
+		std::string ext = content.substr(pos + 1);
+		for (int i = 0; i < 103 ; ++i)
+		{
+			if (ext == extensions[i])
+				res = types[i];
+		}
 	}
-
-
+	if (res.length() == 0)
+		res = "text/plain";
+	
+	vars.insert(std::pair<std::string, std::string>("Content-Type", res));
+	
 }
 
 int main(void)
@@ -223,5 +93,8 @@ int main(void)
 	getDate(vars);
 
 	//Content-Type
-	getContentType(vars, "html");
+	getContentType(vars, "aa.html");
+
+	for (std::map<std::string, std::string>::iterator it = vars.begin() ; it != vars.end(); ++it)
+		std::cout << it->first << ": " << it->second << std::endl;
 }

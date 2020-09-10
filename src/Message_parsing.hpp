@@ -23,6 +23,7 @@ class Message
 		std::string	path;
 		std::map<std::string, std::string>vars_request;
 		std::map<std::string, std::string>vars_response;
+		std::string _body;
 		std::string _method;
 		std::string _uri;
 		std::string _http_ver;
@@ -34,8 +35,7 @@ class Message
 		void	receiveRequest(std::string req);
 		void	sendRespond(int sd);
 		void	parse_first_line(std::string req);
-		void	parse_header(std::string req);
-		void	parse_body(std::string req);
+		void	parse_header_body(std::string req);
 };
 Message::Message(){}
 Message::~Message(){}
@@ -107,13 +107,14 @@ void	Message::parse_first_line(std::string req)
 
 }
 
-void	Message::parse_header(std::string req)
+void	Message::parse_header_body(std::string req)
 {
 	std::string line;
 	std::size_t pos;
 	std::string key;
 	std::string value;
-
+	//근데 바디에 : 가 있는 경우 장담못함
+	ft_getline(req, line);
 	while (!req.empty())
 	{
 		ft_getline(req, line);
@@ -129,13 +130,10 @@ void	Message::parse_header(std::string req)
 			if (key.empty())
 				break ;
 		}
+		else
+			break;
 	}
-}
-
-void	Message::parse_body(std::string req)
-{
-	//body 시작전 개행 두개 \n\n 기준으로 찾기
-
+	_body = req;
 }
 
 void	Message::receiveRequest(std::string req)
@@ -145,7 +143,7 @@ void	Message::receiveRequest(std::string req)
 	std::cout << "======================" << std::endl;
 
 	parse_first_line(req);
-	parse_header(req);
+	parse_header_body(req);
 
 	const char *c_req = req.c_str();
 	if (ft_strncmp(c_req, "GET", 3) == 0)

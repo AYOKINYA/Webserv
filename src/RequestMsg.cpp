@@ -5,6 +5,29 @@ Request::~Request(){}
 Request::Request(Request const &other){}
 Request	&Request::operator=(Request const &other){}
 
+void Request::parse_matching(std::string key, std::string value)
+{
+	if (key.compare("Accept-Charsets") == 0)
+		_AcceptChar.insert(std::pair<std::string, std::string>(key, value));
+	if (key.compare("Accept-Language") == 0)
+		_AcceptLang.insert(std::pair<std::string, std::string>(key, value));
+	if (key.compare("Authorization") == 0)
+		_Auth.insert(std::pair<std::string, std::string>(key, value));
+	if (key.compare("Host") == 0)
+		_Host.insert(std::pair<std::string, std::string>(key, value));
+	if (key.compare("Location") == 0)
+		_Location.insert(std::pair<std::string, std::string>(key, value));
+	if (key.compare("Referer") == 0)
+		_Referer.insert(std::pair<std::string, std::string>(key, value));
+	if (key.compare("Retry-After") == 0)
+		_RetryAfter.insert(std::pair<std::string, std::string>(key, value));
+	if (key.compare("Transfer-Encoding") == 0)
+		_TransferEncoding.insert(std::pair<std::string, std::string>(key, value));
+	if (key.compare("User-Agent") == 0)
+		_UserAgent.insert(std::pair<std::string, std::string>(key, value));
+	if (key.compare("WWW-Authenticate") == 0)
+		_WWWAuth.insert(std::pair<std::string, std::string>(key, value));
+}
 
 void Request::parse_request(std::string req)
 {
@@ -24,7 +47,8 @@ void Request::parse_request(std::string req)
 		{
 			key = trim(line.substr(0, pos));
 			value = trim(line.substr(pos + 1));
-			vars_request.insert(std::pair<std::string, std::string>(key, value));
+			parse_matching(key, value);
+			// vars_request.insert(std::pair<std::string, std::string>(key, value));
 			std::cout << "key is " << key << std::endl;
 			std::cout << "value is " << value << std::endl;
 			if (key.empty())

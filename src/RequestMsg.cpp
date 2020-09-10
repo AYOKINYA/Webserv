@@ -3,7 +3,7 @@
 Request::Request(){}
 Request::~Request(){}
 Request::Request(Request const &other){*this = other;}
-Request	&Request::operator=(Request const &other){}
+Request	&Request::operator=(Request const &other){(void)other; return(*this);}
 
 void Request::parse_request(std::string req)
 {
@@ -23,8 +23,7 @@ void Request::parse_request(std::string req)
 		{
 			key = trim(line.substr(0, pos));
 			value = trim(line.substr(pos + 1));
-			parse_matching(key, value);
-			// vars_request.insert(std::pair<std::string, std::string>(key, value));
+			vars_request.insert(std::pair<std::string, std::string>(key, value));
 			std::cout << "key is " << key << std::endl;
 			std::cout << "value is " << value << std::endl;
 			if (key.empty())

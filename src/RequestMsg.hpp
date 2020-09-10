@@ -26,7 +26,6 @@ class   Request
 		void		parse_request(std::string req);
 		void		parse_first_line(std::string line);
 		void		parse_file(std::string _uri);
-		void		parse_matching(std::string key, std::string value);
 		std::string	get_method();
 		std::string	get_path();
 		std::string	get_http_ver();

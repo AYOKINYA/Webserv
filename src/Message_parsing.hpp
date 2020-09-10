@@ -8,20 +8,21 @@
 #include <map>
 #include <vector>
 
-/*
-Setup the configuration file as follow:
-- / must answer to GET request ONLY
-- /put_test/* must answer to PUT request and save files to a directory of your choice
-- any file with .bla as extension must answer to POST request by calling the cgi_test executable
-- /post_body must answer anything to POST request with a maxBody of 100
-- /directory/ must answer to GET request and the root of it would be the repository YoupiBanane and if no file are requested, it should search for youpi.bad_extension files
-*/
+
+// Setup the configuration file as follow:
+// - / must answer to GET request ONLY
+// - /put_test/* must answer to PUT request and save files to a directory of your choice
+// - any file with .bla as extension must answer to POST request by calling the cgi_test executable
+// - /post_body must answer anything to POST request with a maxBody of 100
+// - /directory/ must answer to GET request and the root of it would be the repository YoupiBanane and if no file are requested, it should search for youpi.bad_extension files
+
 class Message
 {
 	private:
 		int	method;
 		std::string	path;
-		std::map<char, char> vars;
+		std::map<std::string, std::string>vars_request;
+		std::map<std::string, std::string>vars_response;
 		std::string _method;
 		std::string _uri;
 		std::string _http_ver;
@@ -34,6 +35,7 @@ class Message
 		void	sendRespond(int sd);
 		void	parse_first_line(std::string req);
 		void	parse_header(std::string req);
+		void	parse_body(std::string req);
 };
 Message::Message(){}
 Message::~Message(){}
@@ -121,12 +123,19 @@ void	Message::parse_header(std::string req)
 		{
 			key = trim(line.substr(0, pos));
 			value = trim(line.substr(pos + 1));
+			vars_request.insert(std::pair<std::string, std::string>(key, value));
 			std::cout << "key is " << key << std::endl;
 			std::cout << "value is " << value << std::endl;
 			if (key.empty())
 				break ;
 		}
 	}
+}
+
+void	Message::parse_body(std::string req)
+{
+	//body 시작전 개행 두개 \n\n 기준으로 찾기
+
 }
 
 void	Message::receiveRequest(std::string req)

@@ -194,10 +194,10 @@ class Server
 									//error!!!안에 내용은 나중에 처리
 									std::cout << "recv error" << std::endl;
 								}
-								Message m;
-
-								m.receiveRequest(buf);
-								m.sendRespond(sd);
+								
+								
+								// m.receiveRequest(buf);
+								// m.sendRespond(sd);
 								std::cout << "Server sent message" << std::endl;
 
 								//buffer[valread] = '\0';

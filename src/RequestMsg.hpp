@@ -23,12 +23,18 @@ class   Request
 		Request(Request const &other);
 		Request	&operator=(Request const &other);
 		void	parse_request(std::string req);
-		void	parse_first_line();
-		void	parse_file();
-		void	receiveRequest(std::string req);
+		void	parse_first_line(std::string line);
+		void	parse_file(std::string _uri);
+		std::string	get_method();
+		std::string	get_path();
+		std::string	get_http_ver();
+		std::string	get_body();
 
 };
 
+void	ft_getline(std::string &b, std::string &line);
+std::vector<std::string> split(const std::string& str, char delim);
+std::string trim(const std::string& str);
 
 
 #endif

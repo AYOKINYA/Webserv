@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <algorithm>
 #include <map>
+#include <sys/stat.h>
 #include <vector>
 
 
@@ -20,7 +21,7 @@ class Message
 {
 	private:
 		int	method;
-		std::string	path;
+		std::string	_path;
 		std::map<std::string, std::string>vars_request;
 		std::map<std::string, std::string>vars_response;
 		std::string _body;
@@ -141,7 +142,7 @@ void	Message::parse_file()
 {
 	struct stat	info;
 	std::string	root = "/Users/hpark/Webserv/src";
-	
+
 	if (_uri[0] == '/')
 		_path = root + _uri;
 	else

@@ -16,36 +16,28 @@ class   Request
 		std::string	_path;
 		std::string	_http_ver;
 		std::string	_body;
-		// std::map<std::string, std::string>	vars_request;
-		std::map<std::string, std::string> _AcceptChar;
-		std::map<std::string, std::string> _AcceptLang;
-		std::map<std::string, std::string> _Auth;
-		std::map<std::string, std::string> _Host;
-		std::map<std::string, std::string> _Location;
-		std::map<std::string, std::string> _Referer;
-		std::map<std::string, std::string> _RetryAfter;
-		std::map<std::string, std::string> _TransferEncoding;
-		std::map<std::string, std::string> _UserAgent;
-		std::map<std::string, std::string> _WWWAuth;
+		std::map<std::string, std::string>	vars_request;
+
 	public:
 		Request();
 		~Request();
 		Request(Request const &other);
 		Request	&operator=(Request const &other);
-		void	parse_request(std::string req);
-		void	parse_first_line(std::string line);
-		void	parse_file(std::string _uri);
-		void	parse_matching(std::string key, std::string value);
+		void		parse_request(std::string req);
+		void		parse_first_line(std::string line);
+		void		parse_file(std::string _uri);
+		void		parse_matching(std::string key, std::string value);
 		std::string	get_method();
 		std::string	get_path();
 		std::string	get_http_ver();
 		std::string	get_body();
+		std::map<std::string, std::string>	get_vars();
 
 };
 
-void	ft_getline(std::string &b, std::string &line);
-std::vector<std::string> split(const std::string& str, char delim);
-std::string trim(const std::string& str);
+void						ft_getline(std::string &b, std::string &line);
+std::vector<std::string>	split(const std::string& str, char delim);
+std::string					trim(const std::string& str);
 
 
 #endif

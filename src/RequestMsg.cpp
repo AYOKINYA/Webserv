@@ -2,32 +2,8 @@
 
 Request::Request(){}
 Request::~Request(){}
-Request::Request(Request const &other){}
+Request::Request(Request const &other){*this = other;}
 Request	&Request::operator=(Request const &other){}
-
-void Request::parse_matching(std::string key, std::string value)
-{
-	if (key.compare("Accept-Charsets") == 0)
-		_AcceptChar.insert(std::pair<std::string, std::string>(key, value));
-	if (key.compare("Accept-Language") == 0)
-		_AcceptLang.insert(std::pair<std::string, std::string>(key, value));
-	if (key.compare("Authorization") == 0)
-		_Auth.insert(std::pair<std::string, std::string>(key, value));
-	if (key.compare("Host") == 0)
-		_Host.insert(std::pair<std::string, std::string>(key, value));
-	if (key.compare("Location") == 0)
-		_Location.insert(std::pair<std::string, std::string>(key, value));
-	if (key.compare("Referer") == 0)
-		_Referer.insert(std::pair<std::string, std::string>(key, value));
-	if (key.compare("Retry-After") == 0)
-		_RetryAfter.insert(std::pair<std::string, std::string>(key, value));
-	if (key.compare("Transfer-Encoding") == 0)
-		_TransferEncoding.insert(std::pair<std::string, std::string>(key, value));
-	if (key.compare("User-Agent") == 0)
-		_UserAgent.insert(std::pair<std::string, std::string>(key, value));
-	if (key.compare("WWW-Authenticate") == 0)
-		_WWWAuth.insert(std::pair<std::string, std::string>(key, value));
-}
 
 void Request::parse_request(std::string req)
 {
@@ -57,7 +33,12 @@ void Request::parse_request(std::string req)
 		else
 			break;
 	}
-	_body = req;
+	if (vars_request.find("TransferEncoding")->second != "Chunked")
+		_body = req;
+	else
+	{
+		//_body 처리 어케하냐 ...ㅜ
+	}
 }
 
 void	Request::parse_first_line(std::string line)
@@ -109,3 +90,5 @@ std::string	Request::get_path(){return (_path);}
 std::string	Request::get_http_ver(){return (_http_ver);}
 
 std::string	Request::get_body(){return (_body);}
+
+std::map<std::string, std::string> Request::get_vars(){return (vars_request);}

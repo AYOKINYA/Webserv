@@ -25,7 +25,7 @@ class Response
 			virtual ~Response();
 			
 			void setStatus(std::pair<int, std::string> input);
-			void getStartLine(void);
+			std::string getStartLine(void);
 			void getDate(void);
 			void getContentType(const std::string &content);
 			void getContentLocation(const std::string &loc);
@@ -35,9 +35,9 @@ class Response
 			void getLastModified(const std::string &content);
 			void getServer();
 			void getTransferEncoding();
-			void printItem(const std::string &key);
-			void header();
-			void body();
+			std::string printItem(const std::string &key);
+			std::string header(const std::string &path);
+			std::string body(const std::string &path);
 };
 
 #endif

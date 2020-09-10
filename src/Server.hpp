@@ -14,6 +14,7 @@
 //# include "Client.hpp"
 # include <vector>
 # include "Message_parsing.hpp"
+# include <unistd.h>
 
 class Server
 {
@@ -125,14 +126,15 @@ class Server
 						if(sd > max_sd)
 							max_sd = sd;
 					}
-
-					activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);
+					struct timeval time;
+					time.tv_sec = 5;
+					time.tv_usec = 5000;
+					activity = select( max_sd + 1 , &readfds , NULL , NULL , &time);
 
 					if ((activity < 0) && (errno!=EINTR))
 					{
 						printf("select error");
 					}
-					printf("1111111");
 					usleep(2000);
 					if (FD_ISSET(sockfd_, &readfds))
 					{
@@ -182,12 +184,16 @@ class Server
 								//set the string terminating NULL byte on the end
 								//of the data read
 								int n = valread;
-								while ((valread = read(sd , buf + n, 1024)) > 0 && n < 1024)
+								while ((valread = recv(sd , buf + n, 1024, 0)) > 0 && n < 1024)
 								{
 									n += valread;
 									std::cout << "n is " << n << std::endl;
 								}
-
+								if (valread == -1 && errno == EAGAIN)
+								{
+									//error!!!안에 내용은 나중에 처리
+									std::cout << "recv error" << std::endl;
+								}
 								Message m;
 
 								m.receiveRequest(buf);

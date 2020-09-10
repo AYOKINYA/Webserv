@@ -36,6 +36,7 @@ class Message
 		void	sendRespond(int sd);
 		void	parse_first_line(std::string req);
 		void	parse_header_body(std::string req);
+		void	parse_file();
 };
 Message::Message(){}
 Message::~Message(){}
@@ -136,6 +137,32 @@ void	Message::parse_header_body(std::string req)
 	_body = req;
 }
 
+void	Message::parse_file()
+{
+	struct stat	info;
+	std::string	root = "/Users/hpark/Webserv/src";
+	
+	if (_uri[0] == '/')
+		_path = root + _uri;
+	else
+		_path = root + "/" + "_uri";
+
+	if (stat(_path.c_str(), &info) == 0)
+	{
+		if (S_ISDIR(info.st_mode))
+		{
+			if (_path[_path.size() - 1] == '/')
+				_path += "index.html";
+			else
+				_path += "/index.html";
+		}
+	}
+	else
+	{
+		//400? //404? 유효하지 않은 주소
+	}
+}
+
 void	Message::receiveRequest(std::string req)
 {
 	std::cout <<"====Client Request====" << std::endl;
@@ -144,6 +171,7 @@ void	Message::receiveRequest(std::string req)
 
 	parse_first_line(req);
 	parse_header_body(req);
+	parse_file();
 
 	const char *c_req = req.c_str();
 	if (ft_strncmp(c_req, "GET", 3) == 0)

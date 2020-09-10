@@ -15,8 +15,18 @@ class   Request
 		std::string	_method;
 		std::string	_path;
 		std::string	_http_ver;
-		std::map<std::string, std::string>	vars_request;
 		std::string	_body;
+		// std::map<std::string, std::string>	vars_request;
+		std::map<std::string, std::string> _AcceptChar;
+		std::map<std::string, std::string> _AcceptLang;
+		std::map<std::string, std::string> _Auth;
+		std::map<std::string, std::string> _Host;
+		std::map<std::string, std::string> _Location;
+		std::map<std::string, std::string> _Referer;
+		std::map<std::string, std::string> _RetryAfter;
+		std::map<std::string, std::string> _TransferEncoding;
+		std::map<std::string, std::string> _UserAgent;
+		std::map<std::string, std::string> _WWWAuth;
 	public:
 		Request();
 		~Request();
@@ -25,6 +35,7 @@ class   Request
 		void	parse_request(std::string req);
 		void	parse_first_line(std::string line);
 		void	parse_file(std::string _uri);
+		void	parse_matching(std::string key, std::string value);
 		std::string	get_method();
 		std::string	get_path();
 		std::string	get_http_ver();

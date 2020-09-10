@@ -4,7 +4,7 @@ CC = clang++
 
 CFLAGS = -g -Wall -Wextra -Werror
 
-SRCS =  Server.cpp
+SRCS = $(wildcard *.cpp)
 
 OBJS = $(SRCS:.cpp=.o)
 
@@ -26,13 +26,13 @@ ${LIB_FT} :
 
 clean:
 		${RM} ${OBJS}
-		make -C ./libft clean 
+		make -C ./libft clean
 
 fclean:	clean
 		${RM} ${NAME}
 		make -C ./libft fclean
 
-a: 
+a:
 	${CC} ${CFLAGS} -c ${SRCS} -o ${OBJS}
 	${CC} ${CFLAGS} ${OBJS} ${LIB_FT} -o $(NAME)
 

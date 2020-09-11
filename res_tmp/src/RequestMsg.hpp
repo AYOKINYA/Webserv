@@ -8,6 +8,8 @@
 #include <map>
 #include <sys/stat.h>
 #include <vector>
+#include <sstream>
+#include <iomanip>
 
 class   Request
 {
@@ -16,6 +18,7 @@ class   Request
 		std::string	_path;
 		std::string	_http_ver;
 		std::string	_body;
+		std::string _chunkbody;
 		std::map<std::string, std::string>	vars_request;
 
 	public:
@@ -26,10 +29,12 @@ class   Request
 		void		parse_request(std::string req);
 		void		parse_first_line(std::string line);
 		void		parse_file(std::string _uri);
+		void		parse_chunk(std::string body);
 		std::string	get_method();
 		std::string	get_path();
 		std::string	get_http_ver();
 		std::string	get_body();
+		std::string	get_chunkbody();
 		std::map<std::string, std::string>	get_vars();
 
 };

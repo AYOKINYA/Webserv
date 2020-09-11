@@ -5,6 +5,21 @@ Request::~Request(){}
 Request::Request(Request const &other){*this = other;}
 Request	&Request::operator=(Request const &other){(void)other; return(*this);}
 
+void Request::header_check(void)
+{
+	std::string header[10] = {
+		"Accept-Charsets", "Accept-Language", "Authorization",
+		"Host", "Location", "Referer", "Retry-After",
+		"Transfer-Encoding", "User-Agent", "WWW-Authenticate"
+	};
+	std::map<std::string, std::string>::iterator it;
+	it = vars_request.begin();
+	for(; it != vars_request.end(); it++)
+		for(int i = 0; i < 10; i++)
+			if (ft_strncmp(it->first.c_str(), header[i].c_str(), ft_strlen(header[i].c_str())))
+				_error_code = 400;
+}
+
 void Request::parse_chunk(std::string body)
 {
 	std::string line;
@@ -37,6 +52,7 @@ void Request::parse_request(std::string req)
 			key = trim(line.substr(0, pos));
 			value = trim(line.substr(pos + 1));
 			vars_request.insert(std::pair<std::string, std::string>(key, value));
+			header_check();
 			std::cout << "key is " << key << std::endl;
 			std::cout << "value is " << value << std::endl;
 			if (key.empty())

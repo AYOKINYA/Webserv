@@ -40,6 +40,7 @@ class   Request
 		std::string	get_path();
 		std::string	get_body();
 		std::string	get_chunkbody();
+		void		header_check();
 		std::map<std::string, std::string>	get_vars();
 
 };

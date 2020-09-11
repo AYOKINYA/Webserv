@@ -35,6 +35,7 @@ class Response
 			void getLastModified(const std::string &content);
 			void getServer();
 			void getTransferEncoding();
+			void getWWWAuthentication();
 			std::string printItem(const std::string &key);
 			std::string header(const std::string &path);
 			std::string body(const std::string &path);

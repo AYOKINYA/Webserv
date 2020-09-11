@@ -145,23 +145,24 @@ void	Server::init_server(void)
 					std::cerr << "Error: " << _name << " init_server() fcntl: " << strerror(errno) << std::endl;
 					exit(1);
 				}
-
+				std::string req = "";
 				while ((valread = read(sd , buf, 1024)) > 0)
 				{
 					buf[valread] = '\0';
 					//ReceieveRequest 여기서!
 					//첫번째 read한 buf로 리퀘스트 파싱 처리
 					//2번째 read부터는 request 바디에 추가?
-					request.parse_request(buf);
+					req += buf;
 					std::cout << buf << std::endl;
 				}
-				if (valread == -1 && errno != EAGAIN)
+				if (valread == -1 && errno != EAGAIN && errno != EWOULDBLOCK)
 					std::cout << "recv error" << std::endl;
 				else if (valread == 0)
 				{
 					close( sd );
 					client_socket[i] = 0;
 				}
+				request.parse_request(req);
 				
 				// m.receiveRequest(buf);
 				// m.sendRespond(sd);

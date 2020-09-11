@@ -113,6 +113,7 @@ void Response::getContentType(const std::string &content)
 	}
 	if (res.length() == 0)
 		res = "text/plain";
+	//else, 415 Unsupported Media Type Error must be thrown.
 	
 	_vars_response.insert(std::pair<std::string, std::string>("Content-Type", res));
 	
@@ -177,12 +178,17 @@ void Response::getLastModified(const std::string &content)
 
 void Response::getServer()
 {
-	_vars_response.insert(std::pair<std::string, std::string>("Server", "42-Webserv"));
+	_vars_response.insert(std::pair<std::string, std::string>("Server", "Carry-Please"));
 }
 
 void Response::getTransferEncoding()
 {
 	_vars_response.insert(std::pair<std::string, std::string>("Transfer-Encoding", "identity"));
+}
+
+void Response::getWWWAuthentication()
+{
+	_vars_response.insert(std::pair<std::string, std::string>("WWW-Authentication", "Basic"));
 }
 
 std::string Response::printItem(const std::string &key)
@@ -216,6 +222,7 @@ std::string Response::header(const std::string &path)
 	getTransferEncoding();
 	getContentLength(path); // Request에서 파싱한 거 거의 그대로 넣으면 될 듯?
 	getLastModified(path); // Request에서 파싱한 거 거의 그대로 넣으면 될 듯?
+	getWWWAuthentication(); // when status is 401
 	
 	std::string res = "";
 
@@ -231,6 +238,8 @@ std::string Response::body(const std::string &path)
 {
 	std::string res = "";
 	int fd = open(path.c_str(), O_RDWR, 0644);
+	if (fd == -1)
+		std::cout << "Error MUST be thrown!" << std::endl;
 	char buf[2];
 	int nread;
 	buf[0] = 0;

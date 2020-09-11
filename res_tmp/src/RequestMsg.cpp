@@ -48,10 +48,7 @@ void Request::parse_request(std::string req)
 	if (ft_strncmp(vars_request.find("Transfer-Encoding")->second.c_str(), "chunked", 7))
 		_body = req;
 	else
-	{
-		std::cout << "??????"<< std::endl;
 		parse_chunk(req);
-	}
 }
 
 void	Request::parse_first_line(std::string line)
@@ -77,7 +74,7 @@ void	Request::parse_first_line(std::string line)
 			_method = OPTIONS;
 		else
 			_error_code = 400;
-		
+
 		parse_file(tokens[1]);
 		if (strncmp("HTTP/1.1", tokens[2].c_str(), 8))
 			_error_code = 505;

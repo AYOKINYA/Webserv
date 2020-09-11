@@ -15,7 +15,7 @@
 class Response
 {
 	private:
-			Request *req;
+			Request req;
 			std::pair<int, std::string> 		_status;
 			std::string							_start_line;
 			std::map<std::string, std::string>	_vars_response;

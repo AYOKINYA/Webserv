@@ -1,6 +1,6 @@
 #include "RequestMsg.hpp"
 
-Request::Request(){_error_code = 0;}
+Request::Request(){_error_code = 0; _body = "";}
 Request::~Request(){}
 Request::Request(Request const &other){*this = other;}
 Request	&Request::operator=(Request const &other){(void)other; return(*this);}
@@ -61,8 +61,17 @@ void Request::parse_request(std::string req)
 		else
 			break;
 	}
+	int	len;
 	if (ft_strncmp(vars_request.find("Transfer-Encoding")->second.c_str(), "chunked", 7))
-		_body = req;
+	{
+		if (vars_request.find("Content-Length") != vars_request.end())
+		{
+			len = std::stoi(vars_request.find("Content-Length")->second);
+			_body = req.substr(0, len);
+		}
+		else if (_method == POST && _method == PUT)
+			_error_code = 411;
+	}
 	else
 		parse_chunk(req);
 }
@@ -90,7 +99,7 @@ void	Request::parse_first_line(std::string line)
 			_method = OPTIONS;
 		else
 			_error_code = 400;
-
+		
 		parse_file(tokens[1]);
 		if (strncmp("HTTP/1.1", tokens[2].c_str(), 8))
 			_error_code = 505;

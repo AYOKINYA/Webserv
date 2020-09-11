@@ -168,7 +168,25 @@ void	Server::init_server(void)
 				}
 				std::cout << req << std::endl;
 				request.parse_request(req);
-				response.method_put_exec();
+				std::cout << "server putcheck ing!!!"<< request.get_putcheck() << std::endl;
+				//////////////////////////////////////////////////////////////
+				std::string url;
+				std::ofstream ofs;
+				std::string filename;
+				url = request.get_path();
+				if (request.get_putcheck() == 1) //파일이 없을때 새로 만든다
+				{
+					filename = trim_url(url);
+					std::ofstream ofs(filename);
+					ofs << request.get_body();
+				}
+				else //파일을 있을 때 오픈해서 내용을 지우고 새로 입력한다
+				{
+					ofs.open(url, std::ofstream::out | std::ofstream::trunc);
+					ofs << request.get_body();
+					ofs.close();
+				}
+				//////////////////////////////////////////////////////////////
 				// m.receiveRequest(buf);
 				// m.sendRespond(sd);
 				std::cout << request.get_path() << std::endl;

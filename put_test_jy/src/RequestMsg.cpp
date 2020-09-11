@@ -164,14 +164,17 @@ void	Request::parse_file(std::string uri)
 		int ex_chk = 0;
 		for(int i = 0; i < 103 ; i++)
 		{
-			if (ft_strncmp(trim_extension(_path).c_str(), extensions[i].c_str(), ft_strlen(extensions[i].c_str())) == 0)
+			if (ft_strncmp(trim_extension(uri).c_str(), extensions[i].c_str(), ft_strlen(extensions[i].c_str())) == 0)
 			{
 				ex_chk = 1;
 				break ;
 			}
 		}
-		if (ex_chk == 1 && stat(trim_url_2(_path).c_str(), &info) == 0 && _method == PUT)
+		if (ex_chk == 1 && stat(trim_url_2(uri).c_str(), &info) == 0 && _method == PUT)
+		{
+			_path = uri;
 			_putcheck = 1;
+		}
 		else
 			_error_code = 404;
 		//400? //404? 유효하지 않은 주소

@@ -2,7 +2,7 @@
 
 Response::Response() : _status(std::pair<int, std::string>(-1, "")), _start_line("")
 {
-	req = NULL;
+	// req = NULL;
 };
 
 Response::Response(std::map<std::string, std::string> _vars_response)
@@ -30,47 +30,21 @@ Response::~Response()
 
 void Response::method_put_exec()
 {
-	// struct stat	info;
 	std::string url;
 	std::ofstream ofs;
 	std::string filename;
-	// std::string extensions[103] =
-	// {
-	// 	"html", "htm", "shtml", "css", "xml", "gif","jpeg", "jpg", "js", "atom",
-	// 	"rss", "mml", "txt", "jad", "wml", "htc", "png", "tif", "tiff", "wbmp",
-	// 	"ico", "jng", "bmp", "svg", "svgz", "webp", "woff", "jar", "war", "ear",
-	// 	"json", "hqx", "doc", "pdf", "ps", "eps", "ai", "rtf", "m3u8", "xls",
-	// 	"eot", "ppt", "wmlc", "kml", "kmz", "7z", "cco", "jardiff", "jnlp", "run",
-	// 	"pl", "pm", "prc", "pdb", "rar", "rpm", "sea", "swf", "sit", "tcl",
-	// 	"tk", "der", "pem",	"crt", "xpi", "xhtml", "xspf", "zip", "bin", "exe",
-	// 	"dll", "deb", "dmg", "iso", "img", "msi", "msp", "msm", "docx", "xlsx",
-	// 	"pptx", "mid", "midi","kar","mp3", "ogg","m4a", "ra", "3gpp", "3gp",
-	// 	"ts","mp4","mpeg", "mpg", "mov", "webm", "flv", "m4v", "mng", "asx",
-	// 	"asf","wmv","avi"
-	// };
-	// int ex_chk = 0;
-	// url = req->get_path();
-	// for(int i = 0; i < 103 ; i++)
-	// {
-	// 	if (ft_strncmp(trim_extension(url).c_str(), extensions[i].c_str(), ft_strlen(extensions[i].c_str())) == 0)
-	// 	{
-	// 		ex_chk = 1;
-	// 		break ;
-	// 	}
-	// }
-	std::cout << "wwww" << std::endl;
-	std::cout << req->get_putcheck() << std::endl;
-	if (req->get_putcheck() == 1) //파일이 없을때 새로 만든다
+
+	url = req.get_path();
+	if (req.get_putcheck() == 1) //파일이 없을때 새로 만든다
 	{
-		std::cout << "11111" << std::endl;
 		filename = trim_url(url);
 		std::ofstream ofs(filename);
-		ofs << req->get_body();
+		ofs << req.get_body();
 	}
 	else //파일을 있을 때 오픈해서 내용을 지우고 새로 입력한다
 	{
 		ofs.open(url, std::ofstream::out | std::ofstream::trunc);
-		ofs << req->get_body();
+		ofs << req.get_body();
 		ofs.close();
 	}
 	// 성공적인 파일 생성시 : 201 created

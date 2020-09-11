@@ -72,8 +72,6 @@ void	Server::init_server(void)
 		exit(1);
 	}
 
-
-
 	char buf[3001];
 	int new_socket;
 
@@ -140,46 +138,53 @@ void	Server::init_server(void)
 
 			if (FD_ISSET(sd , &readfds))
 			{
-				//Check if it was for closing , and also read the
-				//incoming message
 				int	valread;
-				if ((valread = read( sd , buf, 1024)) == 0)
+
+				if (fcntl(sd, F_SETFL, O_NONBLOCK) == -1)
+				{
+					std::cerr << "Error: " << _name << " init_server() fcntl: " << strerror(errno) << std::endl;
+					exit(1);
+				}
+				std::string req = "";
+				while ((valread = read(sd , buf, 1024)) != 0 && req.find("\r\n\r\n") == std::string::npos)
+				{
+					if (valread > 0)
+					{
+						buf[valread] = '\0';
+					//ReceieveRequest 여기서!
+					//첫번째 read한 buf로 리퀘스트 파싱 처리
+					//2번째 read부터는 request 바디에 추가?
+					
+					req += buf;
+					}
+
+				}
+				if (valread == -1 && errno != EAGAIN && errno != EWOULDBLOCK)
+					std::cout << "recv error" << std::endl;
+				else if (valread == 0)
 				{
 					close( sd );
 					client_socket[i] = 0;
 				}
+				std::cout << req << std::endl;
+				request.parse_request(req);
+				
+				// m.receiveRequest(buf);
+				// m.sendRespond(sd);
+				std::cout << request.get_path() << std::endl;
+				
+				std::string response_msg = response.getStartLine();
+				response_msg += "\n";
+				response_msg += response.header(request.get_path());
+				response_msg += "\n";
+				response_msg += response.body(request.get_path());
+				std::cout << response_msg << std::endl;
+				send(sd, response_msg.c_str(), response_msg.length(), 0);
+				std::cout << "Server sent message" << std::endl;
 
-				//Echo back the message that came in
-				else
-				{
-					if (fcntl(sd, F_SETFL, O_NONBLOCK) == -1)
-					{
-						std::cerr << "Error: " << _name << " init_server() fcntl: " << strerror(errno) << std::endl;
-						exit(1);
-					}
-					//while (valread = read)
-					//set the string terminating NULL byte on the end
-					//of the data read
-					int n = valread;
-					while ((valread = recv(sd , buf + n, 1024, 0)) > 0 && n < 1024)
-					{
-						n += valread;
-						std::cout << "n is " << n << std::endl;
-					}
-					if (valread == -1 && errno == EAGAIN)
-					{
-						//error!!!안에 내용은 나중에 처리
-						std::cout << "recv error" << std::endl;
-					}
-					
-					
-					// m.receiveRequest(buf);
-					// m.sendRespond(sd);
-					std::cout << "Server sent message" << std::endl;
-
-					//buffer[valread] = '\0';
-					//send(sd , buffer , strlen(buffer) , 0 );
-				}
+				//buffer[valread] = '\0';
+				//send(sd , buffer , strlen(buffer) , 0 );
+				
 				ft_memset(buf, 0, 3001);
 			}
 		}

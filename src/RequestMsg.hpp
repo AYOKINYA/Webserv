@@ -8,15 +8,23 @@
 #include <map>
 #include <sys/stat.h>
 #include <vector>
+#include <sstream>
+#include <iomanip>
+
+enum	method
+{
+	GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS
+};
 
 class   Request
 {
 	private:
-		std::string	_method;
+		int			_method;
 		std::string	_path;
-		std::string	_http_ver;
 		std::string	_body;
+		std::string _chunkbody;
 		std::map<std::string, std::string>	vars_request;
+		int			_error_code;
 
 	public:
 		Request();
@@ -26,10 +34,13 @@ class   Request
 		void		parse_request(std::string req);
 		void		parse_first_line(std::string line);
 		void		parse_file(std::string _uri);
-		std::string	get_method();
+		int			get_method();
+		int			get_error_code();
+		void		parse_chunk(std::string body);
 		std::string	get_path();
-		std::string	get_http_ver();
 		std::string	get_body();
+		std::string	get_chunkbody();
+		void		header_check();
 		std::map<std::string, std::string>	get_vars();
 
 };

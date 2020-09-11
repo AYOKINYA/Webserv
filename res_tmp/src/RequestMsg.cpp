@@ -15,9 +15,19 @@ void Request::header_check(void)
 	std::map<std::string, std::string>::iterator it;
 	it = vars_request.begin();
 	for(; it != vars_request.end(); it++)
-		for(int i = 0; i < 10; i++)
-			if (ft_strncmp(it->first.c_str(), header[i].c_str(), ft_strlen(header[i].c_str())))
-				_error_code = 400;
+	{
+		int i;
+		for(i = 0; i < 10; i++)
+		{
+			if (!ft_strncmp(it->first.c_str(), header[i].c_str(), ft_strlen(header[i].c_str())))
+				break;
+		}
+		if (i == 10)
+		{
+			_error_code = 400;
+			break;
+		}
+	}
 }
 
 void Request::parse_chunk(std::string body)
@@ -40,6 +50,7 @@ void Request::parse_request(std::string req)
 	std::string key;
 	std::string value;
 
+	_error_code = 0;
 	ft_getline(req, line);
     parse_first_line(line);
 	while (!req.empty())
@@ -62,25 +73,26 @@ void Request::parse_request(std::string req)
 			break;
 	}
 	int	len;
-	if (ft_strncmp(vars_request.find("Transfer-Encoding")->second.c_str(), "chunked", 7))
+	if (!ft_strncmp(vars_request.find("Transfer-Encoding")->second.c_str(), "chunked", 7))
+		parse_chunk(req);
+	else
 	{
 		if (vars_request.find("Content-Length") != vars_request.end())
 		{
 			len = std::stoi(vars_request.find("Content-Length")->second);
 			_body = req.substr(0, len);
 		}
-		else if (_method == POST && _method == PUT)
+		else if (_method == POST || _method == PUT)
 			_error_code = 411;
 	}
-	else
-		parse_chunk(req);
+	std::cout << "error_code is " << _error_code << std::endl;
 }
 
 void	Request::parse_first_line(std::string line)
 {
 	std::vector<std::string> tokens = split(line, ' ');
 	if (tokens.size() != 3)
-		return ;
+		_error_code = 400;
 	else
 	{
 		if (!strncmp("GET", tokens[0].c_str(), 3))

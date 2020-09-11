@@ -146,14 +146,18 @@ void	Server::init_server(void)
 					exit(1);
 				}
 				std::string req = "";
-				while ((valread = read(sd , buf, 1024)) > 0)
+				while ((valread = read(sd , buf, 1024)) != 0 && req.find("\r\n\r\n") == std::string::npos)
 				{
-					buf[valread] = '\0';
+					if (valread > 0)
+					{
+						buf[valread] = '\0';
 					//ReceieveRequest 여기서!
 					//첫번째 read한 buf로 리퀘스트 파싱 처리
 					//2번째 read부터는 request 바디에 추가?
+					
 					req += buf;
-					std::cout << buf << std::endl;
+					}
+
 				}
 				if (valread == -1 && errno != EAGAIN && errno != EWOULDBLOCK)
 					std::cout << "recv error" << std::endl;
@@ -162,6 +166,7 @@ void	Server::init_server(void)
 					close( sd );
 					client_socket[i] = 0;
 				}
+				std::cout << req << std::endl;
 				request.parse_request(req);
 				
 				// m.receiveRequest(buf);
@@ -169,6 +174,7 @@ void	Server::init_server(void)
 				std::cout << request.get_path() << std::endl;
 				
 				std::string response_msg = response.getStartLine();
+				response_msg += "\n";
 				response_msg += response.header(request.get_path());
 				response_msg += "\n";
 				response_msg += response.body(request.get_path());

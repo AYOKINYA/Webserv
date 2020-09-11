@@ -148,16 +148,16 @@ void	Server::init_server(void)
 				std::string req = "";
 				while ((valread = read(sd , buf, 1024)) != 0 && req.find("\r\n\r\n") == std::string::npos)
 				{
+					if (ft_strncmp(buf, "\x04", 1) == 0) // ctrl + d from telnet!
+					{
+						valread = 0; // to close client's socket.
+						break;
+					}
 					if (valread > 0)
 					{
 						buf[valread] = '\0';
-					//ReceieveRequest 여기서!
-					//첫번째 read한 buf로 리퀘스트 파싱 처리
-					//2번째 read부터는 request 바디에 추가?
-					
-					req += buf;
+						req += buf;
 					}
-
 				}
 				if (valread == -1 && errno != EAGAIN && errno != EWOULDBLOCK)
 					std::cout << "recv error" << std::endl;

@@ -46,7 +46,7 @@ std::string Response::getStartLine(void)
 	return(_start_line);
 }
 
-void Response::getDate()
+void Response::setDate()
 {
 	struct timeval 	cur_time;
 	struct tm 		time;
@@ -60,7 +60,7 @@ void Response::getDate()
 	_vars_response.insert(std::pair<std::string, std::string>("Date", buf));
 }
 
-void Response::getContentType(const std::string &content)
+void Response::setContentType(const std::string &content)
 {
 	/* mime.types 참고. excel 텍스트 나누기로 split했다*/
 	std::string extensions[103] = 
@@ -119,17 +119,17 @@ void Response::getContentType(const std::string &content)
 	
 }
 
-void Response::getContentLocation(const std::string &loc)
+void Response::setContentLocation(const std::string &loc)
 {
 	_vars_response.insert(std::pair<std::string, std::string>("Content-Location", loc));
 }
 
-void Response::getContentLanguage()
+void Response::setContentLanguage()
 {
 	_vars_response.insert(std::pair<std::string, std::string>("Content-Language", "en"));
 }
 
-void Response::getContentLength(const std::string &content)
+void Response::setContentLength(const std::string &content)
 {
 	// 일단 요청하는 컨텐트가 없다고 가정! 기본 index.html 읽는다.
 	// 올바른 메소드가 아니면 error.html 읽어서 내보내고 
@@ -154,7 +154,7 @@ void Response::getContentLength(const std::string &content)
 }
 
 
-void Response::getAllow()
+void Response::setAllow()
 {
 	//if METHOD does not match any of these, return 405 Not Allowed
 	std::string str = "GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS";
@@ -162,7 +162,7 @@ void Response::getAllow()
 
 }
 
-void Response::getLastModified(const std::string &content)
+void Response::setLastModified(const std::string &content)
 {
 	struct	stat info;
 	struct	tm	time;
@@ -176,17 +176,17 @@ void Response::getLastModified(const std::string &content)
 
 }
 
-void Response::getServer()
+void Response::setServer()
 {
 	_vars_response.insert(std::pair<std::string, std::string>("Server", "Carry-Please"));
 }
 
-void Response::getTransferEncoding()
+void Response::setTransferEncoding()
 {
 	_vars_response.insert(std::pair<std::string, std::string>("Transfer-Encoding", "identity"));
 }
 
-void Response::getWWWAuthentication()
+void Response::setWWWAuthentication()
 {
 	_vars_response.insert(std::pair<std::string, std::string>("WWW-Authentication", "Basic"));
 }
@@ -214,15 +214,15 @@ std::string Response::printItem(const std::string &key)
 std::string Response::header(const std::string &path)
 {
 	
-	getServer();
-	getDate();
-	getAllow();
-	getContentType(path);
-	getContentLocation(path);
-	getTransferEncoding();
-	getContentLength(path); // Request에서 파싱한 거 거의 그대로 넣으면 될 듯?
-	getLastModified(path); // Request에서 파싱한 거 거의 그대로 넣으면 될 듯?
-	getWWWAuthentication(); // when status is 401
+	setServer();
+	setDate();
+	setAllow();
+	setContentType(path);
+	setContentLocation(path);
+	setTransferEncoding();
+	setContentLength(path); // Request에서 파싱한 거 거의 그대로 넣으면 될 듯?
+	setLastModified(path); // Request에서 파싱한 거 거의 그대로 넣으면 될 듯?
+	setWWWAuthentication(); // when status is 401
 	
 	std::string res = "";
 

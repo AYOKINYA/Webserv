@@ -25,18 +25,20 @@ class Response
 			virtual ~Response();
 			
 			void setStatus(std::pair<int, std::string> input);
-			std::string getStartLine(void);
-			void getDate(void);
-			void getContentType(const std::string &content);
-			void getContentLocation(const std::string &loc);
-			void getContentLanguage();
-			void getContentLength(const std::string &content);
-			void getAllow();
-			void getLastModified(const std::string &content);
-			void getServer();
-			void getTransferEncoding();
-			void getWWWAuthentication();
+			
+			void setDate(void);
+			void setContentType(const std::string &content);
+			void setContentLocation(const std::string &loc);
+			void setContentLanguage();
+			void setContentLength(const std::string &content);
+			void setAllow();
+			void setLastModified(const std::string &content);
+			void setServer();
+			void setTransferEncoding();
+			void setWWWAuthentication();
+
 			std::string printItem(const std::string &key);
+			std::string getStartLine(void);
 			std::string header(const std::string &path);
 			std::string body(const std::string &path);
 };

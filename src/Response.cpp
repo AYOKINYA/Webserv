@@ -1,10 +1,10 @@
 #include "Response.hpp"
 
-Response::Response() : _status(std::pair<int, std::string>(-1, ""))
+Response::Response() : _status(std::pair<int, std::string>(-1, "")), _start_line("")
 {};
 
 Response::Response(std::map<std::string, std::string> _vars_response)
-	: _status(std::pair<int, std::string>(0, "")), _vars_response(_vars_response)
+	: _status(std::pair<int, std::string>(0, "")), _start_line(""), _vars_response(_vars_response)
 {};
 
 Response::Response(const Response &copy)
@@ -32,7 +32,7 @@ void Response::setStatus(std::pair<int, std::string> input)
 	_status.second = input.second;
 }
 
-void Response::getStartLine(void)
+std::string Response::getStartLine(void)
 {
 	//temporary
 	setStatus(std::pair<int, std::string>(200, "OK"));
@@ -43,6 +43,7 @@ void Response::getStartLine(void)
 	_start_line += _status.second;
 
 	std::cout << _start_line << std::endl;
+	return(_start_line);
 }
 
 void Response::getDate()
@@ -56,7 +57,6 @@ void Response::getDate()
 	strptime(std::to_string(cur_time.tv_sec).c_str(), "%s", &time); // seconds in tm format
 	// ft_itoa대신 std::to_string(cur_time.tv_sec).c_str()을 쓰면 free할 필요도 없고 간편해진다.
 	strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S KST", &time); // tm to regexp format
-
 	_vars_response.insert(std::pair<std::string, std::string>("Date", buf));
 }
 
@@ -100,7 +100,7 @@ void Response::getContentType(const std::string &content)
 		"video/x-ms-asf", "video/x-ms-wmv", "video/x-msvideo"
 	};
 
-	std::size_t pos = content.find(".");
+	std::size_t pos = content.rfind(".");
 	std::string res = "";
 	if (pos != std::string::npos)
 	{
@@ -113,6 +113,7 @@ void Response::getContentType(const std::string &content)
 	}
 	if (res.length() == 0)
 		res = "text/plain";
+	//else, 415 Unsupported Media Type Error must be thrown.
 	
 	_vars_response.insert(std::pair<std::string, std::string>("Content-Type", res));
 	
@@ -177,7 +178,7 @@ void Response::getLastModified(const std::string &content)
 
 void Response::getServer()
 {
-	_vars_response.insert(std::pair<std::string, std::string>("Server", "42-Webserv"));
+	_vars_response.insert(std::pair<std::string, std::string>("Server", "Carry-Please"));
 }
 
 void Response::getTransferEncoding()
@@ -185,49 +186,66 @@ void Response::getTransferEncoding()
 	_vars_response.insert(std::pair<std::string, std::string>("Transfer-Encoding", "identity"));
 }
 
-void Response::printItem(const std::string &key)
+void Response::getWWWAuthentication()
+{
+	_vars_response.insert(std::pair<std::string, std::string>("WWW-Authentication", "Basic"));
+}
+
+std::string Response::printItem(const std::string &key)
 {
 	//나중에 send할 소켓에 넣어줘야 한다.
+
+	std::string res = "";
 
 	std::map<std::string, std::string>::iterator it;
 	it = _vars_response.find(key);
 	if (it != _vars_response.end())
+	{
+		res += it->first;
+		res += ": ";
+		res += it->second;
+		res += "\n";
 		std::cout << it->first << ": " << it->second << std::endl;
+	}
+
+	return(res);
 }
 
-void Response::header()
+std::string Response::header(const std::string &path)
 {
+	
 	getServer();
 	getDate();
 	getAllow();
-	getContentType("aa.html");
-	getContentLanguage();
-	getContentLocation("./src/index.html");
+	getContentType(path);
+	getContentLocation(path);
 	getTransferEncoding();
-	getContentLength("./src/index.html"); // Request에서 파싱한 거 거의 그대로 넣으면 될 듯?
-	getLastModified("./src/index.html"); // Request에서 파싱한 거 거의 그대로 넣으면 될 듯?
+	getContentLength(path); // Request에서 파싱한 거 거의 그대로 넣으면 될 듯?
+	getLastModified(path); // Request에서 파싱한 거 거의 그대로 넣으면 될 듯?
+	getWWWAuthentication(); // when status is 401
 	
-	printItem("Server");
-	printItem("Date");
-	printItem("Content-Type");
-	printItem("Content-Length");
-	printItem("Last-Modified");
+	std::string res = "";
+
+	res += printItem("Server");
+	res += printItem("Date");
+	res += printItem("Last-Modified");
+	res += printItem("Content-Type");
+	res += printItem("Content-Length");
+	return (res);
 }
 
-void Response::body()
+std::string Response::body(const std::string &path)
 {
-	(void)_vars_response;
-}
-
-int main(void)
-{
-	//나중에 _vars_response를 멤버변수로 하고, 파싱 함수를 멤버함수로 하는 클래스 Response를 만들면 좋을 것 같다.
-	//그렇게 되면 각 멤버함수 인자에 _vars_response 제거!
-
-	//map with string key & string value
-	Response res;
-	
-	res.header();
-	res.getStartLine();
-	
+	std::string res = "";
+	int fd = open(path.c_str(), O_RDWR, 0644);
+	if (fd == -1)
+		std::cout << "Error MUST be thrown!" << std::endl;
+	char buf[2];
+	int nread;
+	buf[0] = 0;
+	buf[1] = 0;
+	while ((nread = read(fd, buf, 1)) > 0)
+		res += buf;
+	close(fd);
+	return (res);
 }

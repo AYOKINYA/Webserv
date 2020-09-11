@@ -14,6 +14,7 @@
 //# include "Client.hpp"
 # include <vector>
 # include "RequestMsg.hpp"
+# include "Response.hpp"
 # include <unistd.h>
 
 class Server
@@ -24,6 +25,9 @@ class Server
 			int					_sockfd;
 			struct sockaddr_in	_server_addr;
 			std::string			_msg;
+
+			Request				request;
+			Response			response;
 			//std::vector<Client>		clients_;
 			Server() {};
 	public:

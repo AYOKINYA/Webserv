@@ -18,14 +18,14 @@ void method_put()
 	std::string filename;
 	std::ofstream ofs;
 
-	url = "/Users/jiyoonhur/Webserv/put_test_jy/src/index.html";
+	url = "/Users/jiyoonhur/Webserv/res_tmp/src/index.html";
 	filename = trim_url(url);
 	/*
 	remove(url.c_str());
 	std::ofstream ofs(url);
 	ofs << "this will be the contents from body";
 	*/
-	ofs.open(filename, std::ofstream::out | std::ofstream::trunc);
+	ofs.open(url, std::ofstream::out | std::ofstream::trunc);
 	ofs << "this will be the contents from body!!!!!!!!!!";
 	ofs.close();
 }

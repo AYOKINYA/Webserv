@@ -1,5 +1,4 @@
 #include "Response.hpp"
-#include <fstream>
 
 Response::Response() : _status(std::pair<int, std::string>(-1, "")), _start_line("")
 {};
@@ -30,11 +29,9 @@ Response::~Response()
 void Response::method_put_exec()
 {
 	std::string url;
-	std::string filename;
 	std::ofstream ofs;
 
 	url = req->get_path();
-	filename = trim_url(url);
 	//put으로 요청했는데 그 파일이 존재하지 않을 경우는 이전 파스파일에서 에러로 처리한다고 가정.
 	//무조건 파일이 있으므로 그냥 지우고 새로 만드는방법
 	/*
@@ -43,7 +40,7 @@ void Response::method_put_exec()
 	ofs << req->get_body();
 	*/
 	//파일을 오픈해서 내용을 지우고 새로 입력하는 방법
-	ofs.open(filename, std::ofstream::out | std::ofstream::trunc);
+	ofs.open(url, std::ofstream::out | std::ofstream::trunc);
 	ofs << req->get_body();
 	ofs.close();
 }

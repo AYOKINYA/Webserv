@@ -5,6 +5,19 @@ Request::~Request(){}
 Request::Request(Request const &other){*this = other;}
 Request	&Request::operator=(Request const &other){(void)other; return(*this);}
 
+void Request::parse_chunk(std::string body)
+{
+	std::string line;
+
+	while(!body.empty())
+	{
+		ft_getline(body, line);//숫자 읽기
+		ft_getline(body, line);//문자열 읽기
+		_chunkbody += line + "\n";
+	}
+	std::cout << _chunkbody << std::endl;
+}
+
 void Request::parse_request(std::string req)
 {
 	std::string line;
@@ -32,11 +45,12 @@ void Request::parse_request(std::string req)
 		else
 			break;
 	}
-	if (vars_request.find("TransferEncoding")->second != "Chunked")
+	if (ft_strncmp(vars_request.find("Transfer-Encoding")->second.c_str(), "chunked", 7))
 		_body = req;
 	else
 	{
-		//_body 처리 어케하냐 ...ㅜ
+		std::cout << "??????"<< std::endl;
+		parse_chunk(req);
 	}
 }
 
@@ -78,6 +92,7 @@ void	Request::parse_file(std::string uri)
 	struct stat	info;
 	std::string	root = "/Users/hpark/Webserv/res_tmp/src";
 
+
 	if (uri[0] == '/')
 		_path = root + uri;
 	else
@@ -107,5 +122,7 @@ int	Request::get_error_code(){return (_error_code);}
 std::string	Request::get_path(){return (_path);}
 
 std::string	Request::get_body(){return (_body);}
+
+std::string	Request::get_chunkbody(){return (_chunkbody);}
 
 std::map<std::string, std::string> Request::get_vars(){return (vars_request);}

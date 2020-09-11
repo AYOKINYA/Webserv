@@ -8,6 +8,8 @@
 #include <map>
 #include <sys/stat.h>
 #include <vector>
+#include <sstream>
+#include <iomanip>
 
 enum	method
 {
@@ -20,6 +22,7 @@ class   Request
 		int			_method;
 		std::string	_path;
 		std::string	_body;
+		std::string _chunkbody;
 		std::map<std::string, std::string>	vars_request;
 		int			_error_code;
 
@@ -33,8 +36,10 @@ class   Request
 		void		parse_file(std::string _uri);
 		int			get_method();
 		int			get_error_code();
+		void		parse_chunk(std::string body);
 		std::string	get_path();
 		std::string	get_body();
+		std::string	get_chunkbody();
 		std::map<std::string, std::string>	get_vars();
 
 };

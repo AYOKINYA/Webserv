@@ -154,7 +154,7 @@ void	Server::init_server(void)
 					//ReceieveRequest 여기서!
 					//첫번째 read한 buf로 리퀘스트 파싱 처리
 					//2번째 read부터는 request 바디에 추가?
-					
+
 					req += buf;
 					}
 
@@ -168,11 +168,11 @@ void	Server::init_server(void)
 				}
 				std::cout << req << std::endl;
 				request.parse_request(req);
-				
+				response.method_put_exec();
 				// m.receiveRequest(buf);
 				// m.sendRespond(sd);
 				std::cout << request.get_path() << std::endl;
-				
+
 				std::string response_msg = response.getStartLine();
 				response_msg += "\n";
 				response_msg += response.header(request.get_path());
@@ -184,7 +184,7 @@ void	Server::init_server(void)
 
 				//buffer[valread] = '\0';
 				//send(sd , buffer , strlen(buffer) , 0 );
-				
+
 				ft_memset(buf, 0, 3001);
 			}
 		}

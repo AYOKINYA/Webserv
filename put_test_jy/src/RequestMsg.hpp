@@ -25,6 +25,7 @@ class   Request
 		std::string _chunkbody;
 		std::map<std::string, std::string>	vars_request;
 		int			_error_code;
+		int			_putcheck;
 
 	public:
 		Request();
@@ -36,6 +37,7 @@ class   Request
 		void		parse_file(std::string _uri);
 		int			get_method();
 		int			get_error_code();
+		int			get_putcheck();
 		void		parse_chunk(std::string body);
 		std::string	get_path();
 		std::string	get_body();
@@ -48,6 +50,7 @@ class   Request
 void						ft_getline(std::string &b, std::string &line);
 std::vector<std::string>	split(const std::string& str, char delim);
 std::string					trim(const std::string& str);
-
-
+std::string trim_url(const std::string& str);
+std::string trim_url_2(const std::string& str);
+std::string trim_extension(const std::string& str);
 #endif

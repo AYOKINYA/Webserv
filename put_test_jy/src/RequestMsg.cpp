@@ -7,22 +7,23 @@ Request	&Request::operator=(Request const &other){(void)other; return(*this);}
 
 void Request::header_check(void)
 {
-	std::string header[10] = {
+	std::string header[11] = {
 		"Accept-Charsets", "Accept-Language", "Authorization",
 		"Host", "Location", "Referer", "Retry-After",
-		"Transfer-Encoding", "User-Agent", "WWW-Authenticate"
+		"Transfer-Encoding", "User-Agent", "WWW-Authenticate",
+		"Content-Length"
 	};
 	std::map<std::string, std::string>::iterator it;
 	it = vars_request.begin();
 	for(; it != vars_request.end(); it++)
 	{
 		int i;
-		for(i = 0; i < 10; i++)
+		for(i = 0; i < 11; i++)
 		{
 			if (!ft_strncmp(it->first.c_str(), header[i].c_str(), ft_strlen(header[i].c_str())))
 				break;
 		}
-		if (i == 10)
+		if (i == 11)
 		{
 			_error_code = 400;
 			break;
@@ -92,7 +93,7 @@ void	Request::parse_first_line(std::string line)
 {
 	std::vector<std::string> tokens = split(line, ' ');
 	if (tokens.size() != 3)
-		_error_code = 400;
+		_error_code = 22222400;
 	else
 	{
 		if (!strncmp("GET", tokens[0].c_str(), 3))
@@ -110,7 +111,7 @@ void	Request::parse_first_line(std::string line)
 		else if (!strncmp("OPTIONS", tokens[0].c_str(), 7))
 			_method = OPTIONS;
 		else
-			_error_code = 400;
+			_error_code = 333400;
 
 		parse_file(tokens[1]);
 		if (strncmp("HTTP/1.1", tokens[2].c_str(), 8))
@@ -124,8 +125,22 @@ void	Request::parse_first_line(std::string line)
 void	Request::parse_file(std::string uri)
 {
 	struct stat	info;
+	_putcheck = 0;
 	std::string	root = "/Users/jiyoonhur/Webserv/put_test_jy/src";
-
+	std::string extensions[103] =
+	{
+		"html", "htm", "shtml", "css", "xml", "gif","jpeg", "jpg", "js", "atom",
+		"rss", "mml", "txt", "jad", "wml", "htc", "png", "tif", "tiff", "wbmp",
+		"ico", "jng", "bmp", "svg", "svgz", "webp", "woff", "jar", "war", "ear",
+		"json", "hqx", "doc", "pdf", "ps", "eps", "ai", "rtf", "m3u8", "xls",
+		"eot", "ppt", "wmlc", "kml", "kmz", "7z", "cco", "jardiff", "jnlp", "run",
+		"pl", "pm", "prc", "pdb", "rar", "rpm", "sea", "swf", "sit", "tcl",
+		"tk", "der", "pem",	"crt", "xpi", "xhtml", "xspf", "zip", "bin", "exe",
+		"dll", "deb", "dmg", "iso", "img", "msi", "msp", "msm", "docx", "xlsx",
+		"pptx", "mid", "midi","kar","mp3", "ogg","m4a", "ra", "3gpp", "3gp",
+		"ts","mp4","mpeg", "mpg", "mov", "webm", "flv", "m4v", "mng", "asx",
+		"asf","wmv","avi"
+	};
 
 	if (uri[0] == '/')
 		_path = root + uri;
@@ -134,6 +149,7 @@ void	Request::parse_file(std::string uri)
 
 	if (stat(_path.c_str(), &info) == 0)
 	{
+		std::cout << "aaaaaa" << std::endl;
 		if (S_ISDIR(info.st_mode))
 		{
 			if (_path[_path.size() - 1] == '/')
@@ -144,7 +160,20 @@ void	Request::parse_file(std::string uri)
 	}
 	else
 	{
-		_error_code = 404;
+		//파일이 존재하지 않을 경우에 여기로 빠져서 처리해놈 PUT 일 경우 에러로 처리하면 안돼서
+		int ex_chk = 0;
+		for(int i = 0; i < 103 ; i++)
+		{
+			if (ft_strncmp(trim_extension(_path).c_str(), extensions[i].c_str(), ft_strlen(extensions[i].c_str())) == 0)
+			{
+				ex_chk = 1;
+				break ;
+			}
+		}
+		if (ex_chk == 1 && stat(trim_url_2(_path).c_str(), &info) == 0 && _method == PUT)
+			_putcheck = 1;
+		else
+			_error_code = 404;
 		//400? //404? 유효하지 않은 주소
 	}
 }
@@ -152,6 +181,8 @@ void	Request::parse_file(std::string uri)
 int Request::get_method(){return (_method);}
 
 int	Request::get_error_code(){return (_error_code);}
+
+int	Request::get_putcheck(){return (_putcheck);}
 
 std::string	Request::get_path(){return (_path);}
 

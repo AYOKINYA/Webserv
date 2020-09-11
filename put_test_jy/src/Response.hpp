@@ -44,5 +44,7 @@ class Response
 			std::string header(const std::string &path);
 			std::string body(const std::string &path);
 };
-
+std::string trim_url(const std::string& str);
+std::string trim_url_2(const std::string& str);
+std::string trim_extension(const std::string& str);
 #endif

@@ -39,7 +39,6 @@ class Response
 			void getTransferEncoding();
 			void getWWWAuthentication();
 			void method_put_exec();
-			void method_put_msg();
 			std::string printItem(const std::string &key);
 			std::string header(const std::string &path);
 			std::string body(const std::string &path);

@@ -26,6 +26,7 @@ class   Request
 		std::map<std::string, std::string>	vars_request;
 		int			_error_code;
 		int			_putcheck;
+		int			_filecheck;
 
 	public:
 		Request();
@@ -38,6 +39,7 @@ class   Request
 		int			get_method();
 		int			get_error_code();
 		int			get_putcheck();
+		int			get_filecheck();
 		void		parse_chunk(std::string body);
 		std::string	get_path();
 		std::string	get_body();

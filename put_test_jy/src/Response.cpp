@@ -33,6 +33,7 @@ void Response::method_put_exec()
 	std::string url;
 	std::ofstream ofs;
 	std::string filename;
+	std::string msg;
 
 	url = req.get_path();
 	if (req.get_putcheck() == 1) //파일이 없을때 새로 만든다
@@ -40,21 +41,19 @@ void Response::method_put_exec()
 		filename = trim_url(url);
 		std::ofstream ofs(filename);
 		ofs << req.get_body();
+		/////msg//////
+		msg = "HTTP/1.1 201 Created\n";
+		msg += "Content-Location: /" + filename;
 	}
-	else //파일을 있을 때 오픈해서 내용을 지우고 새로 입력한다
+	else if(req.get_filecheck() == 1)//파일을 있을 때 오픈해서 내용을 지우고 새로 입력한다
 	{
 		ofs.open(url, std::ofstream::out | std::ofstream::trunc);
 		ofs << req.get_body();
 		ofs.close();
+		/////msg//////
+		msg = "HTTP/1.1 204 No Content\n"; //혹은 200 OK
+		msg += "Content-Location: /" + filename;
 	}
-	// 성공적인 파일 생성시 : 201 created
-	// 성공적인 수정시 : 200 ok 204 no content
-}
-
-void Response::method_put_msg()
-{
-	std::string response_msg; //나중에 private 변수로 추가하거나 해야할듯
-	(void)response_msg;
 }
 
 void Response::setStatus(std::pair<int, std::string> input)

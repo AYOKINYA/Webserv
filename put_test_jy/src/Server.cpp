@@ -146,7 +146,7 @@ void	Server::init_server(void)
 					exit(1);
 				}
 				std::string req = "";
-				while ((valread = read(sd , buf, 1024)) != 0 && req.find("\r\n\r\n") == std::string::npos)
+				while ((valread = read(sd , buf, 1024)) != 0 && req.find("\r\n\r\n\r\n") == std::string::npos)
 				{
 					if (valread > 0)
 					{
@@ -169,6 +169,7 @@ void	Server::init_server(void)
 				std::cout << req << std::endl;
 				request.parse_request(req);
 				std::cout << "server putcheck ing!!!"<< request.get_putcheck() << std::endl;
+				std::cout << "server filecheck ing!!!"<< request.get_filecheck() << std::endl;
 				//////////////////////////////////////////////////////////////
 				std::string url;
 				std::ofstream ofs;
@@ -180,13 +181,15 @@ void	Server::init_server(void)
 					std::ofstream ofs(filename);
 					ofs << request.get_body();
 				}
-				else //파일을 있을 때 오픈해서 내용을 지우고 새로 입력한다
+				else if(request.get_filecheck() == 1)//파일을 있을 때 오픈해서 내용을 지우고 새로 입력한다
 				{
+					std::cout << "*****file exist*****" << std::endl;
 					ofs.open(url, std::ofstream::out | std::ofstream::trunc);
 					ofs << request.get_body();
 					ofs.close();
 				}
-				//////////////////////////////////////////////////////////////
+				//
+				//////////////////////////////////////////////////////////
 				// m.receiveRequest(buf);
 				// m.sendRespond(sd);
 				std::cout << request.get_path() << std::endl;

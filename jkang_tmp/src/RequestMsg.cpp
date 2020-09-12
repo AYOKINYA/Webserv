@@ -3,7 +3,20 @@
 Request::Request(){_error_code = 0; _body = "";}
 Request::~Request(){}
 Request::Request(Request const &other){*this = other;}
-Request	&Request::operator=(Request const &other){(void)other; return(*this);}
+Request	&Request::operator=(Request const &other)
+{
+	if (this == &other)
+		return (*this);
+
+	_method = other._method;
+	_path = other._path;
+	_body = other._body;
+	_chunkbody = other._chunkbody;
+	vars_request = other.vars_request;
+	_error_code = other._error_code;
+
+	return(*this);
+}
 
 void Request::header_check(void)
 {
@@ -40,7 +53,7 @@ void Request::parse_chunk(std::string body)
 		ft_getline(body, line);//문자열 읽기
 		_chunkbody += line + "\n";
 	}
-	std::cout << _chunkbody << std::endl;
+	//std::cout << _chunkbody << std::endl;
 }
 
 void Request::parse_request(std::string req)
@@ -64,8 +77,8 @@ void Request::parse_request(std::string req)
 			value = trim(line.substr(pos + 1));
 			vars_request.insert(std::pair<std::string, std::string>(key, value));
 			header_check();
-			std::cout << "key is " << key << std::endl;
-			std::cout << "value is " << value << std::endl;
+			//std::cout << "key is " << key << std::endl;
+			//std::cout << "value is " << value << std::endl;
 			if (key.empty())
 				break ;
 		}
@@ -85,7 +98,7 @@ void Request::parse_request(std::string req)
 		else if (_method == POST || _method == PUT)
 			_error_code = 411;
 	}
-	std::cout << "error_code is " << _error_code << std::endl;
+	//std::cout << "error_code is " << _error_code << std::endl;
 }
 
 void	Request::parse_first_line(std::string line)
@@ -116,6 +129,7 @@ void	Request::parse_first_line(std::string line)
 		if (strncmp("HTTP/1.1", tokens[2].c_str(), 8))
 			_error_code = 505;
 	}
+
 	// std::cout << "firstline parsing1: " << _method << std::endl;
 	// std::cout << "firstline parsing2: " << _uri<< std::endl;
 	// std::cout << "firstline parsing3: " << _http_ver<< std::endl;

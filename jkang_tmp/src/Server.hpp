@@ -27,7 +27,6 @@ class Server
 			std::string			_msg;
 
 			Request				request;
-			Response			response;
 			//std::vector<Client>		clients_;
 			Server() {};
 	public:

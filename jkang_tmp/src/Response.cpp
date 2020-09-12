@@ -1,11 +1,13 @@
 #include "Response.hpp"
 
-Response::Response() : _status(std::pair<int, std::string>(-1, "")), _start_line("")
+Response::Response()
 {};
 
-Response::Response(std::map<std::string, std::string> _vars_response)
-	: _status(std::pair<int, std::string>(0, "")), _start_line(""), _vars_response(_vars_response)
-{};
+Response::Response(Request request) : _request(request)
+{
+	init_status_table();
+	set_vars_response();
+};
 
 Response::Response(const Response &copy)
 {
@@ -16,34 +18,38 @@ Response& Response::operator=(const Response &copy)
 {
 	if (this == &copy)
 		return (*this);
+
+	// Response 객체 여러 개 만들어야 하면 deep copy로 수정해야 한다.
+	
+	_request = copy._request;
+	_vars_response = copy._vars_response;
 	_status = copy._status;
 	_start_line = copy._start_line;
-	_vars_response = copy._vars_response;
-
+	
 	return (*this);
 }
 
 Response::~Response()
 {};
 
-void Response::setStatus(std::pair<int, std::string> input)
+void Response::init_status_table(void)
 {
-	_status.first = input.first;
-	_status.second = input.second;
+	_status_table.insert(std::make_pair(200, "OK"));
+	_status_table.insert(std::make_pair(201, "CREATED"));
+	_status_table.insert(std::make_pair(204, "No Content"));
+	_status_table.insert(std::make_pair(400, "Bad Request"));
+	_status_table.insert(std::make_pair(404, "Not Found"));
+	_status_table.insert(std::make_pair(405, "Not Allowed Method"));
+	_status_table.insert(std::make_pair(411, "Length Required"));
+	_status_table.insert(std::make_pair(415, "Unsupported Media Type"));
+	_status_table.insert(std::make_pair(501, "Not Implemented"));
+	_status_table.insert(std::make_pair(505, "HTTP Version Not Supported"));
 }
 
-std::string Response::getStartLine(void)
+void Response::setStatus(int num)
 {
-	//temporary
-	setStatus(std::pair<int, std::string>(200, "OK"));
-	
-	_start_line = "HTTP/1.1 ";
-	_start_line += std::to_string(_status.first);
-	_start_line += " ";
-	_start_line += _status.second;
-
-	std::cout << _start_line << std::endl;
-	return(_start_line);
+	_status.first = num;
+	_status.second = (_status_table.find(num))->second;
 }
 
 void Response::setDate()
@@ -55,7 +61,6 @@ void Response::setDate()
 
 	gettimeofday(&cur_time, 0);
 	strptime(std::to_string(cur_time.tv_sec).c_str(), "%s", &time); // seconds in tm format
-	// ft_itoa대신 std::to_string(cur_time.tv_sec).c_str()을 쓰면 free할 필요도 없고 간편해진다.
 	strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S KST", &time); // tm to regexp format
 	_vars_response.insert(std::pair<std::string, std::string>("Date", buf));
 }
@@ -113,7 +118,8 @@ void Response::setContentType(const std::string &content)
 	}
 	if (res.length() == 0)
 		res = "text/plain";
-	//else, 415 Unsupported Media Type Error must be thrown.
+	else
+		setStatus(415);
 	
 	_vars_response.insert(std::pair<std::string, std::string>("Content-Type", res));
 	
@@ -131,24 +137,28 @@ void Response::setContentLanguage()
 
 void Response::setContentLength(const std::string &content)
 {
-	// 일단 요청하는 컨텐트가 없다고 가정! 기본 index.html 읽는다.
-	// 올바른 메소드가 아니면 error.html 읽어서 내보내고 
 	const char *dir = content.c_str();
 	int fd = open(dir, O_RDWR, 0644);
 	int count = 0;
+	char buf[2];
+	ft_memset(buf, 0, 2);
 	if (fd > 0)
 	{
-		char buf[2];
-		buf[0] = 0;
-		buf[1] = 0;
 		while (read(fd, buf, 1) > 0)
 			++count;
 	}
 	else
 	{
-		std::cout << "404 Not Found Error should be thrown." << std::endl;
-		return ;
+		fd = open("./error.html", O_RDWR, 0644);
+		if (fd == -1)
+		{
+			std::cout << "Default Error page doesn't exist." << std::endl;
+			exit(1);
+		}
+		while (read(fd, buf, 1) > 0)
+			++count;
 	}
+	close(fd);
 
 	_vars_response.insert(std::pair<std::string, std::string>("Content-Length", std::to_string(count)));
 }
@@ -191,6 +201,32 @@ void Response::setWWWAuthentication()
 	_vars_response.insert(std::pair<std::string, std::string>("WWW-Authentication", "Basic"));
 }
 
+void Response::set_vars_response()
+{
+	std::string path = _request.get_path();
+	
+	setStatus(_request.get_error_code());
+	setServer();
+	setDate();
+	setAllow();
+	setContentType(path);
+	setContentLocation(path);
+	setTransferEncoding();
+	setContentLength(path); // Request에서 파싱한 거 거의 그대로 넣으면 될 듯?
+	setLastModified(path); // Request에서 파싱한 거 거의 그대로 넣으면 될 듯?
+	setWWWAuthentication(); // when status is 401
+}
+
+std::string Response::getStartLine(void)
+{
+	_start_line = "HTTP/1.1 ";
+	_start_line += std::to_string(_status.first);
+	_start_line += " ";
+	_start_line += _status.second;
+
+	return(_start_line);
+}
+
 std::string Response::printItem(const std::string &key)
 {
 	//나중에 send할 소켓에 넣어줘야 한다.
@@ -205,32 +241,8 @@ std::string Response::printItem(const std::string &key)
 		res += ": ";
 		res += it->second;
 		res += "\n";
-		std::cout << it->first << ": " << it->second << std::endl;
 	}
 
-	return(res);
-}
-
-std::string Response::header(const std::string &path)
-{
-	
-	setServer();
-	setDate();
-	setAllow();
-	setContentType(path);
-	setContentLocation(path);
-	setTransferEncoding();
-	setContentLength(path); // Request에서 파싱한 거 거의 그대로 넣으면 될 듯?
-	setLastModified(path); // Request에서 파싱한 거 거의 그대로 넣으면 될 듯?
-	setWWWAuthentication(); // when status is 401
-	
-	std::string res = "";
-
-	res += printItem("Server");
-	res += printItem("Date");
-	res += printItem("Last-Modified");
-	res += printItem("Content-Type");
-	res += printItem("Content-Length");
 	return (res);
 }
 
@@ -239,13 +251,66 @@ std::string Response::body(const std::string &path)
 	std::string res = "";
 	int fd = open(path.c_str(), O_RDWR, 0644);
 	if (fd == -1)
-		std::cout << "Error MUST be thrown!" << std::endl;
-	char buf[2];
+		std::cout << "Error MUST be thrown!" << std::endl; // error check in _request
+	char buf[1024];
 	int nread;
-	buf[0] = 0;
-	buf[1] = 0;
+	ft_memset(buf, 0, 1024);
 	while ((nread = read(fd, buf, 1)) > 0)
+	{
+		buf[nread] = '\0';
 		res += buf;
+	}
 	close(fd);
+	return (res);
+}
+
+std::string Response::Get (void)
+{
+	std::string res = "";
+
+	res += getStartLine();
+	res += "\n";
+	res += printItem("Server");
+	res += printItem("Date");
+	res += printItem("Last-Modified");
+	res += printItem("Content-Type");
+	res += printItem("Content-Length");
+	res += "\n";
+	if (_status.first == 200)
+		res += body(_request.get_path());
+	else
+		res += (body("error.html"));
+	
+	return (res);
+}
+
+std::string Response::Head(void)
+{
+	std::string res = "";
+
+	res += getStartLine();
+	res += "\n";
+	res += printItem("Server");
+	res += printItem("Date");
+	res += printItem("Last-Modified");
+	res += printItem("Content-Type");
+	res += printItem("Content-Length");
+	res += "\n";
+
+	return (res);
+}
+
+std::string Response::exec_method()
+{
+	std::string res = "";
+
+	int method = _request.get_method();
+
+	if (method == GET)
+		res = Get();
+	else if (method == HEAD)
+		res = Head();
+	// ....
+
 	return (res);
 }

@@ -72,7 +72,7 @@ void	Server::init_server(void)
 		exit(1);
 	}
 
-	char buf[3001];
+	char buf[1024];
 	int new_socket;
 
 	fd_set readfds;
@@ -119,7 +119,7 @@ void	Server::init_server(void)
 				exit(1);
 			}
 			usleep(2000);
-			ft_memset(buf, 0, 3001);
+			ft_memset(buf, 0, 1024);
 			for (int i = 0; i < max_clients; i++)
 			{
 				//if position is empty
@@ -146,7 +146,7 @@ void	Server::init_server(void)
 					exit(1);
 				}
 				std::string req = "";
-				while ((valread = read(sd , buf, 1024)) != 0 && req.find("\r\n\r\n") == std::string::npos)
+				while ((valread = read(sd , buf, 1023)) != 0 && req.find("\r\n\r\n") == std::string::npos)
 				{
 					if (ft_strncmp(buf, "\x04", 1) == 0) // ctrl + d from telnet!
 					{
@@ -169,26 +169,15 @@ void	Server::init_server(void)
 				std::cout << req << std::endl;
 				request.parse_request(req);
 				
-				// m.receiveRequest(buf);
-				// m.sendRespond(sd);
-				std::cout << request.get_path() << std::endl;
-				
-				std::string response_msg = response.getStartLine();
-				response_msg += "\n";
-				response_msg += response.header(request.get_path());
-				response_msg += "\n";
-				response_msg += response.body(request.get_path());
+				Response	response(request);
+				std::string response_msg = response.exec_method();
+
 				std::cout << response_msg << std::endl;
 				send(sd, response_msg.c_str(), response_msg.length(), 0);
 				std::cout << "Server sent message" << std::endl;
 
-				//buffer[valread] = '\0';
-				//send(sd , buffer , strlen(buffer) , 0 );
-				
-				ft_memset(buf, 0, 3001);
+				ft_memset(buf, 0, 1024);
 			}
 		}
-
-
 	}
 }

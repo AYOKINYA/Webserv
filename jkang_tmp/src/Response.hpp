@@ -10,22 +10,26 @@
 # include <unistd.h>
 # include <fcntl.h>
 # include <sys/stat.h>
+# include "RequestMsg.hpp"
 
 class Response
 {
 	private:
+			Request								_request;
+			std::map<std::string, std::string>	_vars_response;
 			std::pair<int, std::string> 		_status;
 			std::string							_start_line;
-			std::map<std::string, std::string>	_vars_response;
-	public:
+			std::map<int, std::string>			_status_table;
 			Response();
-			Response(std::map<std::string, std::string> _vars_response);
+	public:
+			Response(Request request);
 			Response& operator=(const Response &copy);
 			Response(const Response &copy);
 			virtual ~Response();
 			
-			void setStatus(std::pair<int, std::string> input);
-			
+			void init_status_table();
+			void set_vars_response();
+			void setStatus(int num);
 			void setDate(void);
 			void setContentType(const std::string &content);
 			void setContentLocation(const std::string &loc);
@@ -41,6 +45,11 @@ class Response
 			std::string getStartLine(void);
 			std::string header(const std::string &path);
 			std::string body(const std::string &path);
+			std::string exec_method(void);
+
+			std::string Get(void);
+			std::string Head(void);
+
 };
 
 #endif

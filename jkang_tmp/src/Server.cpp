@@ -167,8 +167,9 @@ void	Server::init_server(void)
 					client_socket[i] = 0;
 				}
 				std::cout << req << std::endl;
+				Request request;
 				request.parse_request(req);
-				
+
 				Response	response(request);
 				std::string response_msg = response.exec_method();
 

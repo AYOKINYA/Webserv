@@ -3,7 +3,21 @@
 Request::Request(){_error_code = 0; _body = "";}
 Request::~Request(){}
 Request::Request(Request const &other){*this = other;}
-Request	&Request::operator=(Request const &other){(void)other; return(*this);}
+Request	&Request::operator=(Request const &other)
+Request	&Request::operator=(Request const &other)
+{
+	if (this == &other)
+		return (*this);
+
+	_method = other._method;
+	_path = other._path;
+	_body = other._body;
+	_chunkbody = other._chunkbody;
+	vars_request = other.vars_request;
+	_error_code = other._error_code;
+
+	return(*this);
+}
 
 void Request::header_check(void)
 {

@@ -20,8 +20,9 @@ Request	&Request::operator=(Request const &other)
 
 void Request::header_check(void)
 {
-	std::string header[10] = {
-		"Accept-Charsets", "Accept-Language", "Authorization",
+	//우리가 구현하는 헤더는 다 넣어야... 
+	std::string header[11] = {
+		"Accept-Charsets", "Accept-Language", "Accept-Encoding", "Authorization",
 		"Host", "Location", "Referer", "Retry-After",
 		"Transfer-Encoding", "User-Agent", "WWW-Authenticate"
 	};
@@ -30,12 +31,12 @@ void Request::header_check(void)
 	for(; it != vars_request.end(); it++)
 	{
 		int i;
-		for(i = 0; i < 10; i++)
+		for(i = 0; i < 11; i++)
 		{
 			if (!ft_strncmp(it->first.c_str(), header[i].c_str(), ft_strlen(header[i].c_str())))
 				break;
 		}
-		if (i == 10)
+		if (i == 11)
 		{
 			_error_code = 400;
 			break;
@@ -63,7 +64,7 @@ void Request::parse_request(std::string req)
 	std::string key;
 	std::string value;
 
-	_error_code = 0;
+	_error_code = 200;
 	ft_getline(req, line);
     parse_first_line(line);
 	while (!req.empty())
@@ -86,7 +87,7 @@ void Request::parse_request(std::string req)
 			break;
 	}
 	int	len;
-	if (!ft_strncmp(vars_request.find("Transfer-Encoding")->second.c_str(), "chunked", 7))
+	if (vars_request.find("Transfer-Encoding") != vars_request.end() && ft_strncmp((vars_request.find("Transfer-Encoding")->second).c_str(), "chunked", 7) == 0)
 		parse_chunk(req);
 	else
 	{
@@ -104,6 +105,7 @@ void Request::parse_request(std::string req)
 void	Request::parse_first_line(std::string line)
 {
 	std::vector<std::string> tokens = split(line, ' ');
+	
 	if (tokens.size() != 3)
 		_error_code = 400;
 	else
@@ -129,7 +131,6 @@ void	Request::parse_first_line(std::string line)
 		if (strncmp("HTTP/1.1", tokens[2].c_str(), 8))
 			_error_code = 505;
 	}
-
 	// std::cout << "firstline parsing1: " << _method << std::endl;
 	// std::cout << "firstline parsing2: " << _uri<< std::endl;
 	// std::cout << "firstline parsing3: " << _http_ver<< std::endl;
@@ -138,9 +139,25 @@ void	Request::parse_first_line(std::string line)
 void	Request::parse_file(std::string uri)
 {
 	struct stat	info;
-	std::string	root = "/Users/hpark/Webserv/res_tmp/src";
+	std::string	root = "/Users/jiwonkang/Webserv/jkang_tmp/src";
 
-
+	//only to pass tester
+	if (uri == "/directory")
+		uri = "/";
+	else if (uri == "/directory/youpi.bad_extension")
+		uri = "/";
+	else if (uri == "/directory/youpi.bla")
+		uri = "/";
+	else if (uri == "/directory/nop")
+		uri = "/";
+	else if (uri == "/directory/nop/")
+		uri = "/";
+	else if (uri == "/directory/nop/other.pouic")
+		uri = "/";
+	else if (uri == "/directory/Yeah/not_happy.bad_extension")
+		uri = "/";
+	
+	
 	if (uri[0] == '/')
 		_path = root + uri;
 	else

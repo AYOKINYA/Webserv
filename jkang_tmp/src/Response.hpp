@@ -49,6 +49,7 @@ class Response
 
 			std::string Get(void);
 			std::string Head(void);
+			std::string Post();
 
 };
 

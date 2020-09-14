@@ -20,12 +20,12 @@ Response& Response::operator=(const Response &copy)
 		return (*this);
 
 	// Response 객체 여러 개 만들어야 하면 deep copy로 수정해야 한다.
-	
+
 	_request = copy._request;
 	_vars_response = copy._vars_response;
 	_status = copy._status;
 	_start_line = copy._start_line;
-	
+
 	return (*this);
 }
 
@@ -68,7 +68,7 @@ void Response::setDate()
 void Response::setContentType(const std::string &content)
 {
 	/* mime.types 참고. excel 텍스트 나누기로 split했다*/
-	std::string extensions[103] = 
+	std::string extensions[103] =
 	{
 		"html", "htm", "shtml", "css", "xml", "gif","jpeg", "jpg", "js", "atom",
 		"rss", "mml", "txt", "jad", "wml", "htc", "png", "tif", "tiff", "wbmp",
@@ -79,11 +79,11 @@ void Response::setContentType(const std::string &content)
 		"tk", "der", "pem",	"crt", "xpi", "xhtml", "xspf", "zip", "bin", "exe",
 		"dll", "deb", "dmg", "iso", "img", "msi", "msp", "msm", "docx", "xlsx",
 		"pptx", "mid", "midi","kar","mp3", "ogg","m4a", "ra", "3gpp", "3gp",
-		"ts","mp4","mpeg", "mpg", "mov", "webm", "flv", "m4v", "mng", "asx", 
+		"ts","mp4","mpeg", "mpg", "mov", "webm", "flv", "m4v", "mng", "asx",
 		"asf","wmv","avi"
 	};
 
-	std::string types[103] = 
+	std::string types[103] =
 	{
 		"text/html", "text/html", "text/html", "text/css", "text/xml","image/gif", "image/jpeg", "image/jpeg","application/javascript","application/atom+xml",
 		"application/rss+xml","text/mathml","text/plain","text/vnd.sun.j2me.app-descriptor","text/vnd.wap.wml","text/x-component","image/png","image/tiff", "image/tiff","image/vnd.wap.wbmp",
@@ -93,15 +93,15 @@ void Response::setContentType(const std::string &content)
 		"application/vnd.ms-fontobject", "application/vnd.ms-powerpoint","application/vnd.wap.wmlc","application/vnd.google-earth.kml+xml","application/vnd.google-earth.kmz",
 		"application/x-7z-compressed","application/x-cocoa","application/x-java-archive-diff","application/x-java-jnlp-file","application/x-makeself",
 		"application/x-perl", "application/x-perl","application/x-pilot", "application/x-pilot","application/x-rar-compressed",
-		"application/x-redhat-package-manager","application/x-sea","application/x-shockwave-flash","application/x-stuffit","application/x-tcl", 
+		"application/x-redhat-package-manager","application/x-sea","application/x-shockwave-flash","application/x-stuffit","application/x-tcl",
 		"application/x-tcl","application/x-x509-ca-cert", "application/x-x509-ca-cert", "application/x-x509-ca-cert","application/x-xpinstall",
 		"application/xhtml+xml","application/xspf+xml","application/zip","application/octet-stream", "application/octet-stream",
 		"application/octet-stream","application/octet-stream","application/octet-stream","application/octet-stream", "application/octet-stream",
 		"application/octet-stream", "application/octet-stream",  "application/octet-stream", "application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 		"application/vnd.openxmlformats-officedocument.presentationml.presentation","audio/midi", "audio/midi", "audio/midi","audio/mpeg",
-		"audio/ogg","audio/x-m4a","audio/x-realaudio","video/3gpp", "video/3gpp", 
+		"audio/ogg","audio/x-m4a","audio/x-realaudio","video/3gpp", "video/3gpp",
 		"video/mp2t","video/mp4","video/mpeg", "video/mpeg","video/quicktime",
-		"video/webm","video/x-flv","video/x-m4v","video/x-mng","video/x-ms-asf", 
+		"video/webm","video/x-flv","video/x-m4v","video/x-mng","video/x-ms-asf",
 		"video/x-ms-asf", "video/x-ms-wmv", "video/x-msvideo"
 	};
 
@@ -124,9 +124,9 @@ void Response::setContentType(const std::string &content)
 		res = "text/plain";
 	// if (i == 103)
 	// 	setStatus(415);
-	
+
 	_vars_response.insert(std::pair<std::string, std::string>("Content-Type", res));
-	
+
 }
 
 void Response::setContentLocation(const std::string &loc)
@@ -290,7 +290,7 @@ std::string Response::Get (void)
 		res += body(_request.get_path());
 	else
 		res += (body("error.html"));
-	
+
 	return (res);
 }
 
@@ -300,7 +300,7 @@ std::string Response::Head(void)
 
 	//to pass tester
 	res += Post();
-	
+
 	// below is original...
 
 	// res += getStartLine();
@@ -321,7 +321,7 @@ std::string Response::Post() // for temporary only! to pass tester...
 
 	setStatus(405);
 	setContentLength("./erro.html");
-	
+
 	res = getStartLine();
 	res += "\n";
 	res += printItem("Server");
@@ -332,6 +332,37 @@ std::string Response::Post() // for temporary only! to pass tester...
 	res += "\n";
 	res += (body("error.html"));
 	return (res);
+}
+
+std::string Response::Put()
+{
+	std::string url;
+	std::string filename;
+	std::string msg;
+
+	url = _request.get_path();
+	if (_request.get_putcheck() == 1) //파일이 없을때 새로 만든다
+	{
+		filename = trim_url(url);
+		int fd = open(filename.c_str(), O_RDWR);
+		write(fd, _request.get_body().c_str(), _request.get_body().length());
+		close(fd);
+		/////msg//////
+		msg = "HTTP/1.1 201 Created\n";
+		msg += "Content-Location: /" + filename;
+		return (msg);
+	}
+	else if (_request.get_filecheck() == 1)//파일을 있을 때 오픈해서 내용을 지우고 새로 입력한다
+	{
+		int fd = open(url.c_str(), O_TRUNC);
+		write(fd, _request.get_body().c_str(), _request.get_body().length());
+		close(fd);
+		/////msg//////
+		msg = "HTTP/1.1 204 No Content\n"; //혹은 200 OK
+		msg += "Content-Location: /" + filename;
+		return (msg);
+	}
+	return ("hi");
 }
 
 std::string	Response::Delete()
@@ -378,6 +409,8 @@ std::string Response::exec_method()
 		res = Head();
 	else if (method == POST)
 		res = Post();
+	else if (method == PUT)
+		res = Put();
 
 	return (res);
 }

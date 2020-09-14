@@ -10,6 +10,7 @@
 #include <vector>
 #include <sstream>
 #include <iomanip>
+#include "util.cpp"
 
 enum	method
 {
@@ -31,6 +32,8 @@ class   Request
 		std::string _chunkbody;
 		std::map<std::string, std::string>	vars_request;
 		int			_error_code;
+		int			_filecheck;
+		int			_putcheck;
 
 	public:
 		Request();
@@ -40,6 +43,8 @@ class   Request
 		void		parse_request(std::string req);
 		void		parse_first_line(std::string line);
 		void		parse_file(std::string _uri);
+		int			get_putcheck();
+		int			get_filecheck();
 		int			get_method();
 		int			get_error_code();
 		void		parse_chunk(std::string body);
@@ -54,6 +59,9 @@ class   Request
 void						ft_getline(std::string &b, std::string &line);
 std::vector<std::string>	split(const std::string& str, char delim);
 std::string					trim(const std::string& str);
+std::string trim_url(const std::string& str);
+std::string trim_url_2(const std::string& str);
+std::string trim_extension(const std::string& str);
 
 
 #endif

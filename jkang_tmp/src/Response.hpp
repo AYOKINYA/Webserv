@@ -26,7 +26,7 @@ class Response
 			Response& operator=(const Response &copy);
 			Response(const Response &copy);
 			virtual ~Response();
-			
+
 			void init_status_table();
 			void set_vars_response();
 			void setStatus(int num);
@@ -50,8 +50,13 @@ class Response
 			std::string Get(void);
 			std::string Head(void);
 			std::string Post();
+			std::string Put();
 			std::string	Delete();
 			std::string	Options();
 };
+
+std::string trim_url(const std::string& str);
+std::string trim_url_2(const std::string& str);
+std::string trim_extension(const std::string& str);
 
 #endif

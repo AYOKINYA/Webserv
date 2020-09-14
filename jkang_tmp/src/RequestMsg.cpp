@@ -20,7 +20,7 @@ Request	&Request::operator=(Request const &other)
 
 void Request::header_check(void)
 {
-	//우리가 구현하는 헤더는 다 넣어야... 
+	//우리가 구현하는 헤더는 다 넣어야...
 	std::string header[11] = {
 		"Accept-Charsets", "Accept-Language", "Accept-Encoding", "Authorization",
 		"Host", "Location", "Referer", "Retry-After",
@@ -105,7 +105,7 @@ void Request::parse_request(std::string req)
 void	Request::parse_first_line(std::string line)
 {
 	std::vector<std::string> tokens = split(line, ' ');
-	
+
 	if (tokens.size() != 3)
 		_error_code = 400;
 	else
@@ -126,7 +126,7 @@ void	Request::parse_first_line(std::string line)
 			_method = OPTIONS;
 		else
 			_error_code = 400;
-		
+
 		parse_file(tokens[1]);
 		if (strncmp("HTTP/1.1", tokens[2].c_str(), 8))
 			_error_code = 505;
@@ -140,6 +140,22 @@ void	Request::parse_file(std::string uri)
 {
 	struct stat	info;
 	std::string	root = "/Users/jiwonkang/Webserv/jkang_tmp/src";
+	_filecheck = 0;
+	_putcheck = 0;
+	std::string extensions[103] =
+	{
+		"html", "htm", "shtml", "css", "xml", "gif","jpeg", "jpg", "js", "atom",
+		"rss", "mml", "txt", "jad", "wml", "htc", "png", "tif", "tiff", "wbmp",
+		"ico", "jng", "bmp", "svg", "svgz", "webp", "woff", "jar", "war", "ear",
+		"json", "hqx", "doc", "pdf", "ps", "eps", "ai", "rtf", "m3u8", "xls",
+		"eot", "ppt", "wmlc", "kml", "kmz", "7z", "cco", "jardiff", "jnlp", "run",
+		"pl", "pm", "prc", "pdb", "rar", "rpm", "sea", "swf", "sit", "tcl",
+		"tk", "der", "pem",	"crt", "xpi", "xhtml", "xspf", "zip", "bin", "exe",
+		"dll", "deb", "dmg", "iso", "img", "msi", "msp", "msm", "docx", "xlsx",
+		"pptx", "mid", "midi","kar","mp3", "ogg","m4a", "ra", "3gpp", "3gp",
+		"ts","mp4","mpeg", "mpg", "mov", "webm", "flv", "m4v", "mng", "asx",
+		"asf","wmv","avi"
+	};
 
 	//only to pass tester
 
@@ -157,8 +173,8 @@ void	Request::parse_file(std::string uri)
 		uri = "/";
 	else if (uri == "/directory/Yeah/not_happy.bad_extension")
 		uri = "/";
-	
-	
+
+
 	if (uri[0] == '/')
 		_path = root + uri;
 	else
@@ -176,10 +192,25 @@ void	Request::parse_file(std::string uri)
 	}
 	else
 	{
-		_error_code = 404;
+		//파일이 존재하지 않을 경우에 여기로 빠져서 처리해놈 PUT 일 경우 에러로 처리하면 안돼서
+		int ex_chk = 0;
+		for(int i = 0; i < 103 ; i++)
+		{
+			if (ft_strncmp(trim_extension(_path).c_str(), extensions[i].c_str(), ft_strlen(extensions[i].c_str())) == 0)
+			{
+				ex_chk = 1;
+				break ;
+			}
+		}
+		if (ex_chk == 1 && stat(trim_url_2(_path).c_str(), &info) == 0 && _method == PUT)
+			_putcheck = 1;
+		else
+			_error_code = 404;
 		//400? //404? 유효하지 않은 주소
 	}
 }
+int	Request::get_putcheck(){return (_putcheck);}
+int	Request::get_filecheck(){return (_filecheck);}
 
 int Request::get_method(){return (_method);}
 

@@ -39,8 +39,11 @@ std::string Response::method_put_exec()
 	if (req.get_putcheck() == 1) //파일이 없을때 새로 만든다
 	{
 		filename = trim_url(url);
-		std::ofstream ofs(filename);
-		ofs << req.get_body();
+		// std::ofstream ofs(filename);
+		int fd = open(filename.c_str(), O_RDWR);
+		// ofs << req.get_body();
+		write(fd, req.get_body().c_str(), req.get_body().length());
+		close(fd);
 		/////msg//////
 		msg = "HTTP/1.1 201 Created\n";
 		msg += "Content-Location: /" + filename;
@@ -48,14 +51,18 @@ std::string Response::method_put_exec()
 	}
 	else if(req.get_filecheck() == 1)//파일을 있을 때 오픈해서 내용을 지우고 새로 입력한다
 	{
-		ofs.open(url, std::ofstream::out | std::ofstream::trunc);
-		ofs << req.get_body();
-		ofs.close();
+		// ofs.open(url, std::ofstream::out | std::ofstream::trunc);
+		int fd = open(url.c_str(), O_TRUNC);
+		write(fd, req.get_body().c_str(), req.get_body().length());
+		close(fd);
+		// ofs << req.get_body();
+		// ofs.close();
 		/////msg//////
 		msg = "HTTP/1.1 204 No Content\n"; //혹은 200 OK
 		msg += "Content-Location: /" + filename;
 		return (msg);
 	}
+	return ("hi");
 }
 
 void Response::setStatus(std::pair<int, std::string> input)

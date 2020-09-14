@@ -125,6 +125,8 @@ void	Request::parse_first_line(std::string line)
 void	Request::parse_file(std::string uri)
 {
 	struct stat	info;
+	_filecheck = 0;
+	_putcheck = 0;
 	std::string	root = "/Users/jiyoonhur/Webserv/put_test_jy/src";
 	std::string extensions[103] =
 	{

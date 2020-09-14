@@ -53,6 +53,7 @@ class Response
 			std::string Put();
 			std::string	Delete();
 			std::string	Options();
+			char	**env();
 };
 
 std::string trim_url(const std::string& str);

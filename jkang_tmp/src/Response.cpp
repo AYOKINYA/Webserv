@@ -428,3 +428,107 @@ std::string Response::exec_method()
 
 	return (res);
 }
+
+char	**Response::env()
+{
+	char	**env = 0;
+	std::map<std::string, std::string> map;
+
+	map["CONTENT_LENGTH"] = std::to_string(_request.get_body().size());
+	map["CONTENT_TYPE"] = "";
+	map["GATEWAY_INTERFACE"] = "CGI/1.1";
+	map["PATH_INFO"] = _request.get_path();
+	map["PATH_TRANSLATED"] = _request.get_path();
+	map["QUERY_STRING"] = "";
+// REMOTE_ADDR
+// REMOTE_IDENT
+// REMOTE_USER
+// REQUEST_METHOD
+// REQUEST_URI
+// SCRIPT_NAME
+// 6
+// Webserv This is when you finally understand why a url starts with HTTP
+// SERVER_NAME
+// SERVER_PORT
+// SERVER_PROTOCOL
+// SERVER_SOFTWARE
+	env = (char **)malloc(sizeof(char *) * (map.size() + 1));
+	std::map<std::string, std::string>::iterator it = map.begin();
+	int i = -1;
+	while (it != map.end())
+	{
+		std::cout << it->first << " = " << it->second << std::endl;
+		env[++i] = strdup((it->first + "=" + it->second).c_str());
+		++it;
+	}
+	env[i] = NULL;
+
+return(env);
+}
+
+// std::string Response::Post() // for temporary only! to pass tester...
+// {
+// 	// char	**env;
+// 	char	**args;
+// 	int		fd, pid;
+// 	struct stat php;
+// 	int		ret;
+// 	std::string	res;
+
+// 	if (_request.get_error_code() != 200)
+// 	{
+// 		res = getStartLine();
+// 		res += "\n";
+// 		res += "\n\n";
+// 		return res;
+// 	}
+// 	args = (char **)(malloc(sizeof(char *) * 3));
+// 	args[0] = ft_strdup(_request.get_path().c_str());
+// 	args[1] = NULL;
+// 	args[2] = NULL;
+
+// 	fd = open("cgi.txt", O_WRONLY | O_CREAT, 0666);
+// 	if ((pid = fork()) == 0)
+// 	{
+// 		dup2(fd, 1);
+// 		if (stat(_request.get_path().c_str(), &php) != 0 ||
+// 		!(php.st_mode & S_IFREG))
+// 		{
+// 			std::cout << "Error CGI\n";
+// 			exit(1);
+// 		}
+// 		if ((ret = execve(args[0], args, NULL)) == -1)
+// 		{
+// 			std::cout << std::string(strerror(errno)) << std::endl;
+// 			exit(1);
+// 		}
+// 	}
+// 	else
+// 	{
+// 		waitpid(pid, NULL, 0);
+// 		close(fd);
+// 	}
+// 	// std::string res = "";
+
+// 	// setStatus(405);
+// 	// setContentLength("./erro.html");
+// 	char	buf[10000];
+// 	res = getStartLine();
+// 	res += "\n";
+// 	fd = open("./cgi.txt", O_RDONLY, 0666);
+// 	int	r = lseek(fd, 0, SEEK_END);
+// 	lseek(fd, 0, SEEK_SET);
+// 	read(fd, &buf, r);
+// 	std::cout << buf << std::endl;
+// 	res += buf;
+// 	close(fd);
+// 	res += "\n\n";
+// 		// res += printItem("Server");
+// 	// res += printItem("Date");
+// 	// res += printItem("Last-Modified");
+// 	// res += printItem("Content-Type");
+// 	// res += printItem("Content-Length");
+// 	// res += "\n";
+// 	// res += (body("error.html"));
+// 	return (res);
+// }

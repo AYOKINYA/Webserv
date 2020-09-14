@@ -47,7 +47,7 @@ std::string trim(const std::string& str)
     return (str.substr(first, (last - first + 1)));
 }
 
-std::string trim_url(const std::string& str)
+std::string trim_url(const std::string& str)//파일이름
 {
     size_t first = str.find_last_of('/');
 
@@ -57,7 +57,7 @@ std::string trim_url(const std::string& str)
     return (str.substr(first + 1, (last - first + 1)));
 }
 
-std::string trim_url_2(const std::string& str)
+std::string trim_url_2(const std::string& str)//디렉터리
 {
     size_t first = str.find_first_of('/');
 	size_t last = str.find_last_of('/');

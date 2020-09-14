@@ -341,10 +341,14 @@ std::string Response::Put()
 	std::string msg;
 
 	url = _request.get_path();
+	std::cout << "path is !!!!"<< url << std::endl;
+	std::cout << "put check return : " << _request.get_putcheck() << std::endl;
+	std::cout << "file check return : " << _request.get_filecheck() << std::endl;
+	filename = trim_url(url);
 	if (_request.get_putcheck() == 1) //파일이 없을때 새로 만든다
 	{
-		filename = trim_url(url);
-		int fd = open(filename.c_str(), O_RDWR);
+		// std::cout << filename << std::endl;
+		int fd = open(url.c_str(), O_CREAT | O_RDWR, 0777);
 		write(fd, _request.get_body().c_str(), _request.get_body().length());
 		close(fd);
 		/////msg//////
@@ -354,7 +358,7 @@ std::string Response::Put()
 	}
 	else if (_request.get_filecheck() == 1)//파일을 있을 때 오픈해서 내용을 지우고 새로 입력한다
 	{
-		int fd = open(url.c_str(), O_TRUNC);
+		int fd = open(url.c_str(), O_TRUNC | O_RDWR, 0777);
 		write(fd, _request.get_body().c_str(), _request.get_body().length());
 		close(fd);
 		/////msg//////
@@ -370,7 +374,7 @@ std::string	Response::Delete()
 	std::string	msg;
 	//응답코드 3개 있는데 1.성공적으로 수행할 것 같으나 아직 실행x -> 202 (Accepted) 는 어떨 때 써야할지 모르겠다.
 	//2. 204 No Content 코드, 3. 200 OK -> 파일이 지워졌다는 페이지ㅡㄹㄹ 보여준다.
-	if (remove(req.get_path().c_str()) == 0)
+	if (remove(_request.get_path().c_str()) == 0)
 	{
 		msg = getStartLine();
 	}
@@ -391,7 +395,7 @@ std::string	Response::Options()
 	msg += printItem("Content-Length");
 	msg += "\n";
 	if (_status.first == 200)
-		msg += body(req.get_path());
+		msg += body(_request.get_path());
 	else
 		msg += body("error.html");
 	return (msg);

@@ -14,6 +14,8 @@ Request	&Request::operator=(Request const &other)
 	_chunkbody = other._chunkbody;
 	vars_request = other.vars_request;
 	_error_code = other._error_code;
+	_putcheck = other._putcheck;
+	_filecheck = other._filecheck;
 
 	return(*this);
 }
@@ -139,7 +141,7 @@ void	Request::parse_first_line(std::string line)
 void	Request::parse_file(std::string uri)
 {
 	struct stat	info;
-	std::string	root = "/Users/jiwonkang/Webserv/jkang_tmp/src";
+	std::string	root = "/Users/jiyoonhur/Webserv/jkang_tmp/src";
 	_filecheck = 0;
 	_putcheck = 0;
 	std::string extensions[103] =
@@ -174,12 +176,12 @@ void	Request::parse_file(std::string uri)
 	else if (uri == "/directory/Yeah/not_happy.bad_extension")
 		uri = "/";
 
-
+std::cout << "parsing file !!!!!ing" << std::endl;
 	if (uri[0] == '/')
 		_path = root + uri;
 	else
-		_path = root + "/" + "_uri";
-
+		_path = root + "/" + uri;
+	std::cout << "path before stat is ????" << _path << std::endl;
 	if (stat(_path.c_str(), &info) == 0)
 	{
 		if (S_ISDIR(info.st_mode))
@@ -189,21 +191,29 @@ void	Request::parse_file(std::string uri)
 			else
 				_path += "/index.html";
 		}
+		_filecheck = 1;
 	}
 	else
 	{
 		//파일이 존재하지 않을 경우에 여기로 빠져서 처리해놈 PUT 일 경우 에러로 처리하면 안돼서
+		std::cout << "path else is ????" << _path << std::endl;
 		int ex_chk = 0;
+		std::cout << trim_extension(_path) << std::endl;
 		for(int i = 0; i < 103 ; i++)
 		{
 			if (ft_strncmp(trim_extension(_path).c_str(), extensions[i].c_str(), ft_strlen(extensions[i].c_str())) == 0)
 			{
 				ex_chk = 1;
+				std::cout << "Extension checked : " << ex_chk << std::endl;
 				break ;
 			}
 		}
+		std::cout << "trim url 2 is working??" << trim_url_2(_path) << std::endl;
 		if (ex_chk == 1 && stat(trim_url_2(_path).c_str(), &info) == 0 && _method == PUT)
+		{
+			std::cout << "coming??"<< std::endl;
 			_putcheck = 1;
+		}
 		else
 			_error_code = 404;
 		//400? //404? 유효하지 않은 주소

@@ -68,6 +68,6 @@ std::string trim_url_2(const std::string& str)//디렉터리
 std::string trim_extension(const std::string& str)
 {
 	size_t first = str.find_last_of('.');
-	size_t last = str.find_last_of(str);
+	size_t last = str.find_last_of(' ');
 	return(str.substr(first + 1, (last - first + 1)));
 }

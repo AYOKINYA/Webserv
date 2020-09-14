@@ -171,6 +171,7 @@ void	Server::init_server(void)
 				request.parse_request(req);
 
 				Response	response(request);
+
 				std::string response_msg = response.exec_method();
 
 				std::cout << response_msg << std::endl;

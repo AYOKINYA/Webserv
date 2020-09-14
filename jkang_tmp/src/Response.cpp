@@ -319,8 +319,10 @@ std::string Response::Post() // for temporary only! to pass tester...
 {
 	std::string res = "";
 
+	// std::cout << trim_url(_request.get_path()) << std::endl;
+	std::cout << "PATH @ POST: " << _request.get_path() << std::endl;
 	setStatus(405);
-	setContentLength("./erro.html");
+	setContentLength("./error.html");
 
 	res = getStartLine();
 	res += "\n";
@@ -331,6 +333,12 @@ std::string Response::Post() // for temporary only! to pass tester...
 	res += printItem("Content-Length");
 	res += "\n";
 	res += (body("error.html"));
+
+	if (trim_url(_request.get_path()) == "youpi.bla")
+	{
+		std::cout << "asdasdsadasdasdasd\n";
+		res = Put();
+	}
 	return (res);
 }
 
@@ -358,7 +366,9 @@ std::string Response::Put()
 	}
 	else if (_request.get_filecheck() == 1)//파일을 있을 때 오픈해서 내용을 지우고 새로 입력한다
 	{
+		std::cout << url << std::endl;
 		int fd = open(url.c_str(), O_TRUNC | O_RDWR, 0777);
+
 		write(fd, _request.get_body().c_str(), _request.get_body().length());
 		close(fd);
 		/////msg//////
@@ -366,7 +376,7 @@ std::string Response::Put()
 		msg += "Content-Location: /" + filename + "\n\n";
 		return (msg);
 	}
-	return ("hi");
+	return ("========PUT FAIL=============");
 }
 
 std::string	Response::Delete()

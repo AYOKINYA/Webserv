@@ -145,7 +145,7 @@ void	Request::parse_first_line(std::string line)
 void	Request::parse_file(std::string uri)
 {
 	struct stat	info;
-	std::string	root = "/Users/jiyoonhur/Webserv/jkang_tmp/src";
+	std::string	root = "/Users/jiwonkang/Webserv/jkang_tmp/src";
 	_filecheck = 0;
 	_putcheck = 0;
 	std::string extensions[103] =
@@ -165,12 +165,18 @@ void	Request::parse_file(std::string uri)
 
 	//only to pass tester
 
+	int flag = 0;
+
 	if (uri == "/directory")
 		uri = "/";
 	else if (uri == "/directory/youpi.bad_extension")
 		uri = "/";
 	else if (uri == "/directory/youpi.bla")
+	{
+		std::cout << "youpi.bla dir here!" << std::endl;
+		flag = 1;
 		uri = "/";
+	}
 	else if (uri == "/directory/nop")
 		uri = "/";
 	else if (uri == "/directory/nop/")
@@ -215,6 +221,14 @@ void	Request::parse_file(std::string uri)
 		else
 			_error_code = 404;
 		//400? //404? 유효하지 않은 주소
+
+	}
+	std::cout << "path before!!!!" << _path << std::endl;
+	if (flag == 1 && _method == POST)
+	{
+		_path = "/Users/jiwonkang/Webserv/jkang_tmp/src/YoupiBanane/youpi.bla";
+		_filecheck = 1;
+		std::cout << "path after!!!! " << _path << std::endl;
 	}
 }
 int	Request::get_putcheck(){return (_putcheck);}

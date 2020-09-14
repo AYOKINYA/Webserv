@@ -160,17 +160,8 @@ void	Server::init_server(void)
 						req += buf;
 					}
 					complen = req.length();
-					if ((complen > 3 && req.substr(complen - 4) == "\r\n\r\n") || complen > 10000000) 	
+					if ((complen > 3 && req.substr(complen - 4) == "\r\n\r\n")) // body max size 조건 추가헤야 한다....
 						break ;
-				}
-				if (complen > 10000000)
-				{
-					int max = 10000000;
-					req[max - 1] = '\n';
-					req[max - 2] = '\r';
-					req[max - 3] = '\n';
-					req[max - 4] = '\r';
-					req.erase(max);
 				}
 
 				if (valread == -1 && errno != EAGAIN && errno != EWOULDBLOCK)

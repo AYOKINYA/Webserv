@@ -335,10 +335,7 @@ std::string Response::Post() // for temporary only! to pass tester...
 	res += (body("error.html"));
 
 	if (trim_url(_request.get_path()) == "youpi.bla")
-	{
-		std::cout << "asdasdsadasdasdasd\n";
 		res = Put();
-	}
 	return (res);
 }
 

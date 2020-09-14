@@ -50,7 +50,8 @@ class Response
 			std::string Get(void);
 			std::string Head(void);
 			std::string Post();
-
+			std::string	Delete();
+			std::string	Options();
 };
 
 #endif

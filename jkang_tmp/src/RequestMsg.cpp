@@ -142,6 +142,7 @@ void	Request::parse_file(std::string uri)
 	std::string	root = "/Users/jiwonkang/Webserv/jkang_tmp/src";
 
 	//only to pass tester
+
 	if (uri == "/directory")
 		uri = "/";
 	else if (uri == "/directory/youpi.bad_extension")

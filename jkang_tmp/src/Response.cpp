@@ -334,6 +334,38 @@ std::string Response::Post() // for temporary only! to pass tester...
 	return (res);
 }
 
+std::string	Response::Delete()
+{
+	std::string	msg;
+	//응답코드 3개 있는데 1.성공적으로 수행할 것 같으나 아직 실행x -> 202 (Accepted) 는 어떨 때 써야할지 모르겠다.
+	//2. 204 No Content 코드, 3. 200 OK -> 파일이 지워졌다는 페이지ㅡㄹㄹ 보여준다.
+	if (remove(req.get_path().c_str()) == 0)
+	{
+		msg = getStartLine();
+	}
+	return (msg);
+}
+
+std::string	Response::Options()
+{
+	std::string	msg;
+	//Get이ㅏㄹㅇ 똑같이
+	msg += getStartLine();
+	msg += "\n";
+	msg += printItem("Allow");
+	msg += printItem("Server");
+	msg += printItem("Date");
+	msg += printItem("Last-Modified");
+	msg += printItem("Content-Type");
+	msg += printItem("Content-Length");
+	msg += "\n";
+	if (_status.first == 200)
+		msg += body(req.get_path());
+	else
+		msg += body("error.html");
+	return (msg);
+}
+
 std::string Response::exec_method()
 {
 	std::string res = "";

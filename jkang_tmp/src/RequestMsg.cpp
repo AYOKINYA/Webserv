@@ -22,23 +22,25 @@ Request	&Request::operator=(Request const &other)
 
 void Request::header_check(void)
 {
-	//우리가 구현하는 헤더는 다 넣어야...
-	std::string header[11] = {
-		"Accept-Charsets", "Accept-Language", "Accept-Encoding", "Authorization",
-		"Host", "Location", "Referer", "Retry-After",
+	std::string header[19] = {
+		"Accept-Charsets", "Accept-Language", "Allow", "Authorization",
+		"Accept-Encoding", "Content-Language", "Content-Length", "Content-Location",
+		"Content-Type", "Date", "Host", "Last-Modified",
+		"Location", "Referer", "Retry-After", "Server",
 		"Transfer-Encoding", "User-Agent", "WWW-Authenticate"
 	};
 	std::map<std::string, std::string>::iterator it;
-	it = vars_request.begin();
+	if ((it = vars_request.begin()) == vars_request.end())
+		return ;
 	for(; it != vars_request.end(); it++)
 	{
 		int i;
-		for(i = 0; i < 11; i++)
+		for(i = 0; i < 19; i++)
 		{
 			if (!ft_strncmp(it->first.c_str(), header[i].c_str(), ft_strlen(header[i].c_str())))
 				break;
 		}
-		if (i == 11)
+		if (i == 19)
 		{
 			_error_code = 400;
 			break;

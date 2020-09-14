@@ -146,7 +146,8 @@ void	Server::init_server(void)
 					exit(1);
 				}
 				std::string req = "";
-				while ((valread = read(sd , buf, 1023)) != 0 && req.find("\r\n\r\n") == std::string::npos)
+				int complen = 0;
+				while ((valread = read(sd , buf, 1023)) != 0)
 				{
 					if (ft_strncmp(buf, "\x04", 1) == 0) // ctrl + d from telnet!
 					{
@@ -158,7 +159,20 @@ void	Server::init_server(void)
 						buf[valread] = '\0';
 						req += buf;
 					}
+					complen = req.length();
+					if ((complen > 3 && req.substr(complen - 4) == "\r\n\r\n") || complen > 10000000) 	
+						break ;
 				}
+				if (complen > 10000000)
+				{
+					int max = 10000000;
+					req[max - 1] = '\n';
+					req[max - 2] = '\r';
+					req[max - 3] = '\n';
+					req[max - 4] = '\r';
+					req.erase(max);
+				}
+
 				if (valread == -1 && errno != EAGAIN && errno != EWOULDBLOCK)
 					std::cout << "recv error" << std::endl;
 				else if (valread == 0)

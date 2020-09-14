@@ -91,7 +91,10 @@ void Request::parse_request(std::string req)
 	}
 	int	len;
 	if (vars_request.find("Transfer-Encoding") != vars_request.end() && ft_strncmp((vars_request.find("Transfer-Encoding")->second).c_str(), "chunked", 7) == 0)
+	{
+		std::cout << "chunked worked???" << std::endl;
 		parse_chunk(req);
+	}
 	else
 	{
 		if (vars_request.find("Content-Length") != vars_request.end())

@@ -353,7 +353,7 @@ std::string Response::Put()
 		close(fd);
 		/////msg//////
 		msg = "HTTP/1.1 201 Created\n";
-		msg += "Content-Location: /" + filename;
+		msg += "Content-Location: /" + filename + "\n\n";
 		return (msg);
 	}
 	else if (_request.get_filecheck() == 1)//파일을 있을 때 오픈해서 내용을 지우고 새로 입력한다
@@ -363,7 +363,7 @@ std::string Response::Put()
 		close(fd);
 		/////msg//////
 		msg = "HTTP/1.1 204 No Content\n"; //혹은 200 OK
-		msg += "Content-Location: /" + filename;
+		msg += "Content-Location: /" + filename + "\n\n";
 		return (msg);
 	}
 	return ("hi");

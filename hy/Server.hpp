@@ -26,8 +26,7 @@ class Server
 			struct sockaddr_in	_server_addr;
 			std::string			_msg;
 
-			Request				request;
-			Response			response;
+			//Request				request;
 			//std::vector<Client>		clients_;
 			Server() {};
 	public:

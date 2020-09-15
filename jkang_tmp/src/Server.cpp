@@ -160,10 +160,19 @@ void	Server::init_server(void)
 						req += buf;
 					}
 					complen = req.length();
-					if ((complen > 3 && req.substr(complen - 4) == "\r\n\r\n")) // body max size 조건 추가헤야 한다....
+					if ((complen > 3 && req.substr(complen - 4) == "\r\n\r\n"))//백만 사실 바디사이즈임
 						break ;
 				}
-
+				if (complen > 1000000) //백만 사실 바디사이즈임
+				{
+					int max = 1000000;
+					req[max -1] = '\n';
+					req[max -2] = '\r';
+					req[max -3] = '\n';
+					req[max -4] = '\r';
+					req.erase(max);
+					//암튼 이때 413 Request Entity Too Large 에러코드
+				}
 				if (valread == -1 && errno != EAGAIN && errno != EWOULDBLOCK)
 					std::cout << "recv error" << std::endl;
 				else if (valread == 0)

@@ -365,7 +365,6 @@ std::string Response::Put()
 	{
 		std::cout << url << std::endl;
 		int fd = open(url.c_str(), O_TRUNC | O_RDWR, 0777);
-
 		write(fd, _request.get_body().c_str(), _request.get_body().length());
 		close(fd);
 		/////msg//////

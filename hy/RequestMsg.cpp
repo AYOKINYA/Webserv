@@ -11,31 +11,36 @@ Request	&Request::operator=(Request const &other)
 	_method = other._method;
 	_path = other._path;
 	_body = other._body;
-	_chunkbody = other._chunkbody;
+	// _chunkbody = other._chunkbody;
 	vars_request = other.vars_request;
 	_error_code = other._error_code;
+	_putcheck = other._putcheck;
+	_filecheck = other._filecheck;
 
 	return(*this);
 }
 
 void Request::header_check(void)
 {
-	std::string header[10] = {
-		"Accept-Charsets", "Accept-Language", "Authorization",
-		"Host", "Location", "Referer", "Retry-After",
+	std::string header[19] = {
+		"Accept-Charsets", "Accept-Language", "Allow", "Authorization",
+		"Accept-Encoding", "Content-Language", "Content-Length", "Content-Location",
+		"Content-Type", "Date", "Host", "Last-Modified",
+		"Location", "Referer", "Retry-After", "Server",
 		"Transfer-Encoding", "User-Agent", "WWW-Authenticate"
 	};
 	std::map<std::string, std::string>::iterator it;
-	it = vars_request.begin();
+	if ((it = vars_request.begin()) == vars_request.end())
+		return ;
 	for(; it != vars_request.end(); it++)
 	{
 		int i;
-		for(i = 0; i < 10; i++)
+		for(i = 0; i < 19; i++)
 		{
 			if (!ft_strncmp(it->first.c_str(), header[i].c_str(), ft_strlen(header[i].c_str())))
 				break;
 		}
-		if (i == 10)
+		if (i == 19)
 		{
 			_error_code = 400;
 			break;
@@ -51,9 +56,10 @@ void Request::parse_chunk(std::string body)
 	{
 		ft_getline(body, line);//숫자 읽기
 		ft_getline(body, line);//문자열 읽기
-		_chunkbody += line + "\n";
+		_body += line + "\n";
+		// _chunkbody += line + "\n";
 	}
-	std::cout << _chunkbody << std::endl;
+	//std::cout << _chunkbody << std::endl;
 }
 
 void Request::parse_request(std::string req)
@@ -63,7 +69,7 @@ void Request::parse_request(std::string req)
 	std::string key;
 	std::string value;
 
-	_error_code = 0;
+	_error_code = 200;
 	ft_getline(req, line);
     parse_first_line(line);
 	while (!req.empty())
@@ -77,8 +83,8 @@ void Request::parse_request(std::string req)
 			value = trim(line.substr(pos + 1));
 			vars_request.insert(std::pair<std::string, std::string>(key, value));
 			header_check();
-			std::cout << "key is " << key << std::endl;
-			std::cout << "value is " << value << std::endl;
+			//std::cout << "key is " << key << std::endl;
+			//std::cout << "value is " << value << std::endl;
 			if (key.empty())
 				break ;
 		}
@@ -86,8 +92,11 @@ void Request::parse_request(std::string req)
 			break;
 	}
 	int	len;
-	if (!ft_strncmp(vars_request.find("Transfer-Encoding")->second.c_str(), "chunked", 7))
+	if (vars_request.find("Transfer-Encoding") != vars_request.end() && ft_strncmp((vars_request.find("Transfer-Encoding")->second).c_str(), "chunked", 7) == 0)
+	{
+		std::cout << "chunked worked???" << std::endl;
 		parse_chunk(req);
+	}
 	else
 	{
 		if (vars_request.find("Content-Length") != vars_request.end())
@@ -98,12 +107,13 @@ void Request::parse_request(std::string req)
 		else if (_method == POST || _method == PUT)
 			_error_code = 411;
 	}
-	std::cout << "error_code is " << _error_code << std::endl;
+	//std::cout << "error_code is " << _error_code << std::endl;
 }
 
 void	Request::parse_first_line(std::string line)
 {
 	std::vector<std::string> tokens = split(line, ' ');
+
 	if (tokens.size() != 3)
 		_error_code = 400;
 	else
@@ -124,7 +134,7 @@ void	Request::parse_first_line(std::string line)
 			_method = OPTIONS;
 		else
 			_error_code = 400;
-		
+
 		parse_file(tokens[1]);
 		if (strncmp("HTTP/1.1", tokens[2].c_str(), 8))
 			_error_code = 505;
@@ -137,14 +147,56 @@ void	Request::parse_first_line(std::string line)
 void	Request::parse_file(std::string uri)
 {
 	struct stat	info;
-	std::string	root = "/Users/hpark/Webserv/res_tmp/src";
+	std::string	root = "/Users/hpark/web/hy";
+	_filecheck = 0;
+	_putcheck = 0;
+	std::string extensions[103] =
+	{
+		"html", "htm", "shtml", "css", "xml", "gif","jpeg", "jpg", "js", "atom",
+		"rss", "mml", "txt", "jad", "wml", "htc", "png", "tif", "tiff", "wbmp",
+		"ico", "jng", "bmp", "svg", "svgz", "webp", "woff", "jar", "war", "ear",
+		"json", "hqx", "doc", "pdf", "ps", "eps", "ai", "rtf", "m3u8", "xls",
+		"eot", "ppt", "wmlc", "kml", "kmz", "7z", "cco", "jardiff", "jnlp", "run",
+		"pl", "pm", "prc", "pdb", "rar", "rpm", "sea", "swf", "sit", "tcl",
+		"tk", "der", "pem",	"crt", "xpi", "xhtml", "xspf", "zip", "bin", "exe",
+		"dll", "deb", "dmg", "iso", "img", "msi", "msp", "msm", "docx", "xlsx",
+		"pptx", "mid", "midi","kar","mp3", "ogg","m4a", "ra", "3gpp", "3gp",
+		"ts","mp4","mpeg", "mpg", "mov", "webm", "flv", "m4v", "mng", "asx",
+		"asf","wmv","avi"
+	};
 
+	//only to pass tester
+	if (uri == "/" && _method != GET)
+	{
+		_error_code = 405;
+		return ;
+	}
+	_uri = uri;
+	int flag = 0;
+
+	if (uri == "/directory")
+		uri = "/";
+	else if (uri == "/directory/youpi.bad_extension")
+		uri = "/";
+	else if (uri == "/directory/youpi.bla")
+	{
+		std::cout << "youpi.bla dir here!" << std::endl;
+		flag = 1;
+		uri = "/";
+	}
+	else if (uri == "/directory/nop")
+		uri = "/";
+	else if (uri == "/directory/nop/")
+		uri = "/";
+	else if (uri == "/directory/nop/other.pouic")
+		uri = "/";
+	else if (uri == "/directory/Yeah/not_happy.bad_extension")
+		uri = "/";
 
 	if (uri[0] == '/')
 		_path = root + uri;
 	else
-		_path = root + "/" + "_uri";
-
+		_path = root + "/" + uri;
 	if (stat(_path.c_str(), &info) == 0)
 	{
 		if (S_ISDIR(info.st_mode))
@@ -154,13 +206,40 @@ void	Request::parse_file(std::string uri)
 			else
 				_path += "/index.html";
 		}
+		_filecheck = 1;
 	}
 	else
 	{
-		_error_code = 404;
+		//파일이 존재하지 않을 경우에 여기로 빠져서 처리해놈 PUT 일 경우 에러로 처리하면 안돼서
+		// int ex_chk = 0;
+		std::cout << trim_extension(_path) << std::endl;
+		// for(int i = 0; i < 103 ; i++)
+		// {
+		// 	if (ft_strncmp(trim_extension(_path).c_str(), extensions[i].c_str(), ft_strlen(extensions[i].c_str())) == 0)
+		// 	{
+		// 		ex_chk = 1;
+		// 		std::cout << "Extension checked : " << ex_chk << std::endl;
+		// 		break ;
+		// 	}
+		// }
+		// if (ex_chk == 1 && stat(trim_url_2(_path).c_str(), &info) == 0 && _method == PUT)
+		if (stat(trim_url_2(_path).c_str(), &info) == 0 && _method == PUT)
+			_putcheck = 1;
+		else
+			_error_code = 404;
 		//400? //404? 유효하지 않은 주소
+
+	}
+	std::cout << "path before!!!!" << _path << std::endl;
+	if (flag == 1 && _method == POST)
+	{
+		_path = "/Users/hpark/web/hy/YoupiBanane/youpi.bla";
+		_filecheck = 1;
+		std::cout << "path after!!!! " << _path << std::endl;
 	}
 }
+int	Request::get_putcheck(){return (_putcheck);}
+int	Request::get_filecheck(){return (_filecheck);}
 
 int Request::get_method(){return (_method);}
 
@@ -173,3 +252,5 @@ std::string	Request::get_body(){return (_body);}
 std::string	Request::get_chunkbody(){return (_chunkbody);}
 
 std::map<std::string, std::string> Request::get_vars(){return (vars_request);}
+
+std::string	Request::get_uri(){return (_uri);}

@@ -72,7 +72,7 @@ void	Server::init_server(void)
 		exit(1);
 	}
 
-	char buf[3001];
+	char buf[1024];
 	int new_socket;
 
 	fd_set readfds;
@@ -119,7 +119,7 @@ void	Server::init_server(void)
 				exit(1);
 			}
 			usleep(2000);
-			ft_memset(buf, 0, 3001);
+			ft_memset(buf, 0, 1024);
 			for (int i = 0; i < max_clients; i++)
 			{
 				//if position is empty
@@ -146,19 +146,24 @@ void	Server::init_server(void)
 					exit(1);
 				}
 				std::string req = "";
-				while ((valread = read(sd , buf, 1024)) != 0 && req.find("\r\n\r\n") == std::string::npos)
+				int complen = 0;
+				while ((valread = read(sd , buf, 1023)) != 0)
 				{
+					if (ft_strncmp(buf, "\x04", 1) == 0) // ctrl + d from telnet!
+					{
+						valread = 0; // to close client's socket.
+						break;
+					}
 					if (valread > 0)
 					{
 						buf[valread] = '\0';
-					//ReceieveRequest 여기서!
-					//첫번째 read한 buf로 리퀘스트 파싱 처리
-					//2번째 read부터는 request 바디에 추가?
-					
-					req += buf;
+						req += buf;
 					}
-
+					complen = req.length();
+					if ((complen > 3 && req.substr(complen - 4) == "\r\n\r\n")) // body max size 조건 추가헤야 한다....
+						break ;
 				}
+
 				if (valread == -1 && errno != EAGAIN && errno != EWOULDBLOCK)
 					std::cout << "recv error" << std::endl;
 				else if (valread == 0)
@@ -167,28 +172,19 @@ void	Server::init_server(void)
 					client_socket[i] = 0;
 				}
 				std::cout << req << std::endl;
+				Request request;
 				request.parse_request(req);
-				
-				// m.receiveRequest(buf);
-				// m.sendRespond(sd);
-				std::cout << request.get_path() << std::endl;
-				
-				std::string response_msg = response.getStartLine();
-				response_msg += "\n";
-				response_msg += response.header(request.get_path());
-				response_msg += "\n";
-				response_msg += response.body(request.get_path());
+
+				Response	response(request);
+
+				std::string response_msg = response.exec_method();
+
 				std::cout << response_msg << std::endl;
 				send(sd, response_msg.c_str(), response_msg.length(), 0);
 				std::cout << "Server sent message" << std::endl;
 
-				//buffer[valread] = '\0';
-				//send(sd , buffer , strlen(buffer) , 0 );
-				
-				ft_memset(buf, 0, 3001);
+				ft_memset(buf, 0, 1024);
 			}
 		}
-
-
 	}
 }

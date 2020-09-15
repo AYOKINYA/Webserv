@@ -1,4 +1,3 @@
-Status: 500 Internal Server Error
-Content-Type: text/html; charset=utf-8
+cgi: failed to parse REQUEST_URI into a URL: /Users/jiyoonhur/Webserv/hy/cgi_tester?awefwef
 
-PATH_INFO not found
+d

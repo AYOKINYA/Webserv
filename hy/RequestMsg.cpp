@@ -1,6 +1,12 @@
 #include "RequestMsg.hpp"
 
 Request::Request(){_error_code = 0; _body = "";}
+Request::Request(std::string client_ip)
+{
+	_error_code = 0;
+	_body = "";
+	_client_ip = client_ip;
+}
 Request::~Request(){}
 Request::Request(Request const &other){*this = other;}
 Request	&Request::operator=(Request const &other)
@@ -16,6 +22,7 @@ Request	&Request::operator=(Request const &other)
 	_error_code = other._error_code;
 	_putcheck = other._putcheck;
 	_filecheck = other._filecheck;
+	_client_ip = other._client_ip;
 
 	return(*this);
 }
@@ -147,7 +154,7 @@ void	Request::parse_first_line(std::string line)
 void	Request::parse_file(std::string uri)
 {
 	struct stat	info;
-	std::string	root = "/Users/hpark/web/hy";
+	std::string	root = "/Users/jiyoonhur/Webserv/hy";
 	_filecheck = 0;
 	_putcheck = 0;
 	std::string extensions[103] =
@@ -233,7 +240,7 @@ void	Request::parse_file(std::string uri)
 	std::cout << "path before!!!!" << _path << std::endl;
 	if (flag == 1 && _method == POST)
 	{
-		_path = "/Users/hpark/web/hy/YoupiBanane/youpi.bla";
+		_path = "/Users/jiyoonhur/Webserv/hy/YoupiBanane/youpi.bla";
 		_filecheck = 1;
 		std::cout << "path after!!!! " << _path << std::endl;
 	}
@@ -254,3 +261,5 @@ std::string	Request::get_chunkbody(){return (_chunkbody);}
 std::map<std::string, std::string> Request::get_vars(){return (vars_request);}
 
 std::string	Request::get_uri(){return (_uri);}
+
+std::string	Request::get_clientip(){return (_client_ip);}

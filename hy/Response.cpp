@@ -433,25 +433,27 @@ char	**Response::Env()
 	std::map<std::string, std::string> map;
 
 	map["CONTENT_LENGTH"] = std::to_string(_request.get_body().size());
-	
+
 	//request에서 받아온 값? 헤더값?
 	map["CONTENT_TYPE"] = "";
 	if (_request.get_vars().find("Content-Type") != _request.get_vars().end())
 		map["CONTENT_TYPE"] = _request.get_vars().find("Content-Type")->second;
-	
+
 	map["GATEWAY_INTERFACE"] = "CGI/1.1";
-	
+
 	//request_path? uri?
 	// map["PATH_INFO"] = "";
 	map["PATH_INFO"] = _request.get_path();
-	
+	//"\"/" + _request.get_uri() + "\"";
+
 	map["PATH_TRANSLATED"] = _request.get_path();
-	
+
 	//body에서 추출
-	map["QUERY_STRING"] = "";
+	map["QUERY_STRING"] = _request.get_body();
 
 	//client의 IP
-	map["REMOTE_ADDR"] = "";
+	// std::cout << "client ip plz" << _request.get_clientip() << std::endl;
+	map["REMOTE_ADDR"] = _request.get_clientip();
 
 	//뭘까?
 	map["REMOTE_IDENT"] = "";

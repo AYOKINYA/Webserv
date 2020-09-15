@@ -448,10 +448,10 @@ char	**Response::Env()
 	map["PATH_TRANSLATED"] = _request.get_path();
 	
 	//body에서 추출
-	map["QUERY_STRING"] = "";
+	map["QUERY_STRING"] = "123";
 
 	//client의 IP
-	map["REMOTE_ADDR"] = "";
+	map["REMOTE_ADDR"] = "127.0.0.1";
 
 	//뭘까?
 	map["REMOTE_IDENT"] = "";

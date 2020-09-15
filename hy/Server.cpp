@@ -48,7 +48,6 @@ void	Server::init_server(void)
 		perror("setsockopt");
 		exit(EXIT_FAILURE);
 	}
-
 	ft_memset((void *)&_server_addr, 0, (unsigned long)sizeof(_server_addr)); // 왜 libft ft_memset link가 안 될까?
 	_server_addr.sin_family = AF_INET;
 	_server_addr.sin_addr.s_addr = INADDR_ANY;
@@ -132,6 +131,8 @@ void	Server::init_server(void)
 			}
 		}
 
+		// struct sockaddr_in client_addr;
+		socklen_t c_addrlen = sizeof(client_addr);
 		for (int i = 0; i < max_clients; i++)
 		{
 			sd = client_socket[i];
@@ -140,6 +141,9 @@ void	Server::init_server(void)
 			{
 				int	valread;
 
+				getsockname(sd, (struct sockaddr *)&client_addr, &c_addrlen);
+				std::string client_ip = inet_ntoa(client_addr.sin_addr);
+				// std::cout << "client ip is " << client_ip << std::endl;
 				if (fcntl(sd, F_SETFL, O_NONBLOCK) == -1)
 				{
 					std::cerr << "Error: " << _name << " init_server() fcntl: " << strerror(errno) << std::endl;
@@ -172,7 +176,7 @@ void	Server::init_server(void)
 					client_socket[i] = 0;
 				}
 				std::cout << req << std::endl;
-				Request request;
+				Request request(client_ip);
 				request.parse_request(req);
 
 				Response	response(request);

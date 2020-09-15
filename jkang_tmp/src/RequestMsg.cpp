@@ -147,7 +147,7 @@ void	Request::parse_first_line(std::string line)
 void	Request::parse_file(std::string uri)
 {
 	struct stat	info;
-	std::string	root = "/Users/jiwonkang/Webserv/jkang_tmp/src";
+	std::string	root = "/Users/jiyoonhur/Webserv/jkang_tmp/src";
 	_filecheck = 0;
 	_putcheck = 0;
 	std::string extensions[103] =

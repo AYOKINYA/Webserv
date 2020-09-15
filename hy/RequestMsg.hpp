@@ -35,9 +35,11 @@ class   Request
 		int			_filecheck;
 		int			_putcheck;
 		std::string	_uri;
+		std::string _client_ip;
 
 	public:
 		Request();
+		Request(std::string client_ip);
 		~Request();
 		Request(Request const &other);
 		Request	&operator=(Request const &other);
@@ -55,6 +57,7 @@ class   Request
 		void		header_check();
 		std::map<std::string, std::string>	get_vars();
 		std::string	get_uri();
+		std::string	get_clientip();
 
 };
 

@@ -24,6 +24,7 @@ class Server
 			int					_port;
 			int					_sockfd;
 			struct sockaddr_in	_server_addr;
+			struct sockaddr_in	client_addr;
 			std::string			_msg;
 
 			//Request				request;

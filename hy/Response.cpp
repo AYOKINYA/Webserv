@@ -488,9 +488,9 @@ char	**Response::Env()
 	map["CONTENT_LENGTH"] = std::to_string(_request.get_body().size());
 
 	//request에서 받아온 값? 헤더값?
-	map["CONTENT_TYPE"] = "";
-	if (_request.get_vars().find("Content-Type") != _request.get_vars().end())
-		map["CONTENT_TYPE"] = _request.get_vars().find("Content-Type")->second;
+	map["CONTENT_TYPE"] = "text/html";
+	// if (_request.get_vars().find("Content-Type") != _request.get_vars().end())
+	// 	map["CONTENT_TYPE"] = _request.get_vars().find("Content-Type")->second;
 
 	map["GATEWAY_INTERFACE"] = "CGI/1.1";
 
@@ -580,8 +580,9 @@ std::string Response::Post() // for temporary only! to pass tester...
 	}
 	env = Env();
 	args = (char **)(malloc(sizeof(char *) * 3));
-	args[0] = ft_strdup("/Users/hpark/web/hy/cgi_tester");
-	args[1] = ft_strdup(_request.get_path().c_str());
+	args[0] = ft_strdup("/usr/bin/php-cgi");
+	args[1] = ft_strdup("/Users/jiyoonhur/Webserv/hy/test.php");
+	// args[1] = ft_strdup(_request.get_path().c_str());
 	args[2] = NULL;
 
 	fd = open("cgi.txt", O_WRONLY | O_CREAT, 0666);

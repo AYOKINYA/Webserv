@@ -285,8 +285,8 @@ std::string	Response::cgi (void)
 	std::string	res;
 
 	args = (char **)(malloc(sizeof(char *) * 3));
-	// args[0] = ft_strdup("/Users/hpark/web/hy/cgi_tester");
-	args[0] = ft_strdup("/usr/local/bin/php-cgi");
+	args[0] = ft_strdup("/Users/jiyoonhur/Webserv/hy/cgi_tester");
+	// args[0] = ft_strdup("/usr/local/bin/php-cgi");
 	args[1] = ft_strdup(_request.get_path().c_str());
 	args[2] = NULL;
 
@@ -336,7 +336,7 @@ std::string Response::Get (void)
 	// size_t last = _request.get_path().find_last_of(' ');
 	// if (!ft_strncmp(_request.get_path().substr(first + 1, (last - first + 1)).c_str(), "php", 3))
 	std::string extension = trim_extension(_request.get_path());
-	if (extension == "bla" || extension == "pl" ||  extension == "php")
+	if (extension == "bla" || extension == "pl" ||  extension == "php" || extension == "cgi")
 		return (cgi());
 
 	res += getStartLine();
@@ -503,9 +503,8 @@ char	**Response::Env()
 	map["GATEWAY_INTERFACE"] = "CGI/1.1";
 
 	//request_path? uri?
-	// map["PATH_INFO"] = "";
-	map["PATH_INFO"] = _request.get_path();
-	//"\"/" + _request.get_uri() + "\"";
+	// map["PATH_INFO"] = _request.get_path();
+	map["PATH_INFO"] = "test.php";
 
 	map["PATH_TRANSLATED"] = _request.get_path();
 
@@ -523,8 +522,8 @@ char	**Response::Env()
 		map["REQUEST_METHOD"] = "GET";
 	if (_request.get_method() == POST)
 		map["REQUEST_METHOD"] = "POST";
-	// map["REQUEST_URI"] = "";
-	map["REQUEST_URI"] = _request.get_uri();
+	map["REQUEST_URI"] = "test.php";
+	// map["REQUEST_URI"] = _request.get_uri();
 
 	//cgi 컴파일한 파일
 	map["SCRIPT_NAME"] = _request.get_uri();

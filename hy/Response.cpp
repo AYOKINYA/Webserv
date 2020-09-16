@@ -286,7 +286,11 @@ std::string	Response::cgi (void)
 	int		tubes[2];
 
 	args = (char **)(malloc(sizeof(char *) * 3));
+<<<<<<< HEAD
+	args[0] = ft_strdup("/Users/jiyoonhur/Webserv/hy/cgi_tester");
+=======
 	args[0] = ft_strdup("/Users/hpark/Webserv/hy/cgi_tester");
+>>>>>>> 1177b34e4f9f94af79afe9a24fc6b612ef1b27f9
 	// args[0] = ft_strdup("/usr/local/bin/php-cgi");
 	args[1] = ft_strdup(_request.get_path().c_str());
 	args[2] = NULL;
@@ -508,6 +512,7 @@ char	**Response::Env()
 	map["GATEWAY_INTERFACE"] = "CGI/1.1";
 
 	//request_path? uri?
+
 	// map["PATH_INFO"] = "";
 	// map["PATH_INFO"] = _request.get_uri();
 	map["PATH_INFO"] = _request.get_path();
@@ -529,8 +534,9 @@ char	**Response::Env()
 		map["REQUEST_METHOD"] = "GET";
 	if (_request.get_method() == POST)
 		map["REQUEST_METHOD"] = "POST";
+
 	// map["REQUEST_URI"] = "";
-	
+
 	map["REQUEST_URI"] = _request.get_path();
 	// map["REQUEST_URI"] = _request.get_uri();
 	// map["REQUEST_URI"] = "test.php/";

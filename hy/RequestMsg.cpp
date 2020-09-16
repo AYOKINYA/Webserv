@@ -23,6 +23,7 @@ Request	&Request::operator=(Request const &other)
 	_putcheck = other._putcheck;
 	_filecheck = other._filecheck;
 	_client_ip = other._client_ip;
+	_uri = other._uri;
 
 	return(*this);
 }
@@ -89,7 +90,7 @@ void Request::parse_request(std::string req)
 			key = trim(line.substr(0, pos));
 			value = trim(line.substr(pos + 1));
 			vars_request.insert(std::pair<std::string, std::string>(key, value));
-			header_check();
+			// header_check();
 			//std::cout << "key is " << key << std::endl;
 			//std::cout << "value is " << value << std::endl;
 			if (key.empty())
@@ -154,7 +155,7 @@ void	Request::parse_first_line(std::string line)
 void	Request::parse_file(std::string uri)
 {
 	struct stat	info;
-	std::string	root = "/Users/jiyoonhur/Webserv/hy";
+	std::string	root = "/Users/hpark/web/hy";
 	_filecheck = 0;
 	_putcheck = 0;
 	std::string extensions[103] =
@@ -240,7 +241,7 @@ void	Request::parse_file(std::string uri)
 	std::cout << "path before!!!!" << _path << std::endl;
 	if (flag == 1 && _method == POST)
 	{
-		_path = "/Users/jiyoonhur/Webserv/hy/YoupiBanane/youpi.bla";
+		_path = "/Users/hpark/web/hy/YoupiBanane/youpi.bla";
 		_filecheck = 1;
 		std::cout << "path after!!!! " << _path << std::endl;
 	}

@@ -278,6 +278,59 @@ std::string Response::Get (void)
 {
 	std::string res = "";
 
+	size_t first = _request.get_path().find_last_of('.');
+	size_t last = _request.get_path().find_last_of(' ');
+	if (!ft_strncmp(_request.get_path().substr(first + 1, (last - first + 1)).c_str(), "php", 3))
+	{
+	char **env;
+	char	**args;
+	int fd, pid;
+	env = Env();
+	struct stat php;
+	int		ret;
+	std::string	res;
+
+	args = (char **)(malloc(sizeof(char *) * 3));
+	// args[0] = ft_strdup("/Users/hpark/web/hy/cgi_tester");
+	args[0] = ft_strdup("/usr/local/bin/php-cgi");
+	args[1] = ft_strdup(_request.get_path().c_str());
+	args[2] = NULL;
+
+	fd = open("cgi.txt", O_WRONLY | O_CREAT, 0666);
+	if ((pid = fork()) == 0)
+	{
+		dup2(fd, 1);
+		if (stat(_request.get_path().c_str(), &php) != 0 ||
+		!(php.st_mode & S_IFREG))
+		{
+			std::cout << "Error CGI\n";
+			exit(1);
+		}
+		if ((ret = execve(args[0], args, env)) == -1)
+		{
+			std::cout << std::string(strerror(errno)) << std::endl;
+			exit(1);
+		}
+	}
+	else
+	{
+		waitpid(pid, NULL, 0);
+		close(fd);
+	}
+	char	buf[10000];
+	res = getStartLine();
+	res += "\n";
+	fd = open("./cgi.txt", O_RDONLY, 0666);
+	int	r = lseek(fd, 0, SEEK_END);
+	lseek(fd, 0, SEEK_SET);
+	read(fd, &buf, r);
+	std::cout << buf << std::endl;
+	res += buf;
+	close(fd);
+	res += "\n\n";
+	return (res);
+	}
+
 	res += getStartLine();
 	res += "\n";
 	res += printItem("Server");
@@ -449,7 +502,7 @@ char	**Response::Env()
 	map["PATH_TRANSLATED"] = _request.get_path();
 
 	//body에서 추출
-	map["QUERY_STRING"] = _request.get_body();
+	map["QUERY_STRING"] = "";
 
 	//client의 IP
 	// std::cout << "client ip plz" << _request.get_clientip() << std::endl;
@@ -463,10 +516,10 @@ char	**Response::Env()
 	if (_request.get_method() == POST)
 		map["REQUEST_METHOD"] = "POST";
 	// map["REQUEST_URI"] = "";
-	map["REQUEST_URI"] = _request.get_uri();;
+	map["REQUEST_URI"] = _request.get_uri();
 
 	//cgi 컴파일한 파일
-	map["SCRIPT_NAME"] = "";
+	map["SCRIPT_NAME"] = _request.get_uri();
 // 6
 // Webserv This is when you finally understand why a url starts with HTTP
 
@@ -476,6 +529,17 @@ char	**Response::Env()
 //?????
 	map["SERVER_PROTOCOL"] = "HTTP/1.1";
 	map["SERVER_SOFTWARE"] = "HTTP/1.1";
+
+	map["REDIRECT_STATUS"] = "200";
+	// //header
+	// map["Content-type"] = "text/html";
+	// map["Expires"] = printItem("Date");
+	// map["Location"] = _request.get_uri();
+	// map["Content-Length"] = "100";
+	// map["Set-Cookie"] = "";
+
+
+
 
 	env = (char **)malloc(sizeof(char *) * (map.size() + 1));
 	std::map<std::string, std::string>::iterator it = map.begin();
@@ -516,8 +580,8 @@ std::string Response::Post() // for temporary only! to pass tester...
 	}
 	env = Env();
 	args = (char **)(malloc(sizeof(char *) * 3));
-	args[0] = ft_strdup(_request.get_path().c_str());
-	args[1] = NULL;
+	args[0] = ft_strdup("/Users/hpark/web/hy/cgi_tester");
+	args[1] = ft_strdup(_request.get_path().c_str());
 	args[2] = NULL;
 
 	fd = open("cgi.txt", O_WRONLY | O_CREAT, 0666);

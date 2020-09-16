@@ -1,3 +1,27 @@
-cgi: failed to parse REQUEST_URI into a URL: /Users/jiyoonhur/Webserv/hy/cgi_tester?awefwef
+X-Powered-By: PHP/7.4.10
+Content-type: text/html; charset=UTF-8
 
-d
+<?
+	phpinfo(INFO_VARIABLES);
+?>     (
+        )
+
+    [_POST] => Array
+        (
+        )
+
+    [_COOKIE] => Array
+        (
+        )
+
+    [_FILES] => Array
+        (
+        )
+
+    [GLOBALS] => Array
+ *RECURSION*
+)
+ation as to <i>why</i> this behaviour exists, see the <a href="http://php.net/security.cgi-bin">manual page for CGI security</a>.</p>
+<p>For more information about changing this behaviour or re-enabling this webserver,
+consult the installation file that came with this distribution, or visit 
+<a href="http://php.net/install.windows">the manual page</a>.</p>

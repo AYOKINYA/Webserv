@@ -175,19 +175,22 @@ void	Server::init_server(void)
 					close( sd );
 					client_socket[i] = 0;
 				}
-				std::cout << req << std::endl;
-				Request request(client_ip);
-				request.parse_request(req);
+				else
+				{
+					std::cout << req << std::endl;
+					Request request(client_ip);
+					request.parse_request(req);
 
-				Response	response(request);
+					Response	response(request);
 
-				std::string response_msg = response.exec_method();
+					std::string response_msg = response.exec_method();
 
-				std::cout << response_msg << std::endl;
-				send(sd, response_msg.c_str(), response_msg.length(), 0);
-				std::cout << "Server sent message" << std::endl;
+					std::cout << response_msg << std::endl;
+					send(sd, response_msg.c_str(), response_msg.length(), 0);
+					std::cout << "Server sent message" << std::endl;
 
-				ft_memset(buf, 0, 1024);
+					ft_memset(buf, 0, 1024);
+				}
 			}
 		}
 	}

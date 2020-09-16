@@ -286,11 +286,10 @@ std::string	Response::cgi (void)
 	int		tubes[2];
 
 	args = (char **)(malloc(sizeof(char *) * 3));
-<<<<<<< HEAD
-	args[0] = ft_strdup("/Users/jiyoonhur/Webserv/hy/cgi_tester");
-=======
+
+	//args[0] = ft_strdup("/Users/jiyoonhur/Webserv/hy/cgi_tester");
+
 	args[0] = ft_strdup("/Users/hpark/Webserv/hy/cgi_tester");
->>>>>>> 1177b34e4f9f94af79afe9a24fc6b612ef1b27f9
 	// args[0] = ft_strdup("/usr/local/bin/php-cgi");
 	args[1] = ft_strdup(_request.get_path().c_str());
 	args[2] = NULL;
@@ -304,13 +303,13 @@ std::string	Response::cgi (void)
 		if (stat(_request.get_path().c_str(), &php) != 0 ||
 		!(php.st_mode & S_IFREG))
 		{
-			std::cout << "Error CGI\n";
+			std::cerr << "Error CGI" << std::endl;
 			exit(1);
 		}
 		dup2(tubes[0], 0);
 		if ((ret = execve(args[0], args, env)) == -1)
 		{
-			std::cout << std::string(strerror(errno)) << std::endl;
+			std::cerr << std::string(strerror(errno)) << std::endl;
 			exit(1);
 		}
 	}
@@ -321,17 +320,19 @@ std::string	Response::cgi (void)
 		close(tubes[0]);
 	}
 	char	buf[10000];
-
-	res = getStartLine();
-	res += "\n";
+	// execve 결과에 status code도 다 담겨서 나온다.
+	// res = getStartLine();
+	// res += "\n";
 	fd = open("./cgi.txt", O_RDONLY, 0666);
 	int	r = lseek(fd, 0, SEEK_END);
 	lseek(fd, 0, SEEK_SET);
 	r = read(fd, &buf, r);
 	buf[r] = '\0';
-	std::cout << buf << std::endl;
-	res += buf;
 	close(fd);
+	std::cout << "==========" << std::endl;
+	std::cout << buf << std::endl;
+	std::cout << "==========" << std::endl;
+	res += buf;
 	res += "\n\n";
 
 	return (res);
@@ -542,12 +543,10 @@ char	**Response::Env()
 	// map["REQUEST_URI"] = "test.php/";
 
 	//cgi 컴파일한 파일
-		map["SCRIPT_NAME"] = "." + _request.get_uri();
+		map["SCRIPT_NAME"] = "." + _request.get_uri(); //get_path로 해도 되고 . 빼도 된다... 도대체 뭐지...
 	// map["SCRIPT_NAME"] = _request.get_path();
 	// map["SCRIPT_NAME"] = "test.php/";
 
-// 6
-// Webserv This is when you finally understand why a url starts with HTTP
 
 	//받아와야함
 	map["SERVER_NAME"] = "Carry-Please";

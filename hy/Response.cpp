@@ -274,14 +274,8 @@ std::string Response::body(const std::string &path)
 	return (res);
 }
 
-std::string Response::Get (void)
+std::string	Response::cgi (void)
 {
-	std::string res = "";
-
-	size_t first = _request.get_path().find_last_of('.');
-	size_t last = _request.get_path().find_last_of(' ');
-	if (!ft_strncmp(_request.get_path().substr(first + 1, (last - first + 1)).c_str(), "php", 3))
-	{
 	char **env;
 	char	**args;
 	int fd, pid;
@@ -318,18 +312,30 @@ std::string Response::Get (void)
 		close(fd);
 	}
 	char	buf[10000];
+
 	res = getStartLine();
 	res += "\n";
 	fd = open("./cgi.txt", O_RDONLY, 0666);
 	int	r = lseek(fd, 0, SEEK_END);
 	lseek(fd, 0, SEEK_SET);
-	read(fd, &buf, r);
+	r = read(fd, &buf, r);
+	buf[r] = '\0';
 	std::cout << buf << std::endl;
 	res += buf;
 	close(fd);
 	res += "\n\n";
+
 	return (res);
-	}
+}
+
+std::string Response::Get (void)
+{
+	std::string res = "";
+
+	size_t first = _request.get_path().find_last_of('.');
+	size_t last = _request.get_path().find_last_of(' ');
+	if (!ft_strncmp(_request.get_path().substr(first + 1, (last - first + 1)).c_str(), "php", 3))
+		return (cgi());
 
 	res += getStartLine();
 	res += "\n";
@@ -557,11 +563,6 @@ return(env);
 
 std::string Response::Post() // for temporary only! to pass tester...
 {
-	char	**env;
-	char	**args;
-	int		fd, pid;
-	struct stat php;
-	int		ret;
 	std::string	res;
 
 	if (_request.get_error_code() != 200)
@@ -569,64 +570,14 @@ std::string Response::Post() // for temporary only! to pass tester...
 		res = getStartLine();
 		res += "\n";
 		res += printItem("Server");
-	res += printItem("Date");
-	res += printItem("Last-Modified");
-	res += printItem("Content-Type");
-	res += printItem("Content-Length");
-	res += "\n";
-	res += (body("error.html"));
+		res += printItem("Date");
+		res += printItem("Last-Modified");
+		res += printItem("Content-Type");
+		res += printItem("Content-Length");
+		res += "\n";
+		res += (body("error.html"));
 		res += "\n\n";
 		return res;
 	}
-	env = Env();
-	args = (char **)(malloc(sizeof(char *) * 3));
-	args[0] = ft_strdup("/usr/bin/php-cgi");
-	args[1] = ft_strdup("/Users/jiyoonhur/Webserv/hy/test.php");
-	// args[1] = ft_strdup(_request.get_path().c_str());
-	args[2] = NULL;
-
-	fd = open("cgi.txt", O_WRONLY | O_CREAT, 0666);
-	if ((pid = fork()) == 0)
-	{
-		dup2(fd, 1);
-		if (stat(_request.get_path().c_str(), &php) != 0 ||
-		!(php.st_mode & S_IFREG))
-		{
-			std::cout << "Error CGI\n";
-			exit(1);
-		}
-		if ((ret = execve(args[0], args, env)) == -1)
-		{
-			std::cout << std::string(strerror(errno)) << std::endl;
-			exit(1);
-		}
-	}
-	else
-	{
-		waitpid(pid, NULL, 0);
-		close(fd);
-	}
-	// std::string res = "";
-
-	// setStatus(405);
-	// setContentLength("./erro.html");
-	char	buf[10000];
-	res = getStartLine();
-	res += "\n";
-	fd = open("./cgi.txt", O_RDONLY, 0666);
-	int	r = lseek(fd, 0, SEEK_END);
-	lseek(fd, 0, SEEK_SET);
-	read(fd, &buf, r);
-	std::cout << buf << std::endl;
-	res += buf;
-	close(fd);
-	res += "\n\n";
-		// res += printItem("Server");
-	// res += printItem("Date");
-	// res += printItem("Last-Modified");
-	// res += printItem("Content-Type");
-	// res += printItem("Content-Length");
-	// res += "\n";
-	// res += (body("error.html"));
-	return (res);
+	return (cgi());
 }

@@ -53,6 +53,7 @@ class Response
 			std::string Put();
 			std::string	Delete();
 			std::string	Options();
+			std::string	cgi(void);
 			char	**Env();
 };
 

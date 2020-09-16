@@ -32,8 +32,8 @@ hr {width: 934px; background-color: #ccc; border: 0; height: 1px;}
 <tr><td class="e">$_SERVER['CONTENT_LENGTH']</td><td class="v">0</td></tr>
 <tr><td class="e">$_SERVER['CONTENT_TYPE']</td><td class="v">text/html</td></tr>
 <tr><td class="e">$_SERVER['GATEWAY_INTERFACE']</td><td class="v">CGI/1.1</td></tr>
-<tr><td class="e">$_SERVER['PATH_INFO']</td><td class="v">/Users/jiyoonhur/Webserv/hy/test.php</td></tr>
-<tr><td class="e">$_SERVER['PATH_TRANSLATED']</td><td class="v">/Users/jiyoonhur/Webserv/hy/test.php</td></tr>
+<tr><td class="e">$_SERVER['PATH_INFO']</td><td class="v">/Users/hpark/Webserv/hy/test.php</td></tr>
+<tr><td class="e">$_SERVER['PATH_TRANSLATED']</td><td class="v">/Users/hpark/Webserv/hy/test.php</td></tr>
 <tr><td class="e">$_SERVER['QUERY_STRING']</td><td class="v"><i>no value</i></td></tr>
 <tr><td class="e">$_SERVER['REDIRECT_STATUS']</td><td class="v">200</td></tr>
 <tr><td class="e">$_SERVER['REMOTE_ADDR']</td><td class="v">127.0.0.1</td></tr>
@@ -45,9 +45,9 @@ hr {width: 934px; background-color: #ccc; border: 0; height: 1px;}
 <tr><td class="e">$_SERVER['SERVER_PORT']</td><td class="v">8080</td></tr>
 <tr><td class="e">$_SERVER['SERVER_PROTOCOL']</td><td class="v">HTTP/1.1</td></tr>
 <tr><td class="e">$_SERVER['__CF_USER_TEXT_ENCODING']</td><td class="v">0x1F5:0x3:0x33</td></tr>
-<tr><td class="e">$_SERVER['SCRIPT_FILENAME']</td><td class="v">/Users/jiyoonhur/Webserv/hy/test.php</td></tr>
-<tr><td class="e">$_SERVER['PHP_SELF']</td><td class="v">/test.php/Users/jiyoonhur/Webserv/hy/test.php</td></tr>
-<tr><td class="e">$_SERVER['REQUEST_TIME_FLOAT']</td><td class="v">1600231860.8101</td></tr>
-<tr><td class="e">$_SERVER['REQUEST_TIME']</td><td class="v">1600231860</td></tr>
+<tr><td class="e">$_SERVER['SCRIPT_FILENAME']</td><td class="v">/Users/hpark/Webserv/hy/test.php</td></tr>
+<tr><td class="e">$_SERVER['PHP_SELF']</td><td class="v">/test.php/Users/hpark/Webserv/hy/test.php</td></tr>
+<tr><td class="e">$_SERVER['REQUEST_TIME_FLOAT']</td><td class="v">1600234592.8828</td></tr>
+<tr><td class="e">$_SERVER['REQUEST_TIME']</td><td class="v">1600234592</td></tr>
 </table>
-</div></body></html>
+</div></body></html>v></body></html>

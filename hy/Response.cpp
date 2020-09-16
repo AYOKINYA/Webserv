@@ -332,9 +332,11 @@ std::string Response::Get (void)
 {
 	std::string res = "";
 
-	size_t first = _request.get_path().find_last_of('.');
-	size_t last = _request.get_path().find_last_of(' ');
-	if (!ft_strncmp(_request.get_path().substr(first + 1, (last - first + 1)).c_str(), "php", 3))
+	// size_t first = _request.get_path().find_last_of('.');
+	// size_t last = _request.get_path().find_last_of(' ');
+	// if (!ft_strncmp(_request.get_path().substr(first + 1, (last - first + 1)).c_str(), "php", 3))
+	std::string extension = trim_extension(_request.get_path());
+	if (extension == "bla" || extension == "pl" ||  extension == "php")
 		return (cgi());
 
 	res += getStartLine();

@@ -290,7 +290,7 @@ std::string	Response::cgi (void)
 	args[1] = ft_strdup(_request.get_path().c_str());
 	args[2] = NULL;
 
-	fd = open("cgi.txt", O_WRONLY | O_CREAT, 0666);
+	fd = open("cgi.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
 	if ((pid = fork()) == 0)
 	{
 		dup2(fd, 1);

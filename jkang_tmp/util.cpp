@@ -1,5 +1,12 @@
 #include "Config.hpp"
 
+int     ft_is_space(char c)
+{
+    if (c == '\t' || c == '\n' || c == '\r' || c == '\v' || c == '\f' || c == ' ')
+        return (1);
+    return (0);
+}
+
 void	ft_getline(std::string &b, std::string &line)
 {
     size_t					pos;

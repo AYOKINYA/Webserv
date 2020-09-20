@@ -287,9 +287,9 @@ std::string	Response::cgi (void)
 
 	args = (char **)(malloc(sizeof(char *) * 3));
 
-	//args[0] = ft_strdup("/Users/jiyoonhur/Webserv/hy/cgi_tester");
+	args[0] = ft_strdup("/Users/jiyoonhur/Webserv/hy/cgi_tester");
 
-	args[0] = ft_strdup("/Users/hpark/Webserv/hy/cgi_tester");
+	// args[0] = ft_strdup("/Users/hpark/Webserv/hy/cgi_tester");
 	// args[0] = ft_strdup("/usr/local/bin/php-cgi");
 	args[1] = ft_strdup(_request.get_path().c_str());
 	args[2] = NULL;
@@ -425,7 +425,7 @@ std::string Response::Put()
 	{
 		// std::cout << filename << std::endl;
 		int fd = open(url.c_str(), O_CREAT | O_RDWR, 0777);
-		write(fd, _request.get_body().c_str(), _request.get_body().length());
+		write(fd, _request.get_body().c_str(), _request.get_body().length() - 4);
 		close(fd);
 		/////msg//////
 		msg = "HTTP/1.1 201 Created\n";
@@ -437,7 +437,7 @@ std::string Response::Put()
 		std::cout << url << std::endl;
 		int fd = open(url.c_str(), O_TRUNC | O_RDWR, 0777);
 
-		write(fd, _request.get_body().c_str(), _request.get_body().length());
+		write(fd, _request.get_body().c_str(), _request.get_body().length() - 4);
 		close(fd);
 		/////msg//////
 		msg = "HTTP/1.1 204 No Content\n"; //혹은 200 OK

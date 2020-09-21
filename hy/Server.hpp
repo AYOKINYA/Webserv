@@ -16,7 +16,7 @@
 # include "RequestMsg.hpp"
 # include "Response.hpp"
 # include <unistd.h>
-
+# define BUFFER_SIZE 32768
 class Server
 {
 	private:
@@ -26,6 +26,7 @@ class Server
 			struct sockaddr_in	_server_addr;
 			struct sockaddr_in	_client_addr;
 			std::string			_msg;
+			std::string			_req;
 
 			//Request				request;
 			std::vector<Client>		clients_;
@@ -38,6 +39,8 @@ class Server
 			int		getSockfd(void);
 			void	init_server(void); //정리필요
 			void	accept_client(void); //만들어야됨 client받아서 _client에 넣는거
+			int		read_request(Client c);
+			int		write_response();
 
 };
 

@@ -18,7 +18,7 @@ class Client
 		Client(Client const &other);
 		Client	&operator=(Client const &other);
         ~Client();
-		int	read_request();
+		// int	read_request();
 		int	write_response();
 		int	get_fd();
 };

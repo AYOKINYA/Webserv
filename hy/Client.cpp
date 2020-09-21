@@ -19,11 +19,6 @@ Client	&Client::operator=(Client const &other)
 
 }
 
-int Client::read_request()
-{
-
-}
-
 int	Client::write_response()
 {
 
@@ -31,5 +26,5 @@ int	Client::write_response()
 
 int	get_fd()
 {
-    
+
 }

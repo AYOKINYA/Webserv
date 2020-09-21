@@ -5,6 +5,7 @@ Server::Server(const std::string &name, int port)
 {
 	_name = name;
 	_port = port;
+	_req = "";
 }
 
 Server::Server(const Server &copy)
@@ -20,6 +21,7 @@ Server& Server::operator=(const Server &server)
 	_port = server._port;
 	_sockfd = server._sockfd;
 	_server_addr = server._server_addr;
+	_req = server._req;
 	return (*this);
 }
 
@@ -33,6 +35,61 @@ int	Server::getSockfd(void)
 	return (this->_sockfd);
 }
 
+int Server::read_request(Client c)
+{
+	// std::string req = "";
+	int complen = 0;
+	int valread;
+	char buf[BUFFER_SIZE + 1];
+	struct sockaddr_in client_addr;
+	socklen_t c_addrlen = sizeof(client_addr);
+
+	getsockname(c.get_fd(), (struct sockaddr *)&client_addr, &c_addrlen);
+	std::string client_ip = inet_ntoa(client_addr.sin_addr);
+	valread = read(c.get_fd() , buf, BUFFER_SIZE);
+	if (valread != 0)
+	{
+		if (ft_strncmp(buf, "\x04", 1) == 0) // ctrl + d from telnet!
+		{
+			valread = 0; // to close client's socket.
+			return 0;
+		}
+		if (valread > 0)
+		{
+			buf[valread] = '\0';
+			_req += buf;
+		}
+		complen = _req.length();
+		if ((complen > 3 && _req.substr(complen - 4) == "\r\n\r\n")) // body max size 조건 추가헤야 한다....
+			return 0;
+	}
+	else if (valread == -1)
+	{
+		std::cout << "recv error" << std::endl;
+		return 0;
+	}
+	else if (valread == 0)
+	{
+		close(c.get_fd());
+		delete(c);
+	}
+	Request request(client_ip);
+	request.parse_request(_req);
+	//////////
+	Response	response(request);
+	std::string response_msg = response.exec_method();
+	std::cout << response_msg << std::endl;
+	send(client_fd, response_msg.c_str(), response_msg.length(), 0);
+	std::cout << "Server sent message" << std::endl;
+	ft_memset(buf, 0, 1024);
+	//////////
+}
+
+int	Server::write_response()
+{
+
+}
+
 void	Server::init_server(void)
 {
 	if ((_sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
@@ -40,7 +97,6 @@ void	Server::init_server(void)
 		std::cerr << "Error: " << _name << " init_server() socket: " << strerror(errno) << std::endl;
 		exit(1);
 	}
-
 	int opt = 1;
 	// Forcefully attaching socket to the port 8080
 		if( setsockopt(_sockfd, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0 )
@@ -131,7 +187,7 @@ void	Server::init_server(void)
 			}
 		}
 
-		// struct sockaddr_in client_addr;
+		struct sockaddr_in client_addr;
 		socklen_t c_addrlen = sizeof(client_addr);
 		for (int i = 0; i < max_clients; i++)
 		{
@@ -149,6 +205,7 @@ void	Server::init_server(void)
 					std::cerr << "Error: " << _name << " init_server() fcntl: " << strerror(errno) << std::endl;
 					exit(1);
 				}
+				////////////
 				std::string req = "";
 				int complen = 0;
 				while ((valread = read(sd , buf, 1023)) != 0)
@@ -175,12 +232,13 @@ void	Server::init_server(void)
 					close( sd );
 					client_socket[i] = 0;
 				}
+				/////////////////
 				else
 				{
 					std::cout << req << std::endl;
 					Request request(client_ip);
 					request.parse_request(req);
-
+					////////////
 					Response	response(request);
 
 					std::string response_msg = response.exec_method();

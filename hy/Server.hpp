@@ -24,8 +24,8 @@ class Server
 			int					_port;
 			struct sockaddr_in	_server_addr;
 			struct sockaddr_in	_client_addr;
-			int					_server_fd;
-			std::vector<int>	_clients_fd;
+			int					_fd;
+			std::vector<Client *>	_clients;
 			int					_max_fd;
 			fd_set				*_rset;
 			fd_set				*_wset;

@@ -18,7 +18,7 @@ Server& Server::operator=(const Server &server)
 		return (*this);
 	_name = server._name;
 	_port = server._port;
-	_server_fd = server._server_fd;
+	_fd = server._fd;
 	_server_addr = server._server_addr;
 	_rset = server._rset;
 	_wset = server._wset;
@@ -32,7 +32,7 @@ Server::~Server()
 
 int	Server::get_server_fd(void)
 {
-	return (this->_server_fd);
+	return (this->_fd);
 }
 
 int	Server::get_max_fd(void)
@@ -44,10 +44,10 @@ void	Server::init_server(void)
 {
 	int opt = 1;
 
-	if ((_server_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+	if ((_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		exit(1); //나중에 throw로 처리
 	// Forcefully attaching socket to the port 8080
-		if( setsockopt(_server_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0 )
+		if( setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0 )
 		exit(EXIT_FAILURE); //나중에 throw로 처리
 
 	ft_memset((void *)&_server_addr, 0, (unsigned long)sizeof(_server_addr)); // 왜 libft ft_memset link가 안 될까?
@@ -56,35 +56,36 @@ void	Server::init_server(void)
 	_server_addr.sin_port = htons(_port);
 
 	// Forcefully attaching socket to the port 8080
-	if (bind(_server_fd, (struct sockaddr *)&_server_addr, sizeof(_server_addr)) == -1)
+	if (bind(_fd, (struct sockaddr *)&_server_addr, sizeof(_server_addr)) == -1)
 		exit(1); //나중에 throw로 처리
-	if (listen(_server_fd, 10) == -1)
+	if (listen(_fd, 10) == -1)
 		exit(1); //나중에 throw로 처리
-	if (fcntl(_server_fd, F_SETFL, O_NONBLOCK) == -1)
+	if (fcntl(_fd, F_SETFL, O_NONBLOCK) == -1)
 		exit(1); //나중에 throw로 처리
-	FD_SET(_server_fd, _rset);
-    _max_fd = _server_fd;
+	FD_SET(_fd, _rset);
+    _max_fd = _fd;
 }
 
 
 void	Server::accept_client()
 {
-	int	*new_socket = new int();
+	int	new_socket;
 	socklen_t addrlen = sizeof(_server_addr);
 
-	if (FD_ISSET(_server_fd, _rset))
+	if (FD_ISSET(_fd, _rset))
 	{
-		if ((*new_socket = accept(_server_fd, (struct sockaddr *)&_server_addr, &addrlen)) == -1)
+		if ((new_socket = accept(_fd, (struct sockaddr *)&_server_addr, &addrlen)) == -1)
 			exit(1);
 			//throw 로 에러 처리하기
 		usleep(2000);
 	}
-	if (*new_socket > _max_fd)
-		_max_fd = *new_socket;
-	fcntl(*new_socket, F_SETFL, O_NONBLOCK);
-	FD_SET(*new_socket, _rset); //set
-	FD_SET(*new_socket, _wset);
-	_clients_fd.push_back(*new_socket); //clients_fd에 넣음
+	if (new_socket > _max_fd)
+		_max_fd = new_socket;
+	// fcntl(*new_socket, F_SETFL, O_NONBLOCK);
+	// FD_SET(*new_socket, _rset); //set
+	// FD_SET(*new_socket, _wset);
+	Client *client = new Client(new_socket, _rset, _wset);
+	_clients.push_back(client); //clients_fd에 넣음
 }
 
 // void	Server::init_server(void)

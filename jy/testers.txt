@@ -1,0 +1,249 @@
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Go-http-client/1.1
+Accept-Encoding: gzip
+
+
+POST / HTTP/1.1
+Host: localhost:8080
+User-Agent: Go-http-client/1.1
+Transfer-Encoding: chunked
+Content-Type: test/file
+Accept-Encoding: gzip
+
+
+HEAD / HTTP/1.1
+Host: localhost:8080
+User-Agent: Go-http-client/1.1
+
+
+GET /directory HTTP/1.1
+Host: localhost:8080
+User-Agent: Go-http-client/1.1
+Accept-Encoding: gzip
+
+
+GET /directory/youpi.bad_extension HTTP/1.1
+Host: localhost:8080
+User-Agent: Go-http-client/1.1
+Accept-Encoding: gzip
+
+
+GET /directory/youpi.bla HTTP/1.1
+Host: localhost:8080
+User-Agent: Go-http-client/1.1
+Accept-Encoding: gzip
+
+
+GET /directory/oulalala HTTP/1.1
+Host: localhost:8080
+User-Agent: Go-http-client/1.1
+Accept-Encoding: gzip
+
+
+GET /directory/nop HTTP/1.1
+Host: localhost:8080
+User-Agent: Go-http-client/1.1
+Accept-Encoding: gzip
+
+
+GET /directory/nop/ HTTP/1.1
+Host: localhost:8080
+User-Agent: Go-http-client/1.1
+Accept-Encoding: gzip
+
+
+GET /directory/nop/other.pouic HTTP/1.1
+Host: localhost:8080
+User-Agent: Go-http-client/1.1
+Accept-Encoding: gzip
+
+
+GET /directory/nop/other.pouac HTTP/1.1
+Host: localhost:8080
+User-Agent: Go-http-client/1.1
+Accept-Encoding: gzip
+
+
+GET /directory/Yeah HTTP/1.1
+Host: localhost:8080
+User-Agent: Go-http-client/1.1
+Accept-Encoding: gzip
+
+
+GET /directory/Yeah/not_happy.bad_extension HTTP/1.1
+Host: localhost:8080
+User-Agent: Go-http-client/1.1
+Accept-Encoding: gzip
+
+
+PUT /put_test/file_should_exist_after HTTP/1.1
+Host: localhost:8080
+User-Agent: Go-http-client/1.1
+Transfer-Encoding: chunked
+Accept-Encoding: gzip
+
+
+PUT /put_test/file_should_exist_after HTTP/1.1
+Host: localhost:8080
+User-Agent: Go-http-client/1.1
+Transfer-Encoding: chunked
+Accept-Encoding: gzip
+
+
+POST /directory/youpi.bla HTTP/1.1
+Host: localhost:8080
+User-Agent: Go-http-client/1.1
+Transfer-Encoding: chunked
+Content-Type: test/file
+Accept-Encoding: gzip
+
+
+POST /directory/youpla.bla HTTP/1.1
+Host: localhost:8080
+User-Agent: Go-http-client/1.1
+Transfer-Encoding: chunked
+Content-Type: test/file
+Accept-Encoding: gzip
+
+
+============POST 1억바이트 response
+HTTP/1.1 200 OK
+Content-Length: 100000000
+Content-Type:  text/html; charset=utf-8
+Date: Mon, 21 Sep 2020 20:48:55 KST
+Server: webserv
+Status:  200 OK
+
+============centdix 서버  reponse from GET to POST 1억
+HTTP/1.1 200 OK
+Content-Length: 1198
+Content-Type: text/html
+Date: Mon, 21 Sep 2020 20:52:36 KST
+Last-Modified: Mon, 21 Sep 2020 20:52:07 KST
+Server: webserv
+<head>
+<title>Welcome to webserv!<
+
+
+HTTP/1.1 405 Method Not Allowed
+Allow: GET
+Content-Length: 24
+Date: Mon, 21 Sep 2020 20:52:36 KST
+Server: webserv
+
+
+405: Method Not Allowed
+
+
+HTTP/1.1 405 Method Not Allowed
+Allow: GET
+Content-Length: 24
+Date: Mon, 21 Sep 2020 20:52:36 KST
+Server: webserv
+
+
+HTTP/1.1 200 OK
+Content-Length: 0
+Content-Type: application/octet-stream
+Date: Mon, 21 Sep 2020 20:52:36 KST
+Last-Modified: Fri, 18 Sep 2020 15:40:40 KST
+Server: webserv
+
+
+HTTP/1.1 200 OK
+Content-Length: 0
+Content-Type: application/octet-stream
+Date: Mon, 21 Sep 2020 20:52:36 KST
+Last-Modified: Fri, 18 Sep 2020 15:40:40 KST
+Server: webserv
+
+
+HTTP/1.1 200 OK
+Content-Length: 0
+Content-Type:  text/html; charset=utf-8
+Date: Mon, 21 Sep 2020 20:52:36 KST
+Last-Modified: Fri, 18 Sep 2020 15:40:40 KST
+Server: webserv
+Status:  200 OK
+
+
+HTTP/1.1 404 Not Found
+Content-Length: 20
+Content-Type: text/html
+Date: Mon, 21 Sep 2020 20:52:36 KST
+Last-Modified: Fri, 18 Sep 2020 15:40:40 KST
+Server: webserv
+404: File not found
+
+
+HTTP/1.1 200 OK
+Content-Length: 0
+Content-Type: application/octet-stream
+Date: Mon, 21 Sep 2020 20:52:36 KST
+Last-Modified: Fri, 18 Sep 2020 15:40:40 KST
+Server: webserv
+
+
+HTTP/1.1 200 OK
+Content-Length: 0
+Content-Type: application/octet-stream
+Date: Mon, 21 Sep 2020 20:52:36 KST
+Last-Modified: Fri, 18 Sep 2020 15:40:40 KST
+Server: webserv
+
+
+HTTP/1.1 200 OK
+Content-Length: 0
+Content-Type: application/octet-stream
+Date: Mon, 21 Sep 2020 20:52:36 KST
+Last-Modified: Fri, 18 Sep 2020 15:40:40 KST
+Server: webserv
+
+
+HTTP/1.1 404 Not Found
+Content-Length: 20
+Content-Type: text/html
+Date: Mon, 21 Sep 2020 20:52:36 KST
+Last-Modified: Fri, 18 Sep 2020 15:40:40 KST
+Server: webserv
+404: File not found
+
+
+HTTP/1.1 404 Not Found
+Content-Length: 20
+Content-Type: text/html
+Date: Mon, 21 Sep 2020 20:52:36 KST
+Last-Modified: Fri, 18 Sep 2020 15:40:40 KST
+Server: webserv
+404: File not found
+
+
+HTTP/1.1 200 OK
+Content-Length: 0
+Content-Type: application/octet-stream
+Date: Mon, 21 Sep 2020 20:52:36 KST
+Last-Modified: Fri, 18 Sep 2020 15:40:40 KST
+Server: webserv
+
+
+HTTP/1.1 204 No Content
+Content-Length: 0
+Date: Mon, 21 Sep 2020 20:52:36 KST
+Location: /put_test/file_should_exist_after
+Server: webserv
+
+
+HTTP/1.1 204 No Content
+Content-Length: 0
+Date: Mon, 21 Sep 2020 20:52:38 KST
+Location: /put_test/file_should_exist_after
+Server: webserv
+
+
+HTTP/1.1 200 OK
+Content-Length: 100000000
+Content-Type:  text/html; charset=utf-8
+Date: Mon, 21 Sep 2020 20:52:42 KST
+Server: webserv
+Status:  200 OK

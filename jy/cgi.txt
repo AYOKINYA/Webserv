@@ -1,0 +1,56 @@
+X-Powered-By: PHP/7.4.10
+Content-type: text/html; charset=UTF-8
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+<style type="text/css">
+body {background-color: #fff; color: #222; font-family: sans-serif;}
+pre {margin: 0; font-family: monospace;}
+a:link {color: #009; text-decoration: none; background-color: #fff;}
+a:hover {text-decoration: underline;}
+table {border-collapse: collapse; border: 0; width: 934px; box-shadow: 1px 2px 3px #ccc;}
+.center {text-align: center;}
+.center table {margin: 1em auto; text-align: left;}
+.center th {text-align: center !important;}
+td, th {border: 1px solid #666; font-size: 75%; vertical-align: baseline; padding: 4px 5px;}
+th {position: sticky; top: 0; background: inherit;}
+h1 {font-size: 150%;}
+h2 {font-size: 125%;}
+.p {text-align: left;}
+.e {background-color: #ccf; width: 300px; font-weight: bold;}
+.h {background-color: #99c; font-weight: bold;}
+.v {background-color: #ddd; max-width: 300px; overflow-x: auto; word-wrap: break-word;}
+.v i {color: #999;}
+img {float: right; border: 0;}
+hr {width: 934px; background-color: #ccc; border: 0; height: 1px;}
+</style>
+<title>PHP 7.4.10 - phpinfo()</title><meta name="ROBOTS" content="NOINDEX,NOFOLLOW,NOARCHIVE" /></head>
+<body><div class="center">
+<h2>PHP Variables</h2>
+<table>
+<tr class="h"><th>Variable</th><th>Value</th></tr>
+<tr><td class="e">$_SERVER['CONTENT_LENGTH']</td><td class="v">0</td></tr>
+<tr><td class="e">$_SERVER['CONTENT_TYPE']</td><td class="v">text/html</td></tr>
+<tr><td class="e">$_SERVER['Content-type']</td><td class="v">text/html</td></tr>
+<tr><td class="e">$_SERVER['Expires']</td><td class="v">Date: Mon, 21 Sep 2020 22:44:56 KST
+</td></tr>
+<tr><td class="e">$_SERVER['GATEWAY_INTERFACE']</td><td class="v">CGI/1.1</td></tr>
+<tr><td class="e">$_SERVER['Location']</td><td class="v">test.php</td></tr>
+<tr><td class="e">$_SERVER['PATH_INFO']</td><td class="v">/Users/jiyoonhur/Webserv/hy/test.php</td></tr>
+<tr><td class="e">$_SERVER['PATH_TRANSLATED']</td><td class="v">/Users/jiyoonhur/Webserv/hy/test.php</td></tr>
+<tr><td class="e">$_SERVER['QUERY_STRING']</td><td class="v"><i>no value</i></td></tr>
+<tr><td class="e">$_SERVER['REDIRECT_STATUS']</td><td class="v">200</td></tr>
+<tr><td class="e">$_SERVER['REMOTE_ADDR']</td><td class="v">127.0.0.1</td></tr>
+<tr><td class="e">$_SERVER['REQUEST_METHOD']</td><td class="v">GET</td></tr>
+<tr><td class="e">$_SERVER['REQUEST_URI']</td><td class="v">/Users/jiyoonhur/Webserv/hy/test.php</td></tr>
+<tr><td class="e">$_SERVER['SCRIPT_NAME']</td><td class="v">.test.php</td></tr>
+<tr><td class="e">$_SERVER['SERVER_NAME']</td><td class="v">Carry-Please</td></tr>
+<tr><td class="e">$_SERVER['SERVER_PORT']</td><td class="v">8080</td></tr>
+<tr><td class="e">$_SERVER['SERVER_PROTOCOL']</td><td class="v">HTTP/1.1</td></tr>
+<tr><td class="e">$_SERVER['__CF_USER_TEXT_ENCODING']</td><td class="v">0x1F5:0x3:0x33</td></tr>
+<tr><td class="e">$_SERVER['SCRIPT_FILENAME']</td><td class="v">/Users/jiyoonhur/Webserv/hy/test.php</td></tr>
+<tr><td class="e">$_SERVER['PHP_SELF']</td><td class="v">.test.php/Users/jiyoonhur/Webserv/hy/test.php</td></tr>
+<tr><td class="e">$_SERVER['REQUEST_TIME_FLOAT']</td><td class="v">1600695896.3551</td></tr>
+<tr><td class="e">$_SERVER['REQUEST_TIME']</td><td class="v">1600695896</td></tr>
+</table>
+</div></body></html>

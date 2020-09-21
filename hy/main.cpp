@@ -1,5 +1,5 @@
 #include "Server.hpp"
-# in
+#include <Vector>
 
 std::vector<Server> g_servers;
 
@@ -10,7 +10,7 @@ int get_max_fd()
 
 	for (std::vector<Server>::iterator it(g_servers.begin()); it != g_servers.end(); ++it)
 	{
-		fd = it->getMaxFd();
+		fd = it->get_max_fd();
 		if (fd > max)
 			max = fd;
 	}
@@ -45,7 +45,7 @@ int main()
 		usleep(2000);
 		for (std::vector<Server>::iterator s(g_servers.begin()); s != g_servers.end(); ++s)
 		{
-			s->accept_client(&rset, &wset);
+			s->accept_client();
 			for (std::vector<int>::iterator c(s->_clients_fd.begin()); c != s->_clients_fd.end(); ++c)
 			{
 				if (FD_ISSET(s->get_fd(), &cp_rset))

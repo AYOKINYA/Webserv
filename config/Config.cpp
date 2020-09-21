@@ -1,7 +1,6 @@
 #include "Config.hpp"
-#include "Server.hpp"
 
-std::vector<Server> g_servers;
+extern std::vector<Server> g_servers;
 
 Config::Config(char *conf) : _conf_path(conf)
 {};
@@ -241,27 +240,3 @@ int Config::parse(void)
     return (1);
 }
 
-int err_msg(const std::string &str)
-{
-    std::cerr << str << std::endl;
-    return (1);
-}
-
-int main(int argc, char **argv)
-{
-    fd_set rset;
-    fd_set wset;
-    fd_set cp_rset;
-    fd_set cp_wset;
-
-    if (argc != 2)
-        return (err_msg("./webserv ./any_config_file"));
-    
-    Config config(argv[1]);
-
-    if (!config.parse())
-        return (err_msg("Not a Valid Config."));
-    config.init(&rset, &wset, &cp_rset, &cp_wset);
-    
-    return (0);
-}

@@ -1,0 +1,24 @@
+Test POST http://localhost:8080/directory/youpi.bla with a size of 100000000
+
+Test POST http://localhost:8080/directory/youpla.bla with a size of 100000000
+
+Test POST http://localhost:8080/directory/youpi.bla with a size of 100000 with special headers
+
+Test POST http://localhost:8080/post_body with a size of 0
+
+Test POST http://localhost:8080/post_body with a size of 100
+
+Test POST http://localhost:8080/post_body with a size of 200
+
+Test POST http://localhost:8080/post_body with a size of 101
+
+Test multiple workers(5) doing multiple times(15): GET on /
+
+Test multiple workers(20) doing multiple times(5000): GET on /
+
+Test multiple workers(128) doing multiple times(50): GET on /directory/nop
+
+Test multiple workers(20) doing multiple times(5): Put on /put_test/multiple_same with size 1000000
+==================================================================
+the file multiple_same should exists with a size of 1000000 bytes. Check that now
+==================================================================

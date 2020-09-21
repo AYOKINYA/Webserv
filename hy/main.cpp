@@ -1,10 +1,24 @@
 #include "Server.hpp"
+# in
 
-//g_server 선언 필요
+std::vector<Server> g_servers;
+
+int get_max_fd()
+{
+	int		max = 0;
+	int		fd;
+
+	for (std::vector<Server>::iterator it(g_servers.begin()); it != g_servers.end(); ++it)
+	{
+		fd = it->getMaxFd();
+		if (fd > max)
+			max = fd;
+	}
+	return (max);
+}
 
 int main()
 {
-	int	client;
 	fd_set	rset;
 	fd_set	wset;
 	fd_set	cp_rset;
@@ -14,7 +28,12 @@ int main()
 	time.tv_sec = 5;
 	time.tv_usec = 5000;
 	Server s("tmp", 8080);
-	s.init_server();
+	g_servers.push(s);
+	for (std::vector<Server>::iterator s = g_servers.begin(); s != g_servers.end(); ++s)
+	{
+		s.init_server();
+	}
+
 	while (1)
 	{
 		cp_rset = rset;
@@ -26,14 +45,14 @@ int main()
 		usleep(2000);
 		for (std::vector<Server>::iterator s(g_servers.begin()); s != g_servers.end(); ++s)
 		{
-			s->accept_client();
-			for (std::vector<Client*>::iterator c(s->_clients.begin()); c != s->_clients.end(); ++c)
+			s->accept_client(&rset, &wset);
+			for (std::vector<int>::iterator c(s->_clients_fd.begin()); c != s->_clients_fd.end(); ++c)
 			{
-				if (FD_ISSET(c->get_fd(), &cp_rset))
-					if (!c->read_request())
+				if (FD_ISSET(s->get_fd(), &cp_rset))
+					if (!s->read_request(c))
 						break ;
-				if (FD_ISSET(c->get_fd(), &cp_wset))
-					if (!c->write_response())
+				if (FD_ISSET(s->get_fd(), &cp_wset))
+					if (!s->write_response(c))
 						break ;
 			}
 		}

@@ -287,10 +287,12 @@ std::string	Response::cgi (void)
 
 	args = (char **)(malloc(sizeof(char *) * 3));
 
-	args[0] = ft_strdup("/Users/jiyoonhur/Webserv/hy/cgi_tester");
-
 	// args[0] = ft_strdup("/Users/hpark/Webserv/hy/cgi_tester");
+
+	args[0] = ft_strdup("/Users/hpark/Webserv/hy/cgi_tester");
 	// args[0] = ft_strdup("/usr/local/bin/php-cgi");
+	// args[0] = ft_strdup(_request.get_path().c_str());
+	// args[1] = NULL;
 	args[1] = ft_strdup(_request.get_path().c_str());
 	args[2] = NULL;
 

@@ -26,13 +26,13 @@ class Server
 			struct sockaddr_in	_client_addr;
 
 			std::string			_msg;
-			std::string			_req;
 
 			int					_fd;
 			std::vector<Client *>	_clients;
 			int					_max_fd;
 			fd_set				*_rset;
 			fd_set				*_wset;
+
 
 			//Request				request;
 			Server() {};
@@ -41,13 +41,14 @@ class Server
 			Server(const Server &copy);
 			Server& operator=(const Server &server);
 			~Server();
-			int		get_server_fd(void);
+			int		get_fd(void);
 			void	init_server(void); //정리필요
 
 			void	accept_client(void); //만들어야됨 client받아서 _client에 넣는거
-			int		read_request(Client c);
-			int		write_response();
+			int		read_request(std::vector<Client *>::iterator c);
+			int		write_response(std::vector<Client *>::iterator it);
 			int		get_max_fd(void); //이서버의 max_fd
+			void	set_request(Client &c, Request &request);
 
 };
 

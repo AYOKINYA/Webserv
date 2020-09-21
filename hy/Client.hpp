@@ -3,17 +3,19 @@
 
 # include "RequestMsg.hpp"
 # include "Response.hpp"
+#include <sys/types.h>
+#include <sys/socket.h>
 
 class Client
 {
     private:
-        Request		_req;
         Response	_res;
 		int	_fd;
 		fd_set	*_rset; //원본
 		fd_set	*_wset; //원본
 		Client();
     public:
+		Request		_req;
         Client(int fd, fd_set *rset, fd_set *wset);
 		Client(Client const &other);
 		Client	&operator=(Client const &other);

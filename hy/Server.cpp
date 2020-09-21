@@ -5,7 +5,6 @@ Server::Server(const std::string &name, int port)
 {
 	_name = name;
 	_port = port;
-	_req = "";
 }
 
 Server::Server(const Server &copy)
@@ -32,23 +31,25 @@ Server::~Server()
 	std::cout << "server is dead" << std::endl;
 };
 
-int	Server::get_server_fd(void)
+int	Server::get_fd(void)
 {
 	return (this->_fd);
 }
 
-int Server::read_request(Client c)
+int Server::read_request(std::vector<Client *>::iterator it)
 {
-	// std::string req = "";
+	std::string req = "";
 	int complen = 0;
 	int valread;
 	char buf[BUFFER_SIZE + 1];
 	struct sockaddr_in client_addr;
 	socklen_t c_addrlen = sizeof(client_addr);
+	Client *c;
 
-	getsockname(c.get_fd(), (struct sockaddr *)&client_addr, &c_addrlen);
+	c = *it;
+	getsockname(c->get_fd(), (struct sockaddr *)&client_addr, &c_addrlen);
 	std::string client_ip = inet_ntoa(client_addr.sin_addr);
-	valread = read(c.get_fd() , buf, BUFFER_SIZE);
+	valread = read(c->get_fd() , buf, BUFFER_SIZE);
 	if (valread != 0)
 	{
 		if (ft_strncmp(buf, "\x04", 1) == 0) // ctrl + d from telnet!
@@ -59,10 +60,10 @@ int Server::read_request(Client c)
 		if (valread > 0)
 		{
 			buf[valread] = '\0';
-			_req += buf;
+			req += buf;
 		}
-		complen = _req.length();
-		if ((complen > 3 && _req.substr(complen - 4) == "\r\n\r\n")) // body max size 조건 추가헤야 한다....
+		complen = req.length();
+		if ((complen > 3 && req.substr(complen - 4) == "\r\n\r\n")) // body max size 조건 추가헤야 한다....
 			return 0;
 	}
 	else if (valread == -1)
@@ -72,24 +73,31 @@ int Server::read_request(Client c)
 	}
 	else if (valread == 0)
 	{
-		close(c.get_fd());
-		delete(c);
+		close(c->get_fd());
+		_clients.erase(it);
+		delete (c);
 	}
 	Request request(client_ip);
-	request.parse_request(_req);
-	//////////
-	Response	response(request);
-	std::string response_msg = response.exec_method();
-	std::cout << response_msg << std::endl;
-	send(client_fd, response_msg.c_str(), response_msg.length(), 0);
-	std::cout << "Server sent message" << std::endl;
-	ft_memset(buf, 0, 1024);
-	//////////
+	request.parse_request(req);
+	set_request(*c, request);
 }
 
-int	Server::write_response()
+void Server::set_request(Client &c, Request &request)
 {
+	c._req = request;
+}
 
+int	Server::write_response(std::vector<Client *>::iterator it)
+{
+	Client *c;
+
+	c = *it;
+	Response	response(c->_req);
+	std::string response_msg = response.exec_method();
+	// std::cout << response_msg << std::endl;
+	send(c->get_fd(), response_msg.c_str(), response_msg.length(), 0);
+	// std::cout << "Server sent message" << std::endl;
+	// ft_memset(buf, 0, 1024);
 }
 
 
@@ -136,14 +144,14 @@ void	Server::accept_client()
 			exit(1);
 			//throw 로 에러 처리하기
 		usleep(2000);
+		if (new_socket > _max_fd)
+			_max_fd = new_socket;
+		// fcntl(*new_socket, F_SETFL, O_NONBLOCK);
+		// FD_SET(*new_socket, _rset); //set
+		// FD_SET(*new_socket, _wset);
+		Client *client = new Client(new_socket, _rset, _wset);
+		_clients.push_back(client); //clients_fd에 넣음
 	}
-	if (new_socket > _max_fd)
-		_max_fd = new_socket;
-	// fcntl(*new_socket, F_SETFL, O_NONBLOCK);
-	// FD_SET(*new_socket, _rset); //set
-	// FD_SET(*new_socket, _wset);
-	Client *client = new Client(new_socket, _rset, _wset);
-	_clients.push_back(client); //clients_fd에 넣음
 }
 
 // void	Server::init_server(void)

@@ -28,7 +28,6 @@ class Server
 			std::string			_msg;
 
 			int					_fd;
-			std::vector<Client *>	_clients;
 			int					_max_fd;
 			fd_set				*_rset;
 			fd_set				*_wset;
@@ -37,6 +36,7 @@ class Server
 			//Request				request;
 			Server() {};
 	public:
+			std::vector<Client *>	_clients;
 			Server(const std::string &name, int port);
 			Server(const Server &copy);
 			Server& operator=(const Server &server);

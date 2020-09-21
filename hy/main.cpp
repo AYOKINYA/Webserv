@@ -28,17 +28,17 @@ int main()
 	time.tv_sec = 5;
 	time.tv_usec = 5000;
 	Server s("tmp", 8080);
-	g_servers.push(s);
+	g_servers.push_back(s);
 	for (std::vector<Server>::iterator s = g_servers.begin(); s != g_servers.end(); ++s)
 	{
-		s.init_server();
+		s->init_server();
 	}
 
 	while (1)
 	{
 		cp_rset = rset;
 		cp_wset = wset;
-		if (select(get_max_fd(), &cp_rset, &cp_wset, NULL, &time) < 0))
+		if (select(get_max_fd(), &cp_rset, &cp_wset, NULL, &time) < 0)
 		{
 			printf("select error");
 		}
@@ -46,7 +46,7 @@ int main()
 		for (std::vector<Server>::iterator s(g_servers.begin()); s != g_servers.end(); ++s)
 		{
 			s->accept_client();
-			for (std::vector<int>::iterator c(s->_clients_fd.begin()); c != s->_clients_fd.end(); ++c)
+			for (std::vector<Client *>::iterator c(s->_clients.begin()); c != s->_clients.end(); ++c)
 			{
 				if (FD_ISSET(s->get_fd(), &cp_rset))
 					if (!s->read_request(c))
@@ -56,7 +56,7 @@ int main()
 						break ;
 			}
 		}
-		
+
 	}
 
 	return (0);

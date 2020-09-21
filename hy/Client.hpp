@@ -8,7 +8,7 @@
 
 class Client
 {
-    private:
+	private:
         Response	_res;
 		int	_fd;
 		fd_set	*_rset; //원본

@@ -29,6 +29,8 @@ int main(int argc, char **argv)
     fd_set cp_rset;
     fd_set cp_wset;
 
+	Client *client;
+
 	struct timeval time;
 	time.tv_sec = 5;
 	time.tv_usec = 5000;
@@ -58,12 +60,12 @@ int main(int argc, char **argv)
 				s->accept_client();
 			for (std::vector<Client *>::iterator c(s->_clients.begin()); c != s->_clients.end(); ++c)
 			{
-				if (FD_ISSET(s->get_fd(), &cp_rset))
+				client = *c;
+				if (FD_ISSET(client->get_fd(), &cp_rset))
+				{
 					if (!s->read_request(c))
 						break ;
-				// if (FD_ISSET(s->get_fd(), &cp_wset))
-				// 	if (!s->write_response(c))
-				// 		break ;
+				}
 			}
 		}
 

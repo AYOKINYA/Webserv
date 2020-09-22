@@ -21,7 +21,8 @@ enum	method
 	PUT, // 3
 	DELETE, // 4
 	CONNECT, // 5
-	OPTIONS // 6
+	OPTIONS, // 6
+	TRACE // 7
 };
 
 class   Request

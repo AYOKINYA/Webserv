@@ -19,6 +19,7 @@ Config& Config::operator=(const Config& other)
     
     _conf_path = other._conf_path;
     _str = other._str;
+    _conf = other._conf;
 
     return (*this);
 }

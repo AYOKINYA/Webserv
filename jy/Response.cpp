@@ -341,7 +341,7 @@ std::string	Response::cgi (void)
 	}
 	else
 	{
-		write(fd, _request.get_body().c_str(), _request.get_body().length());
+		write(tubes[1], _request.get_body().c_str(), _request.get_body().length());
 		close(tubes[1]);
 		waitpid(pid, NULL, 0);
 		close(fd);
@@ -365,7 +365,7 @@ std::string	Response::cgi (void)
 	*/
 	std::cout << "==========" << std::endl;
 
-	parseCGIResult(buf);
+	parseCGIResult(tmp);
 	res += getStartLine();
 	res += "\n";
 	// res += "Content-Length: 100000000\n";

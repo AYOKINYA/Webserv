@@ -217,10 +217,8 @@ void	Request::parse_first_line(std::string &line)
     }
 }
 
-// int Request::get_method(){return (_method);}
-
-// int	Request::get_error_code(){return (_error_code);}
-
-// std::string	Request::get_path(){return (_path);}
-
-// std::string	Request::get_body(){return (_body);}
+int Request::get_method(){return (_method);}
+int	Request::get_error_code(){return (_error_code);}
+std::string	Request::get_uri(){return (_uri);}
+std::string	Request::get_body(){return (_body);}
+std::string	get_clientip(){return (_clientip);}

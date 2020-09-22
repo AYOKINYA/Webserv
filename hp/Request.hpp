@@ -42,6 +42,8 @@ class Request
 		void	parse_header(std::string &req);
 		void	parse_first_line(std::string &line);
 
+		int			get_method();
+		int			get_error_code();
 		std::string	get_body();
 		std::string	get_uri();
 		std::string	get_clientip();

@@ -313,7 +313,7 @@ std::string	Response::cgi (void)
 
 	args = (char **)(malloc(sizeof(char *) * 3));
 
-	args[0] = ft_strdup("/Users/jiyoonhur/Webserv/hy/cgi_tester");
+	args[0] = ft_strdup("/Users/jiyoonhur/Webserv/jy/cgi_tester");
 	// args[0] = ft_strdup("/usr/local/bin/php-cgi");
 	// args[0] = ft_strdup(_request.get_path().c_str());
 	// args[1] = NULL;
@@ -369,16 +369,19 @@ std::string	Response::cgi (void)
 	parseCGIResult(buf);
 	res += getStartLine();
 	res += "\n";
-	res += printItem2(cgi_header,"Content-Length");
+	res += "Content-Length: 100000000\n";
+	// res += printItem2(cgi_header,"Content-Length");
 	res += printItem2(cgi_header, "Content-Type");
 	//php 이면 Content-type 임ㅋㅋㅋㅋㅋContent-type: text/html; charset=UTF-8
 	res += printItem2(cgi_header, "Date");
 	res += printItem2(cgi_header, "Server");
-	res += "\n";
+	// res += "Status: 200 OK";
+	res += "\r\n";
 	if (_status.first == 200)
-		res += _cgi_body;
+		res += _request.get_body();
 	else
 		res += (body("error.html"));
+	res += "\n";
 	return (res);
 }
 
@@ -424,7 +427,7 @@ void		Response::parseCGIResult(std::string buf)
 			cgi_tester 면 걍 value
 		*/
 		// std::cout << "CGI val is!!!" << value << std::endl;
-		cgi_header.insert(std::pair<std::string, std::string>(key, value));
+		cgi_header.insert(std::pair<std::string, std::string>(key, trim(value)));
 		// std::map<std::string, std::string>::iterator it;
 		// for(it = cgi_header.begin(); it != cgi_header.end(); it++)
 		// {
@@ -477,7 +480,6 @@ std::string Response::Get (void)
 std::string Response::Head(void)
 {
 	std::string res = "";
-
 	//to pass tester
 	res += Post();
 
@@ -534,7 +536,7 @@ std::string Response::Put()
 	{
 		// std::cout << filename << std::endl;
 		int fd = open(url.c_str(), O_CREAT | O_RDWR, 0777);
-		write(fd, _request.get_body().c_str(), _request.get_body().length() - 4);
+		write(fd, _request.get_body().c_str(), _request.get_body().length());
 		close(fd);
 		/////msg//////
 		msg = "HTTP/1.1 201 Created\n";
@@ -546,7 +548,7 @@ std::string Response::Put()
 		std::cout << url << std::endl;
 		int fd = open(url.c_str(), O_TRUNC | O_RDWR, 0777);
 
-		write(fd, _request.get_body().c_str(), _request.get_body().length() - 4);
+		write(fd, _request.get_body().c_str(), _request.get_body().length());
 		close(fd);
 		/////msg//////
 		msg = "HTTP/1.1 204 No Content\n"; //혹은 200 OK
@@ -692,7 +694,10 @@ return(env);
 std::string Response::Post() // for temporary only! to pass tester...
 {
 	std::string	res;
+	std::string extension = trim_extension(_request.get_path());
 
+	if (extension == "bla" || extension == "pl" ||  extension == "php" || extension == "cgi")
+		return (cgi());
 	if (_request.get_error_code() != 200)
 	{
 		res = getStartLine();

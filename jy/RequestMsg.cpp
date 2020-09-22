@@ -59,12 +59,16 @@ void Request::header_check(void)
 void Request::parse_chunk(std::string body)
 {
 	std::string line;
-
+	std::size_t pos;
 	while(!body.empty())
 	{
 		ft_getline(body, line);//숫자 읽기
 		ft_getline(body, line);//문자열 읽기
-		_body += line + "\n";
+		// _body += line + "\n";
+		pos = line.find("\r\n");
+		std::cout << "pos????" <<pos << std::endl;
+		_body += trim(line.substr(0, pos));
+		// _body += line.substr(pos + 2);
 		// _chunkbody += line + "\n";
 	}
 	//std::cout << _chunkbody << std::endl;
@@ -155,7 +159,7 @@ void	Request::parse_first_line(std::string line)
 void	Request::parse_file(std::string uri)
 {
 	struct stat	info;
-	std::string	root = "/Users/jiyoonhur/Webserv/hy";
+	std::string	root = "/Users/jiyoonhur/Webserv/jy";
 	_filecheck = 0;
 	_putcheck = 0;
 	std::string extensions[103] =
@@ -241,7 +245,7 @@ void	Request::parse_file(std::string uri)
 	std::cout << "path before!!!!" << _path << std::endl;
 	if (flag == 1 && _method == POST)
 	{
-		_path = "/Users/jiyoonhur/Webserv/hy/YoupiBanane/youpi.bla";
+		_path = "/Users/jiyoonhur/Webserv/jy/YoupiBanane/youpi.bla";
 		_filecheck = 1;
 		std::cout << "path after!!!! " << _path << std::endl;
 	}

@@ -1,4 +1,5 @@
 #include "Response.hpp"
+#include <locale>
 
 Response::Response()
 {};
@@ -347,6 +348,16 @@ std::string	Response::cgi (void)
 		close(fd);
 		close(tubes[0]);
 	}
+	// char	buf[100000000000];
+	// execve 결과에 code도 다 담겨서 나온다.
+	// res = getStartLine();
+	// res += "\n";
+
+	// fd = open("./cgi.txt", O_RDONLY, 0666);
+	// int	r = lseek(fd, 0, SEEK_END);
+	// lseek(fd, 0, SEEK_SET);
+	// r = read(fd, &buf, r);
+	// buf[r] = '\0';
 	char buf[10001];
 	std::string tmp;
 	fd = open("cgi.txt", O_RDONLY, 0666);
@@ -374,7 +385,7 @@ std::string	Response::cgi (void)
 	//php 이면 Content-type 임ㅋㅋㅋㅋㅋContent-type: text/html; charset=UTF-8
 	res += printItem2(cgi_header, "Date");
 	res += printItem2(cgi_header, "Server");
-	// res += "Status: 200 OK";
+	res += printItem2(cgi_header, "Status");
 	res += "\r\n";
 	if (_status.first == 200)
 		res += _cgi_body;
@@ -534,13 +545,15 @@ std::string Response::Put()
 	filename = trim_url(url);
 	if (_request.get_putcheck() == 1) //파일이 없을때 새로 만든다
 	{
-		// std::cout << filename << std::endl;
 		int fd = open(url.c_str(), O_CREAT | O_RDWR, 0777);
 		write(fd, _request.get_body().c_str(), _request.get_body().length());
 		close(fd);
 		/////msg//////
 		msg = "HTTP/1.1 201 Created\n";
-		msg += "Content-Location: /" + filename + "\n\n";
+		msg += printItem("Content-Length");
+		msg += printItem("Date");
+		msg += "Content-Location: /" + filename + "\n";
+		msg += printItem("Server") + "\n";
 		return (msg);
 	}
 	else if (_request.get_filecheck() == 1)//파일을 있을 때 오픈해서 내용을 지우고 새로 입력한다
@@ -552,7 +565,10 @@ std::string Response::Put()
 		close(fd);
 		/////msg//////
 		msg = "HTTP/1.1 204 No Content\n"; //혹은 200 OK
-		msg += "Content-Location: /" + filename + "\n\n";
+		msg += printItem("Content-Length");
+		msg += printItem("Date");
+		msg += "Content-Location: /" + filename + "\n";
+		msg += printItem("Server") + "\n";
 		return (msg);
 	}
 	return ("========PUT FAIL=============");

@@ -301,6 +301,24 @@ std::string Response::body(const std::string &path)
 	return (res);
 }
 
+std::string Response::exec_method()
+{
+	std::string res = "";
+
+	int method = _request.get_method();
+
+	if (method == GET)
+		res = Get();
+	else if (method == HEAD)
+		res = Head();
+	else if (method == POST)
+		res = Post();
+	else if (method == PUT)
+		res = Put();
+
+	return (res);
+}
+
 std::string	Response::cgi (void)
 {
 	char **env;
@@ -315,15 +333,11 @@ std::string	Response::cgi (void)
 	args = (char **)(malloc(sizeof(char *) * 3));
 
 	args[0] = ft_strdup(_request.get_conf()["cgi_exec"].c_str());
-	// args[0] = ft_strdup("/usr/local/bin/php-cgi");
-	// args[0] = ft_strdup(_request.get_path().c_str());
-	// args[1] = NULL;
 	args[1] = ft_strdup(_request.get_conf()["path"].c_str());
 	args[2] = NULL;
 
 	fd = open("cgi.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
 	pipe(tubes);
-	// close(tubes[1]);
 	if ((pid = fork()) == 0)
 	{
 		close(tubes[1]);
@@ -458,13 +472,89 @@ void		Response::parseCGIResult(std::string buf)
 	// client.res.headers["Content-Length"] = std::to_string(buf.size());
 }
 
+char	**Response::Env()
+{
+	char	**env = 0;
+	std::map<std::string, std::string> map;
+
+	map["CONTENT_LENGTH"] = std::to_string(_request.get_body().size());
+
+	//request에서 받아온 값? 헤더값?
+	map["CONTENT_TYPE"] = "text/html";
+	// if (_request.get_vars().find("Content-Type") != _request.get_vars().end())
+	// 	map["CONTENT_TYPE"] = _request.get_vars().find("Content-Type")->second;
+
+	map["GATEWAY_INTERFACE"] = "CGI/1.1";
+
+	//request_path? uri?
+
+	// map["PATH_INFO"] = "";
+	// map["PATH_INFO"] = _request.get_uri();
+	map["PATH_INFO"] = _request.get_conf()["path"];
+	// "\"/" + _request.get_uri() + "\"";
+
+	map["PATH_TRANSLATED"] = _request.get_conf()["path"];
+
+	//body에서 추출
+	map["QUERY_STRING"] = "";
+
+	//client의 IP
+	// std::cout << "client ip plz" << _request.get_clientip() << std::endl;
+	map["REMOTE_ADDR"] = _request.get_client_ip();
+
+	//뭘까?
+	// map["REMOTE_IDENT"] = "";
+// REMOTE_USER
+	if (_request.get_method() == GET)
+		map["REQUEST_METHOD"] = "GET";
+	if (_request.get_method() == POST)
+		map["REQUEST_METHOD"] = "POST";
+
+	// map["REQUEST_URI"] = "";
+
+	map["REQUEST_URI"] = _request.get_conf()["path"];
+	// map["REQUEST_URI"] = _request.get_uri();
+	// map["REQUEST_URI"] = "test.php/";
+
+	//cgi 컴파일한 파일
+	map["SCRIPT_NAME"] = "." + _request.get_uri(); //get_path로 해도 되고 . 빼도 된다... 도대체 뭐지...
+	// map["SCRIPT_NAME"] = _request.get_path();
+	// map["SCRIPT_NAME"] = "test.php/";
+
+
+	//받아와야함
+	map["SERVER_NAME"] = "Carry-Please";
+	map["SERVER_PORT"] = "8080";
+//?????
+	map["SERVER_PROTOCOL"] = "HTTP/1.1";
+	map["SERVER_SOFTWARE"] = "HTTP/1.1";
+
+	map["REDIRECT_STATUS"] = "200";
+	// //header
+	map["Content-type"] = "text/html";
+	map["Expires"] = printItem("Date");
+	map["Location"] = _request.get_uri();
+	// map["Content-Length"] = "100";
+	// map["Set-Cookie"] = "";
+
+	env = (char **)malloc(sizeof(char *) * (map.size() + 1));
+	std::map<std::string, std::string>::iterator it = map.begin();
+	int i = -1;
+	while (it != map.end())
+	{
+		std::cout << it->first << " = " << it->second << std::endl;
+		env[++i] = strdup((it->first + "=" + it->second).c_str());
+		++it;
+	}
+	env[i] = NULL;
+
+return(env);
+}
+
 std::string Response::Get (void)
 {
 	std::string res = "";
 
-	// size_t first = _request.get_path().find_last_of('.');
-	// size_t last = _request.get_path().find_last_of(' ');
-	// if (!ft_strncmp(_request.get_path().substr(first + 1, (last - first + 1)).c_str(), "php", 3))
 	std::string extension = trim_extension(_request.get_conf()["path"]);
 	if (extension == "bla" || extension == "pl" ||  extension == "php" || extension == "cgi")
 		return (cgi());
@@ -506,29 +596,30 @@ std::string Response::Head(void)
 	return (res);
 }
 
-// std::string Response::Post() // for temporary only! to pass tester...
-// {
-// 	std::string res = "";
+std::string Response::Post() // for temporary only! to pass tester...
+{
+	std::string	res;
+	std::string extension = trim_extension(_request.get_conf()["path"]);
 
-// 	// std::cout << trim_url(_request.get_path()) << std::endl;
-// 	std::cout << "PATH @ POST: " << _request.get_path() << std::endl;
-// 	setStatus(405);
-// 	setContentLength("./error.html");
+	if (extension == "bla" || extension == "pl" ||  extension == "php" || extension == "cgi")
+		return (cgi());
+	if (_request.get_error_code() != 200)
+	{
+		res = getStartLine();
+		res += "\n";
+		res += printItem("Server");
+		res += printItem("Date");
+		res += printItem("Last-Modified");
+		res += printItem("Content-Type");
+		res += printItem("Content-Length");
+		res += "\n";
+		res += (body("error.html"));
+		res += "\n\n";
+		return res;
+	}
+	return (cgi());
+}
 
-// 	res = getStartLine();
-// 	res += "\n";
-// 	res += printItem("Server");
-// 	res += printItem("Date");
-// 	res += printItem("Last-Modified");
-// 	res += printItem("Content-Type");
-// 	res += printItem("Content-Length");
-// 	res += "\n";
-// 	res += (body("error.html"));
-
-// 	if (trim_url(_request.get_path()) == "youpi.bla")
-// 		res = Put();
-// 	return (res);
-// }
 
 std::string Response::Put()
 {
@@ -597,129 +688,4 @@ std::string	Response::Options()
 	else
 		msg += body("error.html");
 	return (msg);
-}
-
-std::string Response::exec_method()
-{
-	std::string res = "";
-
-	int method = _request.get_method();
-
-	if (method == GET)
-		res = Get();
-	else if (method == HEAD)
-		res = Head();
-	else if (method == POST)
-		res = Post();
-	else if (method == PUT)
-		res = Put();
-
-	return (res);
-}
-
-
-char	**Response::Env()
-{
-	char	**env = 0;
-	std::map<std::string, std::string> map;
-
-	map["CONTENT_LENGTH"] = std::to_string(_request.get_body().size());
-
-	//request에서 받아온 값? 헤더값?
-	map["CONTENT_TYPE"] = "text/html";
-	// if (_request.get_vars().find("Content-Type") != _request.get_vars().end())
-	// 	map["CONTENT_TYPE"] = _request.get_vars().find("Content-Type")->second;
-
-	map["GATEWAY_INTERFACE"] = "CGI/1.1";
-
-	//request_path? uri?
-
-	// map["PATH_INFO"] = "";
-	// map["PATH_INFO"] = _request.get_uri();
-	map["PATH_INFO"] = _request.get_conf()["path"];
-	// "\"/" + _request.get_uri() + "\"";
-
-	map["PATH_TRANSLATED"] = _request.get_conf()["path"];
-
-	//body에서 추출
-	map["QUERY_STRING"] = "";
-
-	//client의 IP
-	// std::cout << "client ip plz" << _request.get_clientip() << std::endl;
-	map["REMOTE_ADDR"] = _request.get_client_ip();
-
-	//뭘까?
-	// map["REMOTE_IDENT"] = "";
-// REMOTE_USER
-	if (_request.get_method() == GET)
-		map["REQUEST_METHOD"] = "GET";
-	if (_request.get_method() == POST)
-		map["REQUEST_METHOD"] = "POST";
-
-	// map["REQUEST_URI"] = "";
-
-	map["REQUEST_URI"] = _request.get_conf()["path"];
-	// map["REQUEST_URI"] = _request.get_uri();
-	// map["REQUEST_URI"] = "test.php/";
-
-	//cgi 컴파일한 파일
-		map["SCRIPT_NAME"] = "." + _request.get_uri(); //get_path로 해도 되고 . 빼도 된다... 도대체 뭐지...
-	// map["SCRIPT_NAME"] = _request.get_path();
-	// map["SCRIPT_NAME"] = "test.php/";
-
-
-	//받아와야함
-	map["SERVER_NAME"] = "Carry-Please";
-	map["SERVER_PORT"] = "8080";
-//?????
-	map["SERVER_PROTOCOL"] = "HTTP/1.1";
-	map["SERVER_SOFTWARE"] = "HTTP/1.1";
-
-	map["REDIRECT_STATUS"] = "200";
-	// //header
-	map["Content-type"] = "text/html";
-	map["Expires"] = printItem("Date");
-	map["Location"] = _request.get_uri();
-	// map["Content-Length"] = "100";
-	// map["Set-Cookie"] = "";
-
-
-
-
-	env = (char **)malloc(sizeof(char *) * (map.size() + 1));
-	std::map<std::string, std::string>::iterator it = map.begin();
-	int i = -1;
-	while (it != map.end())
-	{
-		std::cout << it->first << " = " << it->second << std::endl;
-		env[++i] = strdup((it->first + "=" + it->second).c_str());
-		++it;
-	}
-	env[i] = NULL;
-
-return(env);
-}
-
-std::string Response::Post() // for temporary only! to pass tester...
-{
-	std::string	res;
-	std::string extension = trim_extension(_request.get_conf()["path"]);
-
-	if (extension == "bla" || extension == "pl" ||  extension == "php" || extension == "cgi")
-		return (cgi());
-	if (_request.get_error_code() != 200)
-	{
-		res = getStartLine();
-		res += "\n";
-		res += printItem("Server");
-		res += printItem("Date");
-		res += printItem("Last-Modified");
-		res += printItem("Content-Type");
-		res += printItem("Content-Length");
-		res += "\n";
-		res += (body("error.html"));
-		res += "\n\n";
-		return res;
-	}
-	return (cgi());
 }

@@ -314,7 +314,7 @@ std::string	Response::cgi (void)
 
 	args = (char **)(malloc(sizeof(char *) * 3));
 
-	args[0] = ft_strdup("/Users/jiyoonhur/Webserv/jy/cgi_tester");
+	args[0] = ft_strdup("/Users/hpark/jy/jy/cgi_tester");
 	// args[0] = ft_strdup("/usr/local/bin/php-cgi");
 	// args[0] = ft_strdup(_request.get_path().c_str());
 	// args[1] = NULL;
@@ -368,7 +368,7 @@ std::string	Response::cgi (void)
 	}
 	close(fd);
 	std::cout << "==========" << std::endl;
-	std::cout << buf << std::endl;
+	// std::cout << tmp << std::endl;
 	/*
 	Status: 200 OK
 	Content-Type: text/html; charset=utf-8
@@ -379,8 +379,8 @@ std::string	Response::cgi (void)
 	parseCGIResult(buf);
 	res += getStartLine();
 	res += "\n";
-	res += "Content-Length: 100000000\n";
-	// res += printItem2(cgi_header,"Content-Length");
+	// res += "Content-Length: 100000000\n";
+	res += printItem2(cgi_header,"Content-Length");
 	res += printItem2(cgi_header, "Content-Type");
 	//php 이면 Content-type 임ㅋㅋㅋㅋㅋContent-type: text/html; charset=UTF-8
 	res += printItem2(cgi_header, "Date");
@@ -388,7 +388,8 @@ std::string	Response::cgi (void)
 	res += printItem2(cgi_header, "Status");
 	res += "\r\n";
 	if (_status.first == 200)
-		res += _request.get_body();
+		res += _cgi_body;
+		// res += _request.get_body();
 	else
 		res += (body("error.html"));
 	res += "\n\n";

@@ -54,6 +54,8 @@ void	Server::accept_client(void)
 	int	new_socket;
 	socklen_t addrlen = sizeof(_server_addr);
 
+	ft_memset((void *)&_server_addr, 0, (unsigned long)sizeof(_server_addr)); // 왜 libft ft_memset link가 안 될까?
+
 	if ((new_socket = accept(_fd, (struct sockaddr *)&_server_addr, &addrlen)) == -1)
 		exit(1);
 		//throw 로 에러 처리하기
@@ -79,13 +81,9 @@ int Server::read_request(std::vector<Client*>::iterator it)
 	c = *it;
 	getsockname(c->get_fd(), (struct sockaddr *)&client_addr, &c_addrlen);
 	std::string client_ip = inet_ntoa(client_addr.sin_addr);
-	int i = 0;
-	std::cout << "Start reading?" << std::endl;
-	while ((valread = read(c->get_fd() , buf, BUFFER_SIZE)) != 0)
+
+	while ((valread = read(c->get_fd(), buf, BUFFER_SIZE)) != 0)
 	{
-		++i;
-		if (i % 100000 == 0)
-			std::cout << buf << std::endl;
 		if (ft_strncmp(buf, "\x04", 1) == 0) // ctrl + d from telnet!
 		{
 			valread = 0; // to close client's socket.
@@ -95,17 +93,17 @@ int Server::read_request(std::vector<Client*>::iterator it)
 		{
 			buf[valread] = '\0';
 			req += buf;
-
+			std::cout << req << std::endl;
 			complen = req.length();
 			if ((complen > 3 && req.substr(complen - 4) == "\r\n\r\n"))
 			{
+				std::cout << req << std::endl;
 				Request request(client_ip);
 				request.parse_request(req, _conf);
 				set_request(*c, request);
-				break ;
+				return (1);
 			}
 		}
-		ft_memset(buf, 0, sizeof(buf));
 	}
 	if (valread == 0)
 	{

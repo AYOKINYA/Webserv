@@ -1,4 +1,5 @@
 #include "RequestMsg.hpp"
+#include <string.h>
 
 Request::Request(){_error_code = 0; _body = "";}
 Request::Request(std::string client_ip)
@@ -59,19 +60,13 @@ void Request::header_check(void)
 void Request::parse_chunk(std::string body)
 {
 	std::string line;
-	std::size_t pos;
 	while(!body.empty())
 	{
 		ft_getline(body, line);//숫자 읽기
+		// std::cout << "chunked number!!!" <<line << std::endl;
 		ft_getline(body, line);//문자열 읽기
-		// _body += line + "\n";
-		pos = line.find("\r\n");
-		std::cout << "pos????" <<pos << std::endl;
-		_body += trim(line.substr(0, pos));
-		// _body += line.substr(pos + 2);
-		// _chunkbody += line + "\n";
+		_body += line.substr(0, line.size() - 1);
 	}
-	//std::cout << _chunkbody << std::endl;
 }
 
 void Request::parse_request(std::string req)

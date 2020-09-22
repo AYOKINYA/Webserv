@@ -341,22 +341,20 @@ std::string	Response::cgi (void)
 	}
 	else
 	{
+		write(fd, _request.get_body().c_str(), _request.get_body().length());
 		waitpid(pid, NULL, 0);
 		close(fd);
 		close(tubes[0]);
 	}
-	char	buf[10000];
-	// execve 결과에 code도 다 담겨서 나온다.
-	// res = getStartLine();
-	// res += "\n";
-
-	fd = open("./cgi.txt", O_RDONLY, 0666);
-	int	r = lseek(fd, 0, SEEK_END);
-	lseek(fd, 0, SEEK_SET);
-	r = read(fd, &buf, r);
-	buf[r] = '\0';
+	char buf[10001];
+	std::string tmp;
+	fd = open("cgi.txt", O_RDONLY, 0666);
+	while ((ret = read(fd, &buf, 10000)) > 0)
+	{
+		buf[ret] = '\0';
+		tmp += buf;
+	}
 	close(fd);
-
 	std::cout << "==========" << std::endl;
 	std::cout << buf << std::endl;
 	/*
@@ -381,7 +379,7 @@ std::string	Response::cgi (void)
 		res += _request.get_body();
 	else
 		res += (body("error.html"));
-	res += "\n";
+	res += "\n\n";
 	return (res);
 }
 
@@ -442,7 +440,7 @@ void		Response::parseCGIResult(std::string buf)
 	}
 	pos = buf.find("\r\n\r\n") + 4;
 	_cgi_body = buf.substr(pos);
-	// std::cout << buf << std::endl;
+	std::cout << _cgi_body << std::endl;
 	key = "Content-Length";
 	value = std::to_string(buf.size());
 	cgi_header.insert(std::pair<std::string, std::string>(key, value));

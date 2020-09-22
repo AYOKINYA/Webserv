@@ -49,19 +49,17 @@ int Server::read_request(std::vector<Client *>::iterator it)
 	c = *it;
 	getsockname(c->get_fd(), (struct sockaddr *)&client_addr, &c_addrlen);
 	std::string client_ip = inet_ntoa(client_addr.sin_addr);
-	valread = read(c->get_fd() , buf, BUFFER_SIZE);
-	if (valread != 0)
+	if ((valread = read(c->get_fd() , buf, BUFFER_SIZE)) > 0)
 	{
 		if (ft_strncmp(buf, "\x04", 1) == 0) // ctrl + d from telnet!
 		{
 			valread = 0; // to close client's socket.
 			return 0;
 		}
-		if (valread > 0)
-		{
-			buf[valread] = '\0';
-			req += buf;
-		}
+
+		buf[valread] = '\0';
+		req += buf;
+
 		complen = req.length();
 		if ((complen > 3 && req.substr(complen - 4) == "\r\n\r\n")) // body max size 조건 추가헤야 한다....
 			return 0;
@@ -69,7 +67,7 @@ int Server::read_request(std::vector<Client *>::iterator it)
 	else if (valread == -1)
 	{
 		std::cout << "recv error" << std::endl;
-		return 0;
+		exit(1);
 	}
 	else if (valread == 0)
 	{
@@ -146,9 +144,7 @@ void	Server::accept_client()
 		usleep(2000);
 		if (new_socket > _max_fd)
 			_max_fd = new_socket;
-		// fcntl(*new_socket, F_SETFL, O_NONBLOCK);
-		// FD_SET(*new_socket, _rset); //set
-		// FD_SET(*new_socket, _wset);
+
 		Client *client = new Client(new_socket, _rset, _wset);
 		_clients.push_back(client); //clients_fd에 넣음
 	}

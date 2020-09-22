@@ -59,8 +59,10 @@ int main(int argc, char **argv)
 			for (std::vector<Client *>::iterator c(s->_clients.begin()); c != s->_clients.end(); ++c)
 			{
 				if (FD_ISSET(s->get_fd(), &cp_rset))
+				{
 					if (!s->read_request(c))
 						break ;
+				}
 				// if (FD_ISSET(s->get_fd(), &cp_wset))
 				// 	if (!s->write_response(c))
 				// 		break ;

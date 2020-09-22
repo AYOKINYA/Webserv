@@ -10,14 +10,19 @@
 # include <arpa/inet.h>
 # include <string>
 # include <map>
+# include "Request.hpp"
 
 class Client
 {
 	public:
+	
+		Request _req;
+	
 		int		_fd;
 		fd_set *_rset;
 		fd_set *_wset;
 
+	
 		Client(int fd, fd_set *rset, fd_set *wset)
 		{
 			_fd = fd;
@@ -30,6 +35,12 @@ class Client
 		}
 		~Client()
 		{
+			if (_fd != -1)
+			{
+				close(_fd);
+				FD_CLR(_fd, _rset);
+				FD_CLR(_fd, _wset);
+			}
 			std::cout << "Bye bye Client~" << std::endl;
 		};
 

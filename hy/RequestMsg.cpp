@@ -90,9 +90,10 @@ void Request::parse_request(std::string req)
 			key = trim(line.substr(0, pos));
 			value = trim(line.substr(pos + 1));
 			vars_request.insert(std::pair<std::string, std::string>(key, value));
-			// header_check();
+
 			//std::cout << "key is " << key << std::endl;
 			//std::cout << "value is " << value << std::endl;
+
 			if (key.empty())
 				break ;
 		}

@@ -18,16 +18,17 @@ enum	method
 
 class Request
 {
-	typedef std::map<std::string, std::string> 	elem;
-	typedef std::map<std::string, elem>			conf;
-	std::map<std::string, std::string>			_conf;
-	std::map<std::string, std::string>			_headers;
+	private:
+		typedef std::map<std::string, std::string> 	elem;
+		typedef std::map<std::string, elem>			conf;
+		std::map<std::string, std::string>			_conf;
+		std::map<std::string, std::string>			_headers;
 
-	int				_method;
-	std::string		_uri;
-	std::string		_body;
-	int				_error_code;
-	std::string 	_client_ip;
+		int				_method;
+		std::string		_uri;
+		std::string		_body;
+		int				_error_code;
+		std::string 	_client_ip;
 	
 	public:
 		void	clear();
@@ -46,8 +47,9 @@ class Request
 		int			get_error_code();
 		std::string	get_body();
 		std::string	get_uri();
-		std::string	get_clientip();
-
+		std::string	get_client_ip();
+		std::map<std::string, std::string>	get_conf();
+		std::map<std::string, std::string>	get_headers();
 };
 
 #endif

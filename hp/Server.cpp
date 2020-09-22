@@ -121,15 +121,15 @@ void Server::set_request(Client &c, Request &request)
 	c._req = request;
 }
 
-// int	Server::write_response(std::vector<Client *>::iterator it)
-// {
-// 	Client *c;
-// 	c = *it;
-// 	Response	response(c->_req);
-// 	std::string response_msg = response.exec_method();
-// 	// std::cout << response_msg << std::endl;
-// 	send(c->get_fd(), response_msg.c_str(), response_msg.length(), 0);
-// 	std::cout << "Server sent message" << std::endl;
-// 	// ft_memset(buf, 0, 1024);
-// 	return (0);
-// }
+int	Server::write_response(std::vector<Client *>::iterator it)
+{
+	Client *c;
+	c = *it;
+	Response	response(c->_req);
+	std::string response_msg = response.exec_method();
+	// std::cout << response_msg << std::endl;
+	send(c->get_fd(), response_msg.c_str(), response_msg.length(), 0);
+	std::cout << "Server sent message" << std::endl;
+	// ft_memset(buf, 0, 1024);
+	return (0);
+}

@@ -41,7 +41,7 @@ class Server
 			void	accept_client(void);
 			int read_request(std::vector<Client*>::iterator it);
 			void set_request(Client &c, Request &request);
-			// int	write_response(std::vector<Client *>::iterator it);
+			int	write_response(std::vector<Client *>::iterator it);
 
 };
 

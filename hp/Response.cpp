@@ -220,7 +220,7 @@ void Response::setWWWAuthentication()
 
 void Response::set_vars_response()
 {
-	std::string path = _request.get_path();
+	std::string path = _request.get_conf()["path"];
 	//std::cout << "parse path : " << path << std::endl;
 	setStatus(_request.get_error_code());
 	setServer();
@@ -286,6 +286,7 @@ std::string Response::body(const std::string &path)
 {
 	std::string res = "";
 	int fd = open(path.c_str(), O_RDWR, 0644);
+	// std::cout << path.c_str() << std::endl;
 	if (fd == -1)
 		std::cout << "Error MUST be thrown!" << std::endl; // error check in _request
 	char buf[1024];
@@ -313,11 +314,11 @@ std::string	Response::cgi (void)
 
 	args = (char **)(malloc(sizeof(char *) * 3));
 
-	args[0] = ft_strdup("/Users/hpark/Webserv/jy/cgi_tester");
+	args[0] = ft_strdup(_request.get_conf()["cgi_exec"].c_str());
 	// args[0] = ft_strdup("/usr/local/bin/php-cgi");
 	// args[0] = ft_strdup(_request.get_path().c_str());
 	// args[1] = NULL;
-	args[1] = ft_strdup(_request.get_path().c_str());
+	args[1] = ft_strdup(_request.get_conf()["path"].c_str());
 	args[2] = NULL;
 
 	fd = open("cgi.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
@@ -327,7 +328,7 @@ std::string	Response::cgi (void)
 	{
 		close(tubes[1]);
 		dup2(fd, 1);
-		if (stat(_request.get_path().c_str(), &php) != 0 ||
+		if (stat(_request.get_conf()["path"].c_str(), &php) != 0 ||
 		!(php.st_mode & S_IFREG))
 		{
 			std::cerr << "Error CGI" << std::endl;
@@ -364,7 +365,7 @@ std::string	Response::cgi (void)
 	close(fd);
 
 	std::cout << "==========" << std::endl;
-	std::cout << tmp << std::endl;
+	// std::cout << tmp << std::endl;
 	/*
 	Status: 200 OK
 	Content-Type: text/html; charset=utf-8
@@ -388,7 +389,7 @@ std::string	Response::cgi (void)
 		// res += _request.get_body();
 	else
 		res += (body("error.html"));
-	res += "\r\n\r\n";
+	res += "\r\n\r\n\r\n";
 	return (res);
 }
 
@@ -451,7 +452,8 @@ void		Response::parseCGIResult(std::string buf)
 	_cgi_body = buf.substr(pos);
 	// std::cout << buf << std::endl;
 	key = "Content-Length";
-	value = std::to_string(buf.size());
+	value = std::to_string(_cgi_body.size());
+	std::cout << "size is "<< value << std::endl;
 	cgi_header.insert(std::pair<std::string, std::string>(key, value));
 	// client.res.headers["Content-Length"] = std::to_string(buf.size());
 }
@@ -463,7 +465,7 @@ std::string Response::Get (void)
 	// size_t first = _request.get_path().find_last_of('.');
 	// size_t last = _request.get_path().find_last_of(' ');
 	// if (!ft_strncmp(_request.get_path().substr(first + 1, (last - first + 1)).c_str(), "php", 3))
-	std::string extension = trim_extension(_request.get_path());
+	std::string extension = trim_extension(_request.get_conf()["path"]);
 	if (extension == "bla" || extension == "pl" ||  extension == "php" || extension == "cgi")
 		return (cgi());
 	res += getStartLine();
@@ -477,7 +479,7 @@ std::string Response::Get (void)
 	res += printItem("Content-Length");
 	res += "\n";
 	if (_status.first == 200)
-		res += body(_request.get_path());
+		res += body(_request.get_conf()["path"]);
 	else
 		res += (body("error.html"));
 
@@ -534,24 +536,24 @@ std::string Response::Put()
 	std::string filename;
 	std::string msg;
 
-	url = _request.get_path();
-	std::cout << "path is !!!!"<< url << std::endl;
-	std::cout << "put check return : " << _request.get_putcheck() << std::endl;
-	std::cout << "file check return : " << _request.get_filecheck() << std::endl;
-	filename = trim_url(url);
-	if (_request.get_putcheck() == 1) //파일이 없을때 새로 만든다
-	{
-		// std::cout << filename << std::endl;
-		int fd = open(url.c_str(), O_CREAT | O_RDWR, 0777);
-		write(fd, _request.get_body().c_str(), _request.get_body().length());
-		close(fd);
-		/////msg//////
-		msg = "HTTP/1.1 201 Created\n";
-		msg += "Content-Location: /" + filename + "\n\n";
-		return (msg);
-	}
-	else if (_request.get_filecheck() == 1)//파일을 있을 때 오픈해서 내용을 지우고 새로 입력한다
-	{
+	// url =_request.get_conf()["path"];
+	// std::cout << "path is !!!!"<< url << std::endl;
+	// std::cout << "put check return : " << _request.get_putcheck() << std::endl;
+	// std::cout << "file check return : " << _request.get_filecheck() << std::endl;
+	// filename = trim_url(url);
+	// if (_request.get_putcheck() == 1) //파일이 없을때 새로 만든다
+	// {
+	// 	// std::cout << filename << std::endl;
+	// 	int fd = open(url.c_str(), O_CREAT | O_RDWR, 0777);
+	// 	write(fd, _request.get_body().c_str(), _request.get_body().length());
+	// 	close(fd);
+	// 	/////msg//////
+	// 	msg = "HTTP/1.1 201 Created\n";
+	// 	msg += "Content-Location: /" + filename + "\n\n";
+	// 	return (msg);
+	// }
+	// else if (_request.get_filecheck() == 1)//파일을 있을 때 오픈해서 내용을 지우고 새로 입력한다
+	// {
 		std::cout << url << std::endl;
 		int fd = open(url.c_str(), O_TRUNC | O_RDWR, 0777);
 
@@ -561,7 +563,7 @@ std::string Response::Put()
 		msg = "HTTP/1.1 204 No Content\n"; //혹은 200 OK
 		msg += "Content-Location: /" + filename + "\n\n";
 		return (msg);
-	}
+	// }
 	return ("========PUT FAIL=============");
 }
 
@@ -570,7 +572,7 @@ std::string	Response::Delete()
 	std::string	msg;
 	//응답코드 3개 있는데 1.성공적으로 수행할 것 같으나 아직 실행x -> 202 (Accepted) 는 어떨 때 써야할지 모르겠다.
 	//2. 204 No Content 코드, 3. 200 OK -> 파일이 지워졌다는 페이지ㅡㄹㄹ 보여준다.
-	if (remove(_request.get_path().c_str()) == 0)
+	if (remove(_request.get_conf()["path"].c_str()) == 0)
 	{
 		msg = getStartLine();
 	}
@@ -591,7 +593,7 @@ std::string	Response::Options()
 	msg += printItem("Content-Length");
 	msg += "\n";
 	if (_status.first == 200)
-		msg += body(_request.get_path());
+		msg += body(_request.get_conf()["path"]);
 	else
 		msg += body("error.html");
 	return (msg);
@@ -634,17 +636,17 @@ char	**Response::Env()
 
 	// map["PATH_INFO"] = "";
 	// map["PATH_INFO"] = _request.get_uri();
-	map["PATH_INFO"] = _request.get_path();
+	map["PATH_INFO"] = _request.get_conf()["path"];
 	// "\"/" + _request.get_uri() + "\"";
 
-	map["PATH_TRANSLATED"] = _request.get_path();
+	map["PATH_TRANSLATED"] = _request.get_conf()["path"];
 
 	//body에서 추출
 	map["QUERY_STRING"] = "";
 
 	//client의 IP
 	// std::cout << "client ip plz" << _request.get_clientip() << std::endl;
-	map["REMOTE_ADDR"] = _request.get_clientip();
+	map["REMOTE_ADDR"] = _request.get_client_ip();
 
 	//뭘까?
 	// map["REMOTE_IDENT"] = "";
@@ -656,7 +658,7 @@ char	**Response::Env()
 
 	// map["REQUEST_URI"] = "";
 
-	map["REQUEST_URI"] = _request.get_path();
+	map["REQUEST_URI"] = _request.get_conf()["path"];
 	// map["REQUEST_URI"] = _request.get_uri();
 	// map["REQUEST_URI"] = "test.php/";
 
@@ -701,7 +703,7 @@ return(env);
 std::string Response::Post() // for temporary only! to pass tester...
 {
 	std::string	res;
-	std::string extension = trim_extension(_request.get_path());
+	std::string extension = trim_extension(_request.get_conf()["path"]);
 
 	if (extension == "bla" || extension == "pl" ||  extension == "php" || extension == "cgi")
 		return (cgi());

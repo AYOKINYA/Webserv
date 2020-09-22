@@ -32,6 +32,8 @@ Request& Request::operator=(const Request& other)
     _error_code = other._error_code;
     _client_ip = other._client_ip;
 
+    _conf = other._conf;
+
     return (*this);
 }
 
@@ -57,6 +59,11 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
 
     file = _uri.substr(_uri.find_last_of('/') + 1, _uri.find('?'));
     tmp = _uri;
+	if (tmp[0] != '/')
+		tmp = "/" + tmp;
+	if (tmp[tmp.length() - 1] != '/')
+		tmp = tmp + "/";
+	std::cout << "tmp is " << tmp << std::endl;
     do
     {
         if (to_parse.find("server|location " + tmp + "|") != to_parse.end())
@@ -65,13 +72,15 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
             break ;
         }
         tmp = tmp.substr(0, tmp.find_last_of('/'));
-    } while (tmp != "");
+		tmp = tmp.substr(0, tmp.find_last_of('/'));
+		tmp += "/";
+    } while (tmp != "" || tmp != "/");
 
-    if (elem.size() == 0)
-    {
-        if (to_parse.find("server|location /|") != to_parse.end())
-            elem = to_parse["server|location /|"];
-    }
+    // if (elem.size() == 0)
+    // {
+    //     if (to_parse.find("server|location /|") != to_parse.end())
+    //         elem = to_parse["server|location /|"];
+    // }
     
 	_conf = elem;
 	_conf["path"] = _uri.substr(0, _uri.find("?"));
@@ -87,20 +96,26 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
     lstat(_conf["path"].c_str(), &info);
     if (S_ISDIR(info.st_mode)) //directory면 default index page open
     {
+		if (_method != GET)
+		{
+			_error_code = 405;
+			return ;
+		}
         if (_conf["index"][0] && _conf["autoindex"] != "on")
             _conf["path"] += "/" + elem["index"];
     }
     if (_method == GET)
         _conf["path_saved"] = _conf["path"];
 
-    std::cout << "============"<< std::endl;
-    for(std::map<std::string, std::string>::iterator it = _conf.begin(); it != _conf.end(); ++it)
-    	std::cout << it->first << " " << it->second << std::endl;
-    std::cout << "============"<< std::endl;
+    // std::cout << "============"<< std::endl;
+    // for(std::map<std::string, std::string>::iterator it = _conf.begin(); it != _conf.end(); ++it)
+    // 	std::cout << it->first << " " << it->second << std::endl;
+    // std::cout << "============"<< std::endl;
 
     if (stat(_conf["path"].c_str(), &info) == -1)
         _error_code = 404;
-    
+	std::cout << _conf["root"].c_str() << std::endl;
+	std::cout << _conf["path"].c_str() << std::endl;
 }
 
 void	Request::parse_header(std::string &req)
@@ -119,11 +134,10 @@ void	Request::parse_header(std::string &req)
             key = trim(line.substr(0, pos));
             value = trim(line.substr(pos + 1));
             
-            std::cout << key << "=" << value << std::endl;
+            // std::cout << key << "=" << value << std::endl;
 
             if (key.empty() || value.empty())
             {
-				std::cout << "check1" << std::endl;
                 break ;
             }
 
@@ -171,15 +185,19 @@ void	Request::parse_request(std::string &req, std::vector<conf> &conf)
 
 void Request::parse_chunk(std::string &body)
 {
-    std::string line;
-
-    while (!body.empty())
-    {
-        ft_getline(body, line);//숫자 읽기
-        ft_getline(body, line);//문자열 읽기
-        _body += line + "\n";
-    }
-    std::cout << _body << std::endl;
+	std::string line;
+	
+	_body = "";
+	while(!body.empty())
+	{
+		ft_getline(body, line);//숫자 읽기
+		int len = std::stoi(line, 0, 16);
+		// std::cout << "chunked number!!!" <<line << std::endl;
+		ft_getline(body, line);//문자열 읽기
+		_body += line.substr(0, len);
+		// _body += line.substr(0, line.size() - 1);
+	}
+    // std::cout << _body << std::endl;
 }
 
 void	Request::parse_first_line(std::string &line)
@@ -217,8 +235,11 @@ void	Request::parse_first_line(std::string &line)
     }
 }
 
+
 int Request::get_method(){return (_method);}
 int	Request::get_error_code(){return (_error_code);}
 std::string	Request::get_uri(){return (_uri);}
 std::string	Request::get_body(){return (_body);}
-std::string	get_clientip(){return (_clientip);}
+std::string	Request::get_client_ip(){return (_client_ip);}
+std::map<std::string, std::string>	Request::get_conf(){return (_conf);}
+std::map<std::string, std::string>  Request::get_headers(){return (_headers);}

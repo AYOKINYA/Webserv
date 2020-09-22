@@ -67,11 +67,11 @@ int main(int argc, char **argv)
 					if (!s->read_request(c))
 						break ;
 				}
-				// if (FD_ISSET(client->get_fd(), &wset))
-				// {
-				// 	if (!s->write_response(c))
-				// 		break ;
-				// }
+				if (FD_ISSET(client->get_fd(), &wset))
+				{
+					if (!s->write_response(c))
+						break ;
+				}
 			}
 		}
 

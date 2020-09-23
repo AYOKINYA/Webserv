@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 		cp_rset = rset;
 		cp_wset = wset;
 
-		if (select(get_max_fd(), &cp_rset, &cp_wset, NULL, &time) < 0)
+		if (select(get_max_fd() + 1, &cp_rset, &cp_wset, NULL, &time) < 0)
 			printf("select error");
 		
 		// usleep(2000);

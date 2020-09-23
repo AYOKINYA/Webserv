@@ -52,11 +52,12 @@ int Server::get_fd(void)
 void	Server::accept_client(void)
 {
 	int	new_socket;
-	socklen_t addrlen = sizeof(_server_addr);
+	struct sockaddr_in client_addr;
+	socklen_t addrlen = sizeof(client_addr);
 
-	ft_memset((void *)&_server_addr, 0, (unsigned long)sizeof(_server_addr)); // 왜 libft ft_memset link가 안 될까?
+	ft_memset((void *)&client_addr, 0, (unsigned long)sizeof(client_addr)); // 왜 libft ft_memset link가 안 될까?
 
-	if ((new_socket = accept(_fd, (struct sockaddr *)&_server_addr, &addrlen)) == -1)
+	if ((new_socket = accept(_fd, (struct sockaddr *)&client_addr, &addrlen)) == -1)
 		exit(1);
 		//throw 로 에러 처리하기
 
@@ -97,13 +98,6 @@ int Server::read_request(std::vector<Client*>::iterator it)
 			tmp += buf;
 			if (request.parse_request(tmp, _conf))
 				break;
-			// complen = req.length();
-			// if ((complen > 3 && req.substr(complen - 4) == "\r\n\r\n"))
-			// {
-			// 	std::cout << req.substr(0,100) << std::endl;
-			// 	set_request(*c, request);
-			// 	return (1);
-			// }
 		}
 	}
 	if (valread == 0)

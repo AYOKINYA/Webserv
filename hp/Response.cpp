@@ -427,7 +427,7 @@ std::string	Response::cgi (void)
 		// res += _request.get_body();
 	else
 		res += (body("error.html"));
-	res += "\r\n\r\n\r\n";
+	res += "\r\n\r\n";
 	return (res);
 }
 
@@ -650,35 +650,50 @@ std::string Response::Put()
 	std::string url;
 	std::string filename;
 	std::string msg;
+	struct stat	info;
+	int fd;
 
-	// url =_request.get_conf()["path"];
+	url =_request.get_conf()["path"];
 	// std::cout << "path is !!!!"<< url << std::endl;
 	// std::cout << "put check return : " << _request.get_putcheck() << std::endl;
 	// std::cout << "file check return : " << _request.get_filecheck() << std::endl;
 	// filename = trim_url(url);
-	// if (_request.get_putcheck() == 1) //파일이 없을때 새로 만든다
-	// {
-	// 	// std::cout << filename << std::endl;
-	// 	int fd = open(url.c_str(), O_CREAT | O_RDWR, 0777);
-	// 	write(fd, _request.get_body().c_str(), _request.get_body().length());
-	// 	close(fd);
-	// 	/////msg//////
-	// 	msg = "HTTP/1.1 201 Created\n";
-	// 	msg += "Content-Location: /" + filename + "\n\n";
-	// 	return (msg);
-	// }
-	// else if (_request.get_filecheck() == 1)//파일을 있을 때 오픈해서 내용을 지우고 새로 입력한다
-	// {
+	if (stat(url.c_str(), &info) == -1) //파일이 없을때 새로 만든다
+	{
+		// std::cout << filename << std::endl;
+		fd = open(url.c_str(), O_CREAT | O_RDWR, 0644);
+		write(fd, _request.get_body().c_str(), _request.get_body().length());
+		close(fd);
+		/////msg//////
+		msg = "HTTP/1.1 201 Created\n";
+		msg += printItem("Content-Length");
+		msg += printItem("Date");
+		msg += "Content-Location: /" + filename + "\n";
+		msg += printItem("Server") + "\n";
+		return (msg);
+	}
+	else //파일을 있을 때 오픈해서 내용을 지우고 새로 입력한다
+	{
 		std::cout << url << std::endl;
-		int fd = open(url.c_str(), O_TRUNC | O_RDWR, 0777);
+		if ((fd = open(url.c_str(), O_TRUNC | O_RDWR, 0644)))
+		{
+			msg = "HTTP/1.1 500 Internal Server Error\n"; //혹은 200 OK
+			msg += printItem("Content-Length");
+			msg += printItem("Date");
+			msg += printItem("Server") + "\n";
+		}
 
 		write(fd, _request.get_body().c_str(), _request.get_body().length());
 		close(fd);
 		/////msg//////
 		msg = "HTTP/1.1 204 No Content\n"; //혹은 200 OK
-		msg += "Content-Location: /" + filename + "\n\n";
+		msg += printItem("Content-Length");
+		msg += printItem("Date");
+		msg += "Content-Location: /" + filename + "\n";
+		msg += printItem("Server") + "\n";
+
 		return (msg);
-	// }
+	}
 	return ("========PUT FAIL=============");
 }
 

@@ -175,6 +175,7 @@ class Request
 			
 			if (elem.size() == 0)
 			{
+				std::cout << "??" << std::endl;
 				if (to_parse.find("server|location /|") != to_parse.end())
 					elem = to_parse["server|location /|"];
 			}

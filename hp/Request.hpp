@@ -3,6 +3,9 @@
 
 # include "Config.hpp"
 # include "Utils.hpp"
+# include <fstream>
+#include <sstream>
+#include <string>
 
 enum	method
 {

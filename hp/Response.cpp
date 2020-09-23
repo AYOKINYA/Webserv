@@ -414,7 +414,6 @@ std::string	Response::cgi (void)
 	parseCGIResult(tmp);
 	res += getStartLine();
 	res += "\n";
-	// res += "Content-Length: 100000000\n";
 	res += printItem2(cgi_header,"Content-Length");
 	res += printItem2(cgi_header, "Content-Type");
 	//php 이면 Content-type 임ㅋㅋㅋㅋㅋContent-type: text/html; charset=UTF-8
@@ -424,7 +423,6 @@ std::string	Response::cgi (void)
 	res += "\r\n";
 	if (_status.first == 200)
 		res += _cgi_body;
-		// res += _request.get_body();
 	else
 		res += (body("error.html"));
 	res += "\r\n\r\n";
@@ -641,7 +639,7 @@ std::string Response::Post() // for temporary only! to pass tester...
 		res += "\n\n";
 		return res;
 	}
-	return (cgi());
+	return (0);
 }
 
 

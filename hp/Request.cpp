@@ -179,12 +179,14 @@ void	Request::parse_request(std::string &req, std::vector<conf> &conf)
         else if (_method == POST || _method == PUT)
             _error_code = 411;
     }
+    std::cout << "in parse request" << std::endl;
 }
 
 void Request::parse_chunk(std::string &body)
 {
 	std::string line;
 
+    std::cout << "in parse chunck start" << std::endl;
 	_body = "";
 	while(!body.empty())
 	{
@@ -195,7 +197,7 @@ void Request::parse_chunk(std::string &body)
 		_body += line.substr(0, len);
 		// _body += line.substr(0, line.size() - 1);
 	}
-    // std::cout << _body << std::endl;
+    std::cout << "in parse chunck end" << std::endl;
 }
 
 void	Request::parse_first_line(std::string &line)

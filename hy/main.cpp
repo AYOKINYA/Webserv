@@ -33,8 +33,8 @@ int main(int argc, char **argv)
 	Client *client;
 
 	struct timeval time;
-	time.tv_sec = 5;
-	time.tv_usec = 5000;
+	time.tv_sec = 1;
+	time.tv_usec = 0;
 
     if (argc != 2)
         return (err_msg("./webserv ./any_config_file"));
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
 		if (select(get_max_fd(), &cp_rset, &cp_wset, NULL, &time) < 0)
 			printf("select error");
 		
-		usleep(2000);
+		// usleep(2000);
 
 		for (std::vector<Server>::iterator s(g_servers.begin()); s != g_servers.end(); ++s)
 		{

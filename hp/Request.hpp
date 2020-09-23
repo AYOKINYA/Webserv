@@ -50,6 +50,7 @@ class Request
 		std::string	get_body();
 		std::string	get_uri();
 		std::string	get_client_ip();
+		void		set_error_code(int error_code);
 		std::map<std::string, std::string>	get_conf();
 		std::map<std::string, std::string>	get_headers();
 };

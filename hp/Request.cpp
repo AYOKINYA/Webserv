@@ -234,6 +234,10 @@ void	Request::parse_first_line(std::string &line)
     }
 }
 
+void Request::set_error_code(int error_code)
+{
+    _error_code = error_code;
+}
 
 int Request::get_method(){return (_method);}
 std::string Request::get_method_str(){return (_method_str);}

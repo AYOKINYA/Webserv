@@ -136,7 +136,6 @@ void	Request::parse_header(std::string &req)
             {
                 break ;
             }
-
             _headers[key] = value;
         }
         else
@@ -171,7 +170,7 @@ int		Request::parse_request(std::string &req, std::vector<conf> &conf)
 			feed_conf(conf);
 	}
 	return (parse_body(req));
-	
+
     // //parse body
     // if (_headers.find("Transfer-Encoding") != _headers.end() && ft_strncmp(_headers["Transfer-Encoding"].c_str(), "chunked", 7) == 0)
     //     parse_chunk(req);

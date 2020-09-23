@@ -25,7 +25,7 @@ class Request
 		typedef std::map<std::string, std::string> 	elem;
 		typedef std::map<std::string, elem>			conf;
 		std::map<std::string, std::string>			_conf;
-		std::map<std::string, std::string>			_headers;
+		// std::map<std::string, std::string>			_headers;
 
 		int				_method;
 		std::string		_uri;
@@ -35,6 +35,7 @@ class Request
 		std::string		_method_str;
 		int				_chunk_len;
 	public:
+		std::map<std::string, std::string>			_headers;
 		void	clear();
 		Request () {};
 		Request(std::string client_ip);

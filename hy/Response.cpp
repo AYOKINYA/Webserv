@@ -308,27 +308,27 @@ std::string Response::exec_method()
 	int method = _request.get_method();
 
 	//////////config method parsing////////////
-	std::string method_conf = _request.get_conf()["method_allowed"];
-	std::cout << "method from config!!!" << method_conf << std::endl;
-	std::vector<std::string> tokens;
-	if (method_conf.find(",") != std::string::npos)
-	{
-		tokens = split(method_conf, ',');
-		int num = tokens.size();
-		for (int i = 0; i < num; i++)
-		{
-			if (tokens[i] != _request.get_method_str())
-			{
-				// setStatus(405);
-				break ;
-			}
-		}
-	}
-	if (method_conf != _request.get_method_str())
-	{
-		// setStatus(405);
-		res = "405 Method Not Allowed";
-	}
+	// std::string method_conf = _request.get_conf()["method_allowed"];
+	// std::cout << "method from config!!!" << method_conf << std::endl;
+	// std::vector<std::string> tokens;
+	// if (method_conf.find(",") != std::string::npos)
+	// {
+	// 	tokens = split(method_conf, ',');
+	// 	int num = tokens.size();
+	// 	for (int i = 0; i < num; i++)
+	// 	{
+	// 		if (tokens[i] != _request.get_method_str())
+	// 		{
+	// 			setStatus(405);
+	// 			break ;
+	// 		}
+	// 	}
+	// }
+	// if (method_conf != _request.get_method_str())
+	// {
+	// 	setStatus(405);
+	// 	res = "405 Method Not Allowed";
+	// }
 	//만약 config 에 해당하지 않는 메소드를 받으면 실행못하게 에러페이지? 405 NOT ALLOWED METHOD
 
 	if (method == GET)
@@ -500,64 +500,42 @@ char	**Response::Env()
 	std::map<std::string, std::string> map;
 
 	map["CONTENT_LENGTH"] = std::to_string(_request.get_body().size());
-
-	//request에서 받아온 값? 헤더값?
 	map["CONTENT_TYPE"] = "text/html";
 	// if (_request.get_vars().find("Content-Type") != _request.get_vars().end())
 	// 	map["CONTENT_TYPE"] = _request.get_vars().find("Content-Type")->second;
 
 	map["GATEWAY_INTERFACE"] = "CGI/1.1";
-
-	//request_path? uri?
-
-	// map["PATH_INFO"] = "";
-	// map["PATH_INFO"] = _request.get_uri();
 	map["PATH_INFO"] = _request.get_conf()["path"];
-	// "\"/" + _request.get_uri() + "\"";
-
 	map["PATH_TRANSLATED"] = _request.get_conf()["path"];
-
-	//body에서 추출
 	map["QUERY_STRING"] = "";
-
-	//client의 IP
-	// std::cout << "client ip plz" << _request.get_clientip() << std::endl;
 	map["REMOTE_ADDR"] = _request.get_client_ip();
 
-	//뭘까?
-	// map["REMOTE_IDENT"] = "";
-// REMOTE_USER
 	if (_request.get_method() == GET)
 		map["REQUEST_METHOD"] = "GET";
 	if (_request.get_method() == POST)
 		map["REQUEST_METHOD"] = "POST";
 
-	// map["REQUEST_URI"] = "";
-
 	map["REQUEST_URI"] = _request.get_conf()["path"];
-	// map["REQUEST_URI"] = _request.get_uri();
-	// map["REQUEST_URI"] = "test.php/";
 
-	//cgi 컴파일한 파일
 	map["SCRIPT_NAME"] = "." + _request.get_uri(); //get_path로 해도 되고 . 빼도 된다... 도대체 뭐지...
-	// map["SCRIPT_NAME"] = _request.get_path();
-	// map["SCRIPT_NAME"] = "test.php/";
 
-
-	//받아와야함
 	map["SERVER_NAME"] = "Carry-Please";
 	map["SERVER_PORT"] = "8080";
-//?????
 	map["SERVER_PROTOCOL"] = "HTTP/1.1";
 	map["SERVER_SOFTWARE"] = "HTTP/1.1";
 
 	map["REDIRECT_STATUS"] = "200";
-	// //header
-	map["Content-type"] = "text/html";
-	map["Expires"] = printItem("Date");
-	map["Location"] = _request.get_uri();
-	// map["Content-Length"] = "100";
-	// map["Set-Cookie"] = "";
+
+	// map["Content-type"] = "text/html";
+	// map["Expires"] = printItem("Date");
+	// map["Location"] = _request.get_uri();
+
+	std::map<std::string, std::string>::iterator b = _request._headers.begin();
+	while (b != _request._headers.end())
+	{
+		map["HTTP_" + b->first] = b->second;
+		++b;
+	}
 
 	env = (char **)malloc(sizeof(char *) * (map.size() + 1));
 	std::map<std::string, std::string>::iterator it = map.begin();
@@ -659,7 +637,7 @@ std::string Response::Put()
 	if (stat(url.c_str(), &info) == -1) //파일이 없을때 새로 만든다
 	{
 		// std::cout << filename << std::endl;
-		fd = open(url.c_str(), O_CREAT | O_RDWR, 0644);
+		fd = open(url.c_str(), O_CREAT | O_RDWR, 0666);
 		write(fd, _request.get_body().c_str(), _request.get_body().length());
 		close(fd);
 		/////msg//////
@@ -673,7 +651,7 @@ std::string Response::Put()
 	else //파일을 있을 때 오픈해서 내용을 지우고 새로 입력한다
 	{
 		std::cout << url << std::endl;
-		if ((fd = open(url.c_str(), O_TRUNC | O_RDWR, 0644)))
+		if ((fd = open(url.c_str(), O_TRUNC | O_RDWR, 0666)))
 		{
 			msg = "HTTP/1.1 500 Internal Server Error\n"; //혹은 200 OK
 			msg += printItem("Content-Length");

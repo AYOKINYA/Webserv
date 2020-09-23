@@ -96,7 +96,7 @@ int Server::read_request(std::vector<Client*>::iterator it)
 			complen = req.length();
 			if ((complen > 3 && req.substr(complen - 4) == "\r\n\r\n"))
 			{
-				std::cout << req << std::endl;
+				std::cout << req.substr(0,100) << std::endl;
 				Request request(client_ip);
 				request.parse_request(req, _conf);
 				set_request(*c, request);
@@ -124,11 +124,28 @@ void Server::set_request(Client &c, Request &request)
 int	Server::write_response(std::vector<Client *>::iterator it)
 {
 	Client *c;
+	int	ret;
+
 	c = *it;
 	Response	response(c->_req);
 	std::string response_msg = response.exec_method();
 	// std::cout << response_msg << std::endl;
-	send(c->get_fd(), response_msg.c_str(), response_msg.length(), 0);
+
+	while ((ret = write(c->get_fd(), response_msg.c_str(), response_msg.length())) != 0)
+	{
+		if ((unsigned long)ret < response_msg.length())
+			response_msg = response_msg.substr(ret);
+		else if (ret == -1)
+			continue;
+		else
+			break;
+		std::cout << ret <<std::endl;
+	}
+	std::cout << ret << std::endl;
+	std::cout << errno << std::endl;
+	
+	// FD_CLR(c->get_fd(), _wset);
+
 	std::cout << "Server sent message" << std::endl;
 	// ft_memset(buf, 0, 1024);
 	return (0);

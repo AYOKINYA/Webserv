@@ -317,16 +317,16 @@ std::string Response::exec_method()
 		int num = tokens.size();
 		for (int i = 0; i < num; i++)
 		{
-			if (tokens[i] != _request.get_method_str)
+			if (tokens[i] != _request.get_method_str())
 			{
-				setStatus(405);
+				// setStatus(405);
 				break ;
 			}
 		}
 	}
-	if (method_conf != _request.get_method_str)
+	if (method_conf != _request.get_method_str())
 	{
-		setStatus(405);
+		// setStatus(405);
 		res = "405 Method Not Allowed";
 	}
 	//만약 config 에 해당하지 않는 메소드를 받으면 실행못하게 에러페이지? 405 NOT ALLOWED METHOD
@@ -414,7 +414,6 @@ std::string	Response::cgi (void)
 	parseCGIResult(tmp);
 	res += getStartLine();
 	res += "\n";
-	// res += "Content-Length: 100000000\n";
 	res += printItem2(cgi_header,"Content-Length");
 	res += printItem2(cgi_header, "Content-Type");
 	//php 이면 Content-type 임ㅋㅋㅋㅋㅋContent-type: text/html; charset=UTF-8
@@ -424,7 +423,6 @@ std::string	Response::cgi (void)
 	res += "\r\n";
 	if (_status.first == 200)
 		res += _cgi_body;
-		// res += _request.get_body();
 	else
 		res += (body("error.html"));
 	res += "\r\n\r\n";
@@ -641,7 +639,7 @@ std::string Response::Post() // for temporary only! to pass tester...
 		res += "\n\n";
 		return res;
 	}
-	return (cgi());
+	return (0);
 }
 
 

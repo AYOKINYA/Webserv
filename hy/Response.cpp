@@ -421,11 +421,13 @@ std::string	Response::cgi (void)
 	res += printItem2(cgi_header, "Server");
 	// res += "Status: 200 OK";
 	res += "\r\n";
-	if (_status.first == 200)
+	if (_request.get_method() == HEAD)
+		return (res);
+	else if (_status.first == 200)
 		res += _cgi_body;
 	else
 		res += (body("error.html"));
-	res += "\r\n\r\n";
+	// res += "\r\n\r\n";
 	return (res);
 }
 
@@ -568,7 +570,9 @@ std::string Response::Get (void)
 	res += printItem("Server");
 	res += printItem("Content-Length");
 	res += "\n";
-	if (_status.first == 200)
+	if (_request.get_method() == HEAD)
+		return (res);
+	else if (_status.first == 200)
 		res += body(_request.get_conf()["path"]);
 	else
 		res += (body("error.html"));
@@ -580,7 +584,7 @@ std::string Response::Head(void)
 {
 	std::string res = "";
 	//to pass tester
-	res += Post();
+	res += Get();
 
 	// below is original...
 

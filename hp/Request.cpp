@@ -6,6 +6,7 @@ void	Request::clear()
     _uri.clear();
     _headers.clear();
     _body.clear();
+    _method_str.clear();
 }
 
 Request::Request(std::string client_ip)
@@ -19,11 +20,12 @@ Request::Request (const Request& copy)
 };
 
 Request& Request::operator=(const Request& other)
-{	
+{
     if (this == &other)
         return (*this);
-    
+
     _method = other._method;
+    _method_str = other._method_str;
     _uri = other._uri;
 
     _headers = other._headers;
@@ -81,13 +83,13 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
     //     if (to_parse.find("server|location /|") != to_parse.end())
     //         elem = to_parse["server|location /|"];
     // }
-    
+
 	_conf = elem;
 	_conf["path"] = _uri.substr(0, _uri.find("?"));
 	// std::cout <<"path is " << _conf["path"] << std::endl;
 	if (elem.find("root") != elem.end())
 		_conf["path"].replace(0, tmp.size(), elem["root"]);
-    
+
     for (std::map<std::string, std::string>::iterator it(to_parse["server|"].begin()); it != to_parse["server|"].end(); ++it)
     {
         if (_conf.find(it->first) == _conf.end())
@@ -133,7 +135,7 @@ void	Request::parse_header(std::string &req)
         {
             key = trim(line.substr(0, pos));
             value = trim(line.substr(pos + 1));
-            
+
             // std::cout << key << "=" << value << std::endl;
 
             if (key.empty() || value.empty())
@@ -166,7 +168,7 @@ void	Request::parse_request(std::string &req, std::vector<conf> &conf)
 
     if (_uri != "*" || _uri != "OPTIONS")
         feed_conf(conf);
-    
+
     //parse body
     if (_headers.find("Transfer-Encoding") != _headers.end() && ft_strncmp(_headers["Transfer-Encoding"].c_str(), "chunked", 7) == 0)
         parse_chunk(req);
@@ -186,7 +188,7 @@ void	Request::parse_request(std::string &req, std::vector<conf> &conf)
 void Request::parse_chunk(std::string &body)
 {
 	std::string line;
-	
+
 	_body = "";
 	while(!body.empty())
 	{
@@ -204,6 +206,7 @@ void	Request::parse_first_line(std::string &line)
 {
     std::vector<std::string> tokens = split(line, ' ');
 
+    _method_str = tokens[0];
     if (tokens.size() != 3)
         _error_code = 400;
     else
@@ -237,6 +240,7 @@ void	Request::parse_first_line(std::string &line)
 
 
 int Request::get_method(){return (_method);}
+std::string Request::get_method_str(){return (_method_str);}
 int	Request::get_error_code(){return (_error_code);}
 std::string	Request::get_uri(){return (_uri);}
 std::string	Request::get_body(){return (_body);}

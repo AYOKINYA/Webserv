@@ -29,7 +29,8 @@ class Request
 		std::string		_body;
 		int				_error_code;
 		std::string 	_client_ip;
-	
+		std::string		_method_str;
+
 	public:
 		void	clear();
 		Request () {};
@@ -44,6 +45,7 @@ class Request
 		void	parse_first_line(std::string &line);
 
 		int			get_method();
+		std::string	get_method_str();
 		int			get_error_code();
 		std::string	get_body();
 		std::string	get_uri();

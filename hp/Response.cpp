@@ -307,6 +307,30 @@ std::string Response::exec_method()
 
 	int method = _request.get_method();
 
+	//////////config method parsing////////////
+	std::string method_conf = _request.get_conf()["method_allowed"];
+	std::cout << "method from config!!!" << method_conf << std::endl;
+	std::vector<std::string> tokens;
+	if (method_conf.find(",") != std::string::npos)
+	{
+		tokens = split(method_conf, ',');
+		int num = tokens.size();
+		for (int i = 0; i < num; i++)
+		{
+			if (tokens[i] != _request.get_method_str)
+			{
+				setStatus(405);
+				break ;
+			}
+		}
+	}
+	if (method_conf != _request.get_method_str)
+	{
+		setStatus(405);
+		res = "405 Method Not Allowed";
+	}
+	//만약 config 에 해당하지 않는 메소드를 받으면 실행못하게 에러페이지? 405 NOT ALLOWED METHOD
+
 	if (method == GET)
 		res = Get();
 	else if (method == HEAD)

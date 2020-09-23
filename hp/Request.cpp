@@ -56,35 +56,31 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
     }
     if (it == conf_input.end())
         to_parse = conf_input[0];
-
+ if (_uri[0] != '/')
+        _uri = "/" + _uri;
     file = _uri.substr(_uri.find_last_of('/') + 1, _uri.find('?'));
-    tmp = _uri;
-	if (tmp[0] != '/')
-		tmp = "/" + tmp;
-	if (tmp[tmp.length() - 1] != '/')
-		tmp = tmp + "/";
-	std::cout << "tmp is " << tmp << std::endl;
+    tmp = _uri.substr(0, _uri.find('?'));
     do
     {
+        std::cout << "tmp is " << tmp << std::endl;
         if (to_parse.find("server|location " + tmp + "|") != to_parse.end())
         {
             elem = to_parse["server|location " + tmp + "|"];
             break ;
         }
         tmp = tmp.substr(0, tmp.find_last_of('/'));
-		tmp = tmp.substr(0, tmp.find_last_of('/'));
-		tmp += "/";
-    } while (tmp != "" || tmp != "/");
+    } while (tmp != "");
 
-    // if (elem.size() == 0)
-    // {
-    //     if (to_parse.find("server|location /|") != to_parse.end())
-    //         elem = to_parse["server|location /|"];
-    // }
+    if (elem.size() == 0)
+    {
+        std::cout << "tmp is ???"<< std::endl;
+        if (to_parse.find("server|location /|") != to_parse.end())
+            elem = to_parse["server|location /|"];
+    }
     
 	_conf = elem;
 	_conf["path"] = _uri.substr(0, _uri.find("?"));
-	// std::cout <<"path is " << _conf["path"] << std::endl;
+	std::cout <<"path is " << _conf["path"] << std::endl;
 	if (elem.find("root") != elem.end())
 		_conf["path"].replace(0, tmp.size(), elem["root"]);
     
@@ -112,7 +108,7 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
     // 	std::cout << it->first << " " << it->second << std::endl;
     // std::cout << "============"<< std::endl;
 
-    if (stat(_conf["path"].c_str(), &info) == -1)
+    if (stat(_conf["path"].c_str(), &info) == -1 && _method != PUT)
         _error_code = 404;
 	std::cout << _conf["root"].c_str() << std::endl;
 	std::cout << _conf["path"].c_str() << std::endl;

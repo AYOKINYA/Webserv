@@ -1,29 +1,45 @@
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
 
-# include "RequestMsg.hpp"
-# include "Response.hpp"
-#include <sys/types.h>
-#include <sys/socket.h>
+# include "Utils.hpp"
+# include "Request.hpp"
 
 class Client
 {
-	private:
-        Response	_res;
-		int	_fd;
-		fd_set	*_rset; //원본
-		fd_set	*_wset; //원본
-		Client();
-    public:
-		Request		_req;
-        Client(int fd, fd_set *rset, fd_set *wset);
-		Client(Client const &other);
-		Client	&operator=(Client const &other);
-        ~Client();
-		// int	read_request();
-		int	write_response();
-		int	get_fd();
-};
+	public:
+	
+		Request _req;
+	
+		int		_fd;
+		fd_set *_rset;
+		fd_set *_wset;
 
+	
+		Client(int fd, fd_set *rset, fd_set *wset)
+		{
+			_fd = fd;
+			_rset = rset;
+			_wset = wset;
+
+			fcntl(fd, F_SETFL, O_NONBLOCK);
+			FD_SET(fd, _rset);
+			FD_SET(fd, _wset);
+		}
+		~Client()
+		{
+			if (_fd != -1)
+			{
+				close(_fd);
+				FD_CLR(_fd, _rset);
+				FD_CLR(_fd, _wset);
+			}
+			std::cout << "Bye bye Client~" << std::endl;
+		};
+
+		int get_fd(void)
+		{
+			return (_fd);
+		}
+};
 
 #endif

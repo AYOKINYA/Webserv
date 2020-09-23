@@ -129,25 +129,15 @@ int	Server::write_response(std::vector<Client *>::iterator it)
 	c = *it;
 	Response	response(c->_req);
 	std::string response_msg = response.exec_method();
-<<<<<<< HEAD
-	int ret;
-	// send(c->get_fd(), response_msg.c_str(), response_msg.length(), 0);
-	while((ret = write(c->get_fd(), response_msg.c_str(), response_msg.length())) != 0)
-=======
 	// std::cout << response_msg << std::endl;
 
 	while ((ret = write(c->get_fd(), response_msg.c_str(), response_msg.length())) != 0)
->>>>>>> 53a575182926db844633d7af522897f72f85f688
 	{
 		if ((unsigned long)ret < response_msg.length())
 			response_msg = response_msg.substr(ret);
 		else if (ret == -1)
 			continue;
 		else
-<<<<<<< HEAD
-			break ;
-	}
-=======
 			break;
 		std::cout << ret <<std::endl;
 	}
@@ -156,7 +146,6 @@ int	Server::write_response(std::vector<Client *>::iterator it)
 	
 	// FD_CLR(c->get_fd(), _wset);
 
->>>>>>> 53a575182926db844633d7af522897f72f85f688
 	std::cout << "Server sent message" << std::endl;
 
 	return (0);

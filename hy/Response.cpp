@@ -41,6 +41,7 @@ void Response::init_status_table(void)
 	_status_table.insert(std::make_pair(404, "Not Found"));
 	_status_table.insert(std::make_pair(405, "Not Allowed Method"));
 	_status_table.insert(std::make_pair(411, "Length Required"));
+	_status_table.insert(std::make_pair(413, "Request Entity Too Large"));
 	_status_table.insert(std::make_pair(415, "Unsupported Media Type"));
 	_status_table.insert(std::make_pair(501, "Not Implemented"));
 	_status_table.insert(std::make_pair(505, "HTTP Version Not Supported"));
@@ -623,7 +624,7 @@ std::string Response::Post() // for temporary only! to pass tester...
 	}
 	else
 	{
-		int fd = open(_request.get_conf()["path"].c_str(), O_TRUNC | O_RDWR, 0666);
+		int fd = open(_request.get_conf()["path"].c_str(), O_APPEND | O_RDWR, 0666);
 		write(fd, _request.get_body().c_str(), _request.get_body().size());
 		close(fd);
 		res = getStartLine();
@@ -632,10 +633,14 @@ std::string Response::Post() // for temporary only! to pass tester...
 		res += printItem("Date");
 		res += printItem("Last-Modified");
 		res += printItem("Content-Type");
-		res += printItem("Content-Length");
+		res += "Content-Length: 14\n";
 		res += "\n";
-		res += "File modifed";
-		res += "\n\n";
+		// res += "File modifed";
+		// res += "\n\n";
+		std::cout << "===========" << std::endl;
+		std::cout << res << std::endl;
+		std::cout << "===========" << std::endl;
+		return (res);
 	}
 	
 	return (0);

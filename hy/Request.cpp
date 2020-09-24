@@ -100,7 +100,16 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
 				return ;
 			}
 		}
-/////
+    
+
+    if (_headers.find("Content-Length") != _headers.end() && _conf.find("limit_body_size") != _conf.end())
+    {
+        std::cout << "adasdhakshdkasjhdsa" << std::endl;
+        std::cout << _headers["Content-Length"] << std::endl;
+        std::cout << _conf["limit_body_size"] << std::endl;
+        if (std::stoi(_headers["Content-Length"]) > std::stoi(_conf["limit_body_size"]))
+            _error_code = 413;
+    }
     for (std::map<std::string, std::string>::iterator it(to_parse["server|"].begin()); it != to_parse["server|"].end(); ++it)
     {
         if (_conf.find(it->first) == _conf.end())

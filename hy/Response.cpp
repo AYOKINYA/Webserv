@@ -624,7 +624,7 @@ std::string Response::Post() // for temporary only! to pass tester...
 	}
 	else
 	{
-		int fd = open(_request.get_conf()["path"].c_str(), O_APPEND | O_RDWR, 0666);
+		int fd = open(_request.get_conf()["path"].c_str(), O_APPEND, 0666);
 		write(fd, _request.get_body().c_str(), _request.get_body().size());
 		close(fd);
 		res = getStartLine();
@@ -635,8 +635,8 @@ std::string Response::Post() // for temporary only! to pass tester...
 		res += printItem("Content-Type");
 		res += "Content-Length: 14\n";
 		res += "\n";
-		// res += "File modifed";
-		// res += "\n\n";
+		res += "File modifed";
+		res += "\n\n";
 		std::cout << "===========" << std::endl;
 		std::cout << res << std::endl;
 		std::cout << "===========" << std::endl;

@@ -157,7 +157,7 @@ void Response::setContentLength(const std::string &content)
 	}
 	else
 	{
-		fd = open("./error.html", O_RDWR, 0644);
+		fd = open("./www/error.html", O_RDWR, 0644);
 		if (fd == -1)
 		{
 			std::cout << "Default Error page doesn't exist." << std::endl;
@@ -192,7 +192,7 @@ void Response::setLastModified(const std::string &content)
 
 	stat(content.c_str(), &info);
 	if (!S_ISDIR(info.st_mode))
-		stat("./error.html", &info);
+		stat("./www/error.html", &info);
 	strptime(std::to_string(info.st_mtime).c_str(), "%s", &time);
 	strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S KST", &time); // tm to regexp format
 
@@ -405,7 +405,7 @@ std::string	Response::cgi (void)
 	else if (_status.first == 200)
 		res += _cgi_body;
 	else
-		res += (body("error.html"));
+		res += (body("./www/error.html"));
 	// res += "\r\n\r\n";
 	return (res);
 }
@@ -554,7 +554,7 @@ std::string Response::Get (void)
 	else if (_status.first == 200)
 		res += body(_request.get_conf()["path"]);
 	else
-		res += (body("error.html"));
+		res += (body("./www/error.html"));
 
 	return (res);
 }
@@ -720,6 +720,6 @@ std::string	Response::Options()
 	if (_status.first == 200)
 		msg += body(_request.get_conf()["path"]);
 	else
-		msg += body("error.html");
+		msg += body("./www/error.html");
 	return (msg);
 }

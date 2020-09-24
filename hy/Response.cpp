@@ -625,6 +625,7 @@ std::string Response::Post() // for temporary only! to pass tester...
 		res += printItem("Date");
 		res += printItem("Last-Modified");
 		res += printItem("Content-Type");
+
 		res += "Content-Length: 14\n";
 		res += "\n";
 		res += "File modifed";
@@ -634,7 +635,7 @@ std::string Response::Post() // for temporary only! to pass tester...
 		std::cout << "===========" << std::endl;
 		return (res);
 	}
-	
+
 	return (0);
 }
 

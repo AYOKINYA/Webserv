@@ -85,7 +85,22 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
 	_conf["path"] = _uri.substr(0, _uri.find("?"));
 	if (elem.find("root") != elem.end())
 		_conf["path"].replace(0, tmp.size(), elem["root"]);
-
+/////
+	std::vector<std::string> tokens;
+	tokens = split(_conf["method_allowed"], ' ');
+		int num = tokens.size();
+		std::cout << num << std::endl;
+		for (int i = 0; i < num; ++i)
+		{
+			if (tokens[i] == _method_str)
+				break ;
+			else if (i == num - 1)
+			{
+				_error_code = 405;
+				return ;
+			}
+		}
+/////
     for (std::map<std::string, std::string>::iterator it(to_parse["server|"].begin()); it != to_parse["server|"].end(); ++it)
     {
         if (_conf.find(it->first) == _conf.end())
@@ -94,21 +109,17 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
     lstat(_conf["path"].c_str(), &info);
     if (S_ISDIR(info.st_mode)) //directory면 default index page open
     {
-		if (_method != GET)
-		{
-			_error_code = 405;
-			return ;
-		}
         if (_conf["index"][0] && _conf["autoindex"] != "on")
             _conf["path"] += "/" + elem["index"];
     }
     if (_method == GET)
         _conf["path_saved"] = _conf["path"];
 
-    // std::cout << "============"<< std::endl;
-    // for(std::map<std::string, std::string>::iterator it = _conf.begin(); it != _conf.end(); ++it)
-    // 	std::cout << it->first << " " << it->second << std::endl;
-    // std::cout << "============"<< std::endl;
+    std::cout << "============"<< std::endl;
+    for(std::map<std::string, std::string>::iterator it = _conf.begin(); it != _conf.end(); ++it)
+    	std::cout << it->first << " " << it->second << std::endl;
+    std::cout << "============"<< std::endl;
+  
 
     if (stat(_conf["path"].c_str(), &info) == -1 && _method != PUT)
         _error_code = 404;

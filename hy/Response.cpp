@@ -607,7 +607,7 @@ std::string Response::Post() // for temporary only! to pass tester...
 
 	if (extension == "bla" || extension == "pl" ||  extension == "php" || extension == "cgi")
 		return (cgi());
-	if (_request.get_error_code() != 200)
+	else if (_request.get_error_code() != 200)
 	{
 		res = getStartLine();
 		res += "\n";
@@ -621,6 +621,23 @@ std::string Response::Post() // for temporary only! to pass tester...
 		res += "\n\n";
 		return res;
 	}
+	else
+	{
+		int fd = open(_request.get_conf()["path"].c_str(), O_TRUNC | O_RDWR, 0666);
+		write(fd, _request.get_body().c_str(), _request.get_body().size());
+		close(fd);
+		res = getStartLine();
+		res += "\n";
+		res += printItem("Server");
+		res += printItem("Date");
+		res += printItem("Last-Modified");
+		res += printItem("Content-Type");
+		res += printItem("Content-Length");
+		res += "\n";
+		res += "File modifed";
+		res += "\n\n";
+	}
+	
 	return (0);
 }
 

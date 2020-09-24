@@ -100,7 +100,7 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
 				return ;
 			}
 		}
-/////
+    
     for (std::map<std::string, std::string>::iterator it(to_parse["server|"].begin()); it != to_parse["server|"].end(); ++it)
     {
         if (_conf.find(it->first) == _conf.end())
@@ -119,6 +119,14 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
     for(std::map<std::string, std::string>::iterator it = _conf.begin(); it != _conf.end(); ++it)
     	std::cout << it->first << " " << it->second << std::endl;
     std::cout << "============"<< std::endl;
+
+    if (_headers.find("Content-Length") != _headers.end() && _conf.find("limit_body_size") != _conf.end())
+    {
+        std::cout << _headers["Content-Length"] << std::endl;
+        std::cout << _conf["limit_body_size"] << std::endl;
+        if (std::stoi(_headers["Content-Length"]) > std::stoi(_conf["limit_body_size"]))
+            _error_code = 413;
+    }
   
 
     if (stat(_conf["path"].c_str(), &info) == -1 && _method != PUT)

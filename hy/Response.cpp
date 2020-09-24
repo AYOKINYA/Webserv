@@ -633,11 +633,13 @@ std::string Response::Post() // for temporary only! to pass tester...
 		res += printItem("Last-Modified");
 		res += printItem("Content-Type");
 		res += printItem("Content-Length");
-		res += "\n";
-		res += "File modifed";
+		// res += "Content-Length: 14";
 		res += "\n\n";
+		// res += "File modifed";
+		// res += "\r\n\r\n";
+		return (res);
 	}
-	
+
 	return (0);
 }
 

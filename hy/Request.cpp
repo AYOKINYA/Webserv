@@ -15,6 +15,7 @@ Request::Request(std::string client_ip)
 	_error_code = -1;
 	_chunk_len = -1;
 	_body = "";
+	_limit_body_size = -1;
 }
 
 Request::Request (const Request& copy)
@@ -38,6 +39,8 @@ Request& Request::operator=(const Request& other)
     _client_ip = other._client_ip;
 
     _conf = other._conf;
+
+	_limit_body_size = other._limit_body_size;
 
     return (*this);
 }
@@ -102,14 +105,6 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
 		}
     
 
-    if (_headers.find("Content-Length") != _headers.end() && _conf.find("limit_body_size") != _conf.end())
-    {
-        std::cout << "adasdhakshdkasjhdsa" << std::endl;
-        std::cout << _headers["Content-Length"] << std::endl;
-        std::cout << _conf["limit_body_size"] << std::endl;
-        if (std::stoi(_headers["Content-Length"]) > std::stoi(_conf["limit_body_size"]))
-            _error_code = 413;
-    }
     for (std::map<std::string, std::string>::iterator it(to_parse["server|"].begin()); it != to_parse["server|"].end(); ++it)
     {
         if (_conf.find(it->first) == _conf.end())
@@ -124,6 +119,10 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
     if (_method == GET)
         _conf["path_saved"] = _conf["path"];
 
+	if (_conf.find("limit_body_size") != _conf.end())
+    {
+        _limit_body_size = std::stoi(_conf["limit_body_size"]);
+	}
     std::cout << "============"<< std::endl;
     for(std::map<std::string, std::string>::iterator it = _conf.begin(); it != _conf.end(); ++it)
     	std::cout << it->first << " " << it->second << std::endl;
@@ -185,7 +184,6 @@ int		Request::parse_request(std::string &req, std::vector<conf> &conf)
 		ft_getline(req, line);
 		parse_first_line(line); // feed method and uri. version is fixed as HTTP /1.1
 		parse_header(req);
-
 		if (_uri != "*" || _uri != "OPTIONS")
 			feed_conf(conf);
 	}
@@ -294,3 +292,6 @@ std::string	Request::get_body(){return (_body);}
 std::string	Request::get_client_ip(){return (_client_ip);}
 std::map<std::string, std::string>	Request::get_conf(){return (_conf);}
 std::map<std::string, std::string>  Request::get_headers(){return (_headers);}
+int	Request::get_limit(){return (_limit_body_size);}
+
+void	Request::set_error_code(int n){_error_code = n;}

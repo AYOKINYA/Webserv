@@ -307,30 +307,8 @@ std::string Response::exec_method()
 	std::string res = "";
 
 	int method = _request.get_method();
-
-	//////////config method parsing////////////
-	// std::string method_conf = _request.get_conf()["method_allowed"];
-	// std::cout << "method from config!!!" << method_conf << std::endl;
-	// std::vector<std::string> tokens;
-	// if (method_conf.find(",") != std::string::npos)
-	// {
-	// 	tokens = split(method_conf, ',');
-	// 	int num = tokens.size();
-	// 	for (int i = 0; i < num; i++)
-	// 	{
-	// 		if (tokens[i] != _request.get_method_str())
-	// 		{
-	// 			setStatus(405);
-	// 			break ;
-	// 		}
-	// 	}
-	// }
-	// if (method_conf != _request.get_method_str())
-	// {
-	// 	setStatus(405);
-	// 	res = "405 Method Not Allowed";
-	// }
-	//만약 config 에 해당하지 않는 메소드를 받으면 실행못하게 에러페이지? 405 NOT ALLOWED METHOD
+	if (_request.get_body().size() > (unsigned long)_request.get_limit())
+		_request.set_error_code(413);
 
 	if (method == GET)
 		res = Get();
@@ -610,21 +588,35 @@ std::string Response::Post() // for temporary only! to pass tester...
 		return (cgi());
 	else if (_request.get_error_code() != 200)
 	{
+		setStatus(_request.get_error_code());
+		// res = getStartLine();
+		// res += "\n";
+		// res += printItem("Server");
+		// res += printItem("Date");
+		// res += printItem("Last-Modified");
+		// res += printItem("Content-Type");
+		// res += printItem("Content-Length");
+		// res += "\n";
+		// res += (body("error.html"));
+		// res += "\n\n";
 		res = getStartLine();
 		res += "\n";
 		res += printItem("Server");
 		res += printItem("Date");
 		res += printItem("Last-Modified");
 		res += printItem("Content-Type");
-		res += printItem("Content-Length");
+		res += "Content-Length: 14\n";
 		res += "\n";
-		res += (body("error.html"));
+		res += "File modifed";
 		res += "\n\n";
+		std::cout << "===========" << std::endl;
+		std::cout << res << std::endl;
+		std::cout << "===========" << std::endl;
 		return res;
 	}
 	else
 	{
-		int fd = open(_request.get_conf()["path"].c_str(), O_APPEND | O_RDWR, 0666);
+		int fd = open(_request.get_conf()["path"].c_str(), O_APPEND, 0666);
 		write(fd, _request.get_body().c_str(), _request.get_body().size());
 		close(fd);
 		res = getStartLine();
@@ -635,8 +627,8 @@ std::string Response::Post() // for temporary only! to pass tester...
 		res += printItem("Content-Type");
 		res += "Content-Length: 14\n";
 		res += "\n";
-		// res += "File modifed";
-		// res += "\n\n";
+		res += "File modifed";
+		res += "\n\n";
 		std::cout << "===========" << std::endl;
 		std::cout << res << std::endl;
 		std::cout << "===========" << std::endl;

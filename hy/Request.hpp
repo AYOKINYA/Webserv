@@ -24,7 +24,7 @@ class Request
 	private:
 		typedef std::map<std::string, std::string> 	elem;
 		typedef std::map<std::string, elem>			conf;
-		std::map<std::string, std::string>			_conf;
+
 		// std::map<std::string, std::string>			_headers;
 
 		int				_method;
@@ -34,8 +34,10 @@ class Request
 		std::string 	_client_ip;
 		std::string		_method_str;
 		int				_chunk_len;
+		int				_limit_body_size;
 	public:
 		std::map<std::string, std::string>			_headers;
+		std::map<std::string, std::string>			_conf;
 		void	clear();
 		Request () {};
 		Request(std::string client_ip);
@@ -57,6 +59,8 @@ class Request
 		std::string	get_client_ip();
 		std::map<std::string, std::string>	get_conf();
 		std::map<std::string, std::string>	get_headers();
+		int			get_limit();
+		void		set_error_code(int n);
 };
 
 #endif

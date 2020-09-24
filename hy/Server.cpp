@@ -31,7 +31,7 @@ void Server::init(fd_set *rset, fd_set *wset, fd_set *cp_rset, fd_set *cp_wset)
 	// Forcefully attaching socket to the port 8080
 	if (bind(_fd, (struct sockaddr *)&_server_addr, sizeof(_server_addr)) == -1)
 		exit(1); //나중에 throw로 처리
-	if (listen(_fd, 10) == -1)
+	if (listen(_fd, 256) == -1)
 		exit(1); //나중에 throw로 처리
 	if (fcntl(_fd, F_SETFL, O_NONBLOCK) == -1)
 		exit(1); //나중에 throw로 처리

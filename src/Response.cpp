@@ -364,12 +364,9 @@ std::string	Response::cgi (void)
 		close(fd);
 		close(tubes[0]);
 	}
+	ft_free(args);
+	ft_free(env);
 	char	buf[10001];
-	// execve 결과에 code도 다 담겨서 나온다.
-	// res = getStartLine();
-	// res += "\n";
-
-	// int ret;
 	std::string tmp;
 
 	fd = open("cgi.txt", O_RDONLY, 0666);

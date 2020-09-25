@@ -78,3 +78,17 @@ std::string trim_extension(const std::string& str)
 	size_t last = str.find_last_of(' ');
 	return(str.substr(first + 1, (last - first + 1)));
 }
+
+void        ft_free(char **arr)
+{
+    if (!arr)
+        return ;
+    int i = 0;
+    while (arr[i])
+    {
+        free(arr[i]);
+        ++i;
+    }
+    free(arr);
+}
+

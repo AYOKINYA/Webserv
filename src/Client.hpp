@@ -29,7 +29,7 @@ class Client
 
 			fcntl(fd, F_SETFL, O_NONBLOCK);
 			FD_SET(fd, _rset);
-			// FD_SET(fd, _wset);
+
 			_tmp = ""; 
 			_status = 0;
 		}

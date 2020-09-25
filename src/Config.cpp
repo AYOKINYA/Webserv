@@ -13,8 +13,6 @@ Config::Config(const Config& copy)
 
 Config& Config::operator=(const Config& other)
 {
-    //deep copy를 할 일이 없을 것 같지만 하게 되면 여기를 바꾸자
-
     if (this == &other)
         return (*this);
     

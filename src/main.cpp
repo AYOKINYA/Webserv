@@ -68,8 +68,7 @@ int main(int argc, char **argv)
 				}
 				if (FD_ISSET(client->get_fd(), &cp_wset))
 				{
-					int ret = s->write_response(c);
-					if (!ret)
+					if (!s->write_response(c))
 						break ;
 				}
 			}

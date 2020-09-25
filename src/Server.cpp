@@ -15,11 +15,11 @@ void Server::init(fd_set *rset, fd_set *wset, fd_set *cp_rset, fd_set *cp_wset)
 
 	if ((_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		exit(1); //나중에 throw로 처리
-	// Forcefully attaching socket to the port 8080
+
 	if( setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0 )
 		exit(EXIT_FAILURE); //나중에 throw로 처리
 
-	ft_memset((void *)&_server_addr, 0, (unsigned long)sizeof(_server_addr)); // 왜 libft ft_memset link가 안 될까?
+	ft_memset((void *)&_server_addr, 0, (unsigned long)sizeof(_server_addr));
 	_server_addr.sin_family = AF_INET;
 	_server_addr.sin_addr.s_addr = INADDR_ANY;
 	_server_addr.sin_port = htons(_port);
@@ -68,8 +68,6 @@ void	Server::accept_client(void)
 
 int Server::read_request(std::vector<Client*>::iterator it)
 {
-	// std::string req = "";
-	// int complen = 0;
 	int valread;
 	char buf[BUFFER_SIZE + 1];
 

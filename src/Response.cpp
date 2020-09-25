@@ -19,8 +19,6 @@ Response& Response::operator=(const Response &copy)
 	if (this == &copy)
 		return (*this);
 
-	// Response 객체 여러 개 만들어야 하면 deep copy로 수정해야 한다.
-
 	_request = copy._request;
 	_vars_response = copy._vars_response;
 	_status = copy._status;
@@ -124,8 +122,6 @@ void Response::setContentType(const std::string &content)
 	}
 	if (res.length() == 0)
 		res = "text/plain";
-	// if (i == 103)
-	// 	setStatus(415);
 
 	_vars_response.insert(std::pair<std::string, std::string>("Content-Type", res));
 
@@ -246,8 +242,6 @@ std::string Response::getStartLine(void)
 
 std::string Response::printItem(const std::string &key)
 {
-	//나중에 send할 소켓에 넣어줘야 한다.
-
 	std::string res = "";
 
 	std::map<std::string, std::string>::iterator it;
@@ -382,10 +376,8 @@ std::string	Response::cgi (void)
 	res += "\n";
 	res += printItem2(cgi_header,"Content-Length");
 	res += printItem2(cgi_header, "Content-Type");
-	//php 이면 Content-type 임ㅋㅋㅋㅋㅋContent-type: text/html; charset=UTF-8
 	res += printItem2(cgi_header, "Date");
 	res += printItem2(cgi_header, "Server");
-	// res += "Status: 200 OK";
 	res += "\r\n";
 	if (_request.get_method() == HEAD)
 		return (res);
@@ -393,7 +385,7 @@ std::string	Response::cgi (void)
 		res += _cgi_body;
 	else
 		res += (body("./www/error.html"));
-	// res += "\r\n\r\n";
+
 	return (res);
 }
 
@@ -403,7 +395,7 @@ void		Response::parseCGIResult(std::string buf)
 	std::string		headers;
 	std::string		key;
 	std::string		value;
-	std::string		tmp_status ="";
+	std::string		tmp_status;
 
 	if (buf.find("\r\n\r\n") == std::string::npos)
 		return ;
@@ -417,7 +409,6 @@ void		Response::parseCGIResult(std::string buf)
 			tmp_status += headers[pos];
 			pos++;
 		}
-		// std::cout << tmp_status << std::endl;
 		setStatus(ft_atoi(tmp_status.c_str()));
 	}
 	pos = 0;
@@ -429,22 +420,15 @@ void		Response::parseCGIResult(std::string buf)
 			++pos;
 		}
 		++pos;
-		// std::cout << "CGI key is!!!" << key << std::endl;
+
 		while (headers[pos] && headers[pos] != '\r')
 		{
 			value += headers[pos];
 			++pos;
 		}
-		/* php 면 trim(value)
-			cgi_tester 면 걍 value
-		*/
-		// std::cout << "CGI val is!!!" << value << std::endl;
+
 		cgi_header.insert(std::pair<std::string, std::string>(key, trim(value)));
-		// std::map<std::string, std::string>::iterator it;
-		// for(it = cgi_header.begin(); it != cgi_header.end(); it++)
-		// {
-		// 	std::cout << it->first << " and " << it->second << std::endl;
-		// }
+
 		key.clear();
 		value.clear();
 		if (headers[pos] == '\r')
@@ -454,11 +438,11 @@ void		Response::parseCGIResult(std::string buf)
 	}
 	pos = buf.find("\r\n\r\n") + 4;
 	_cgi_body = buf.substr(pos);
-	// std::cout << buf << std::endl;
+
 	key = "Content-Length";
 	value = std::to_string(_cgi_body.size());
 	cgi_header.insert(std::pair<std::string, std::string>(key, value));
-	// client.res.headers["Content-Length"] = std::to_string(buf.size());
+
 }
 
 char	**Response::Env()
@@ -468,8 +452,6 @@ char	**Response::Env()
 
 	map["CONTENT_LENGTH"] = std::to_string(_request.get_body().size());
 	map["CONTENT_TYPE"] = "text/html";
-	// if (_request.get_vars().find("Content-Type") != _request.get_vars().end())
-	// 	map["CONTENT_TYPE"] = _request.get_vars().find("Content-Type")->second;
 
 	map["GATEWAY_INTERFACE"] = "CGI/1.1";
 	map["PATH_INFO"] = _request.get_conf()["path"];
@@ -484,7 +466,7 @@ char	**Response::Env()
 
 	map["REQUEST_URI"] = _request.get_conf()["path"];
 
-	map["SCRIPT_NAME"] = "." + _request.get_uri(); //get_path로 해도 되고 . 빼도 된다... 도대체 뭐지...
+	map["SCRIPT_NAME"] = "." + _request.get_uri();
 
 	map["SERVER_NAME"] = "Carry-Please";
 	map["SERVER_PORT"] = "8080";
@@ -492,10 +474,6 @@ char	**Response::Env()
 	map["SERVER_SOFTWARE"] = "HTTP/1.1";
 
 	map["REDIRECT_STATUS"] = "200";
-
-	// map["Content-type"] = "text/html";
-	// map["Expires"] = printItem("Date");
-	// map["Location"] = _request.get_uri();
 
 	std::map<std::string, std::string>::iterator b = _request._headers.begin();
 	while (b != _request._headers.end())
@@ -514,7 +492,7 @@ char	**Response::Env()
 	}
 	env[i] = NULL;
 
-return(env);
+	return (env);
 }
 
 std::string Response::Get (void)
@@ -546,20 +524,7 @@ std::string Response::Get (void)
 
 std::string Response::Head(void)
 {
-	std::string res = "";
-	//to pass tester
-	res += Get();
-
-	// below is original...
-
-	// res += getStartLine();
-	// res += "\n";
-	// res += printItem("Server");
-	// res += printItem("Date");
-	// res += printItem("Last-Modified");
-	// res += printItem("Content-Type");
-	// res += printItem("Content-Length");
-	// res += "\n";
+	std::string res = Get();
 
 	return (res);
 }
@@ -574,16 +539,7 @@ std::string Response::Post() // for temporary only! to pass tester...
 	else if (_request.get_error_code() != 200)
 	{
 		setStatus(_request.get_error_code());
-		// res = getStartLine();
-		// res += "\n";
-		// res += printItem("Server");
-		// res += printItem("Date");
-		// res += printItem("Last-Modified");
-		// res += printItem("Content-Type");
-		// res += printItem("Content-Length");
-		// res += "\n";
-		// res += (body("error.html"));
-		// res += "\n\n";
+
 		res = getStartLine();
 		res += "\n";
 		res += printItem("Server");
@@ -647,8 +603,7 @@ std::string Response::Put()
 std::string	Response::Delete()
 {
 	std::string	msg;
-	//응답코드 3개 있는데 1.성공적으로 수행할 것 같으나 아직 실행x -> 202 (Accepted) 는 어떨 때 써야할지 모르겠다.
-	//2. 204 No Content 코드, 3. 200 OK -> 파일이 지워졌다는 페이지ㅡㄹㄹ 보여준다.
+
 	if (remove(_request.get_conf()["path"].c_str()) == 0)
 	{
 		msg = getStartLine();

@@ -2,11 +2,14 @@
 
 void	Request::clear()
 {
+    _error_code = -1;
     _method = -1;
     _uri.clear();
     _headers.clear();
     _body.clear();
     _method_str.clear();
+    _limit_body_size = -1;
+    _chunk_len = -1;
 }
 
 Request::Request(std::string client_ip)
@@ -92,7 +95,6 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
 	std::vector<std::string> tokens;
 	tokens = split(_conf["method_allowed"], ' ');
 		int num = tokens.size();
-		std::cout << num << std::endl;
 		for (int i = 0; i < num; ++i)
 		{
 			if (tokens[i] == _method_str)
@@ -122,15 +124,13 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
     {
         _limit_body_size = std::stoi(_conf["limit_body_size"]);
 	}
-    std::cout << "============"<< std::endl;
-    for(std::map<std::string, std::string>::iterator it = _conf.begin(); it != _conf.end(); ++it)
-    	std::cout << it->first << " " << it->second << std::endl;
-    std::cout << "============"<< std::endl;
+    // std::cout << "============"<< std::endl;
+    // for(std::map<std::string, std::string>::iterator it = _conf.begin(); it != _conf.end(); ++it)
+    // 	std::cout << it->first << " " << it->second << std::endl;
+    // std::cout << "============"<< std::endl;
 
     if (_headers.find("Content-Length") != _headers.end() && _conf.find("limit_body_size") != _conf.end())
     {
-        std::cout << _headers["Content-Length"] << std::endl;
-        std::cout << _conf["limit_body_size"] << std::endl;
         if (std::stoi(_headers["Content-Length"]) > std::stoi(_conf["limit_body_size"]))
             _error_code = 413;
     }
@@ -156,8 +156,6 @@ void	Request::parse_header(std::string &req)
             key = trim(line.substr(0, pos));
             value = trim(line.substr(pos + 1));
 
-            // std::cout << key << "=" << value << std::endl;
-
             if (key.empty() || value.empty())
             {
                 break ;
@@ -181,7 +179,6 @@ int		Request::parse_request(std::string &req, std::vector<conf> &conf)
 		if ((pos = req.find("\r\n\r\n")) == std::string::npos)
 			return (0);
 		line = req.substr(0, pos);
-
 		_error_code = 200;
 		if (req[0] == '\r')
 			req.erase(req.begin());
@@ -195,38 +192,27 @@ int		Request::parse_request(std::string &req, std::vector<conf> &conf)
 			feed_conf(conf);
 	}
 	return (parse_body(req));
-
-    // //parse body
-    // if (_headers.find("Transfer-Encoding") != _headers.end() && ft_strncmp(_headers["Transfer-Encoding"].c_str(), "chunked", 7) == 0)
-    //     parse_chunk(req);
-    // else
-    // {
-    //     if (_headers.find("Content-Length") != _headers.end())
-    //     {
-    //         int len = std::stoi(_headers["Content-Length"]);
-    //         _body = req.substr(0, len);
-    //         std::cout << _body << std::endl;
-    //     }
-    //     else if (_method == POST || _method == PUT)
-    //         _error_code = 411;
-    // }
-
 }
 
 int		Request::parse_body(std::string &req)
 {
     if (_headers.find("Transfer-Encoding") != _headers.end() && ft_strncmp(_headers["Transfer-Encoding"].c_str(), "chunked", 7) == 0)
         return parse_chunk(req);
-    else
+    else if (_headers.find("Content-Length") != _headers.end())
     {
-        if (_headers.find("Content-Length") != _headers.end())
+        if (req.find("\r\n\r\n") != std::string::npos)
         {
             unsigned long len = std::stoi(_headers["Content-Length"]);
             _body += req.substr(0, len);
+            return (1);
         }
-        else if (_method == POST || _method == PUT)
+        return (0);
+    }
+    else
+    {
+        if (_method == POST || _method == PUT)
             _error_code = 411;
-		return (1);
+        return (1);
     }
 }
 
@@ -257,7 +243,6 @@ void	Request::parse_first_line(std::string &line)
 {
     std::vector<std::string> tokens = split(line, ' ');
 
-	std::cout << "request first line : " << line << std::endl;
     _method_str = tokens[0];
     if (tokens.size() != 3)
         _error_code = 400;

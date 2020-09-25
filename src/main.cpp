@@ -52,7 +52,6 @@ int main(int argc, char **argv)
 
 		if (select(get_max_fd() + 1, &cp_rset, &cp_wset, NULL, &time) < 0)
 			printf("select error");
-		
 		// usleep(2000);
 
 		for (std::vector<Server>::iterator s(g_servers.begin()); s != g_servers.end(); ++s)
@@ -62,12 +61,12 @@ int main(int argc, char **argv)
 			for (std::vector<Client *>::iterator c(s->_clients.begin()); c != s->_clients.end(); ++c)
 			{
 				client = *c;
-				if (FD_ISSET(client->get_fd(), &rset))
+				if (FD_ISSET(client->get_fd(), &cp_rset))
 				{
 					if (!s->read_request(c))
 						break ;
 				}
-				if (FD_ISSET(client->get_fd(), &wset))
+				if (FD_ISSET(client->get_fd(), &cp_wset))
 				{
 					if (!s->write_response(c))
 						break ;

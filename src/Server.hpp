@@ -28,11 +28,13 @@ class Server
 			fd_set					*_cp_rset;
 			fd_set					*_cp_wset;
 
+			std::string				_tmp;
+
 			
 	public:
 			std::vector<Client*>	_clients;
 
-			Server() : _fd(-1), _max_fd(-1), _port(-1) {};
+			Server() : _fd(-1), _max_fd(-1), _port(-1), _tmp("") {};
 			~Server() {};
 
 			void init(fd_set *rset, fd_set *wset, fd_set *cp_rset, fd_set *cp_wset);

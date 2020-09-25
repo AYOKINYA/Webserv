@@ -3,6 +3,7 @@
 
 # include "Utils.hpp"
 # include "Request.hpp"
+# include "Response.hpp"
 
 class Client
 {
@@ -14,8 +15,13 @@ class Client
 		fd_set *_rset;
 		fd_set *_wset;
 
+		int		_status;
+
+		std::string	_tmp;
+		std::string	_res_msg;
+
 	
-		Client(int fd, fd_set *rset, fd_set *wset)
+		Client(int fd, fd_set *rset, fd_set *wset, std::string ip) : _req(ip)
 		{
 			_fd = fd;
 			_rset = rset;
@@ -23,7 +29,9 @@ class Client
 
 			fcntl(fd, F_SETFL, O_NONBLOCK);
 			FD_SET(fd, _rset);
-			FD_SET(fd, _wset);
+			// FD_SET(fd, _wset);
+			_tmp = ""; 
+			_status = 0;
 		}
 		~Client()
 		{

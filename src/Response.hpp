@@ -15,8 +15,8 @@ class Response
 			std::map<int, std::string>			_status_table;
 			std::map<std::string, std::string>	cgi_header;
 			std::string _cgi_body;
-			Response();
 	public:
+			Response();
 			Response(Request request);
 			Response& operator=(const Response &copy);
 			Response(const Response &copy);

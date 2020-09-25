@@ -222,7 +222,6 @@ void Response::setWWWAuthentication()
 void Response::set_vars_response()
 {
 	std::string path = _request.get_conf()["path"];
-	//std::cout << "parse path : " << path << std::endl;
 	setStatus(_request.get_error_code());
 	setServer();
 	setDate();
@@ -381,15 +380,6 @@ std::string	Response::cgi (void)
 	}
 	close(fd);
 
-	std::cout << "==========" << std::endl;
-	// std::cout << tmp << std::endl;
-	/*
-	Status: 200 OK
-	Content-Type: text/html; charset=utf-8
-	buf 에 담김
-	*/
-	std::cout << "==========" << std::endl;
-
 	parseCGIResult(tmp);
 	res += getStartLine();
 	res += "\n";
@@ -470,7 +460,6 @@ void		Response::parseCGIResult(std::string buf)
 	// std::cout << buf << std::endl;
 	key = "Content-Length";
 	value = std::to_string(_cgi_body.size());
-	std::cout << "size is "<< value << std::endl;
 	cgi_header.insert(std::pair<std::string, std::string>(key, value));
 	// client.res.headers["Content-Length"] = std::to_string(buf.size());
 }
@@ -523,7 +512,6 @@ char	**Response::Env()
 	int i = -1;
 	while (it != map.end())
 	{
-		std::cout << it->first << " = " << it->second << std::endl;
 		env[++i] = strdup((it->first + "=" + it->second).c_str());
 		++it;
 	}
@@ -609,9 +597,6 @@ std::string Response::Post() // for temporary only! to pass tester...
 		res += "\n";
 		res += "File modifed";
 		res += "\n\n";
-		std::cout << "===========" << std::endl;
-		std::cout << res << std::endl;
-		std::cout << "===========" << std::endl;
 		return res;
 	}
 	else
@@ -630,9 +615,6 @@ std::string Response::Post() // for temporary only! to pass tester...
 		res += "\n";
 		res += "File modifed";
 		res += "\n\n";
-		std::cout << "===========" << std::endl;
-		std::cout << res << std::endl;
-		std::cout << "===========" << std::endl;
 		return (res);
 	}
 
@@ -669,7 +651,6 @@ std::string Response::Put()
 	}
 	else //파일을 있을 때 오픈해서 내용을 지우고 새로 입력한다
 	{
-		std::cout << url << std::endl;
 		if ((fd = open(url.c_str(), O_TRUNC | O_RDWR, 0666)))
 		{
 			msg = "HTTP/1.1 500 Internal Server Error\n"; //혹은 200 OK

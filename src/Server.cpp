@@ -11,9 +11,9 @@ void Server::init(fd_set *rset, fd_set *wset, fd_set *cp_rset, fd_set *cp_wset)
 	_port = std::stoi(_conf[0]["server|"]["listen"]);
 	//std::stoi exception 처리
 
-	std::cout << _conf[0]["server|"]["server_name"] << std::endl;
-	std::cout << _conf[0]["server|"]["error_page"] << std::endl;
-	std::cout << _conf[0]["server|"]["index"] << std::endl;
+	// std::cout << _conf[0]["server|"]["server_name"] << std::endl;
+	// std::cout << _conf[0]["server|"]["error_page"] << std::endl;
+	// std::cout << _conf[0]["server|"]["index"] << std::endl;
 
 	int opt = 1;
 
@@ -54,7 +54,7 @@ void	Server::accept_client(void)
 	int	new_socket;
 	struct sockaddr_in client_addr;
 	socklen_t addrlen = sizeof(client_addr);
-
+	
 	ft_memset((void *)&client_addr, 0, (unsigned long)sizeof(client_addr)); // 왜 libft ft_memset link가 안 될까?
 
 	if ((new_socket = accept(_fd, (struct sockaddr *)&client_addr, &addrlen)) == -1)
@@ -63,41 +63,31 @@ void	Server::accept_client(void)
 
 	if (new_socket > _max_fd)
 		_max_fd = new_socket;
-
-	Client *client = new Client(new_socket, _rset, _wset);
+	getsockname(new_socket, (struct sockaddr *)&client_addr, &addrlen);
+	std::string client_ip = inet_ntoa(client_addr.sin_addr);
+	Client *client = new Client(new_socket, _rset, _wset, client_ip);
 	_clients.push_back(client); //clients_fd에 넣음
 	std::cout << "Here comes a new client at " << _conf[0]["server|"]["listen"] << std::endl;
 }
 
 int Server::read_request(std::vector<Client*>::iterator it)
 {
-	std::string req = "";
+	// std::string req = "";
 	// int complen = 0;
 	int valread;
 	char buf[BUFFER_SIZE + 1];
-	struct sockaddr_in client_addr;
-	socklen_t c_addrlen = sizeof(client_addr);
 
 	Client *c;
 	c = *it;
-	getsockname(c->get_fd(), (struct sockaddr *)&client_addr, &c_addrlen);
-	std::string client_ip = inet_ntoa(client_addr.sin_addr);
-	Request request(client_ip);
-	std::string	tmp = "";
 
-	while ((valread = read(c->get_fd(), buf, BUFFER_SIZE)) != 0)
+	if ((valread = read(c->get_fd(), buf, BUFFER_SIZE)) > 0)
 	{
-		if (ft_strncmp(buf, "\x04", 1) == 0) // ctrl + d from telnet!
+		buf[valread] = '\0';
+		c->_tmp += buf;
+		if (c->_req.parse_request(c->_tmp, _conf))
 		{
-			valread = 0; // to close client's socket.
-			return 0;
-		}
-		if (valread > 0)
-		{
-			buf[valread] = '\0';
-			tmp += buf;
-			if (request.parse_request(tmp, _conf))
-				break;
+			FD_SET(c->_fd, _wset);
+			return (1);
 		}
 	}
 	if (valread == 0)
@@ -108,9 +98,7 @@ int Server::read_request(std::vector<Client*>::iterator it)
 			delete (c);
 		return (0);
 	}
-	set_request(*c, request);
-	FD_SET(c->_fd, _wset);
-	return (1);
+	return (0);
 }
 
 void Server::set_request(Client &c, Request &request)
@@ -124,23 +112,22 @@ int	Server::write_response(std::vector<Client *>::iterator it)
 	int	ret;
 
 	c = *it;
-	Response	response(c->_req);
-	std::string response_msg = response.exec_method();
-	// std::cout << response_msg << std::endl;
-
-	while ((ret = write(c->get_fd(), response_msg.c_str(), response_msg.length())) != 0)
+	if (c->_status == 0)
 	{
-		if ((unsigned long)ret < response_msg.length())
-			response_msg = response_msg.substr(ret);
-		else if (ret == -1)
-			continue;
-		else
-			break;
+		Response	response(c->_req);
+		c->_res_msg = response.exec_method();
+		c->_status = 1;
 	}
-	std::cout << ret << std::endl;
 
-	std::cout << "Server sent message" << std::endl;
-	// ft_memset(buf, 0, 1024);
-	FD_CLR(c->get_fd(), _wset);
+	ret = write(c->get_fd(), c->_res_msg.c_str(), c->_res_msg.length());
+	if ((unsigned long)ret < c->_res_msg.length())
+		c->_res_msg = c->_res_msg.substr(ret);
+	else
+	{
+		c->_req.clear();
+		c->_status = 0;
+		c->_res_msg.clear();
+		FD_CLR(c->get_fd(), _wset);
+	}
 	return (0);
 }

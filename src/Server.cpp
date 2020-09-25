@@ -11,10 +11,6 @@ void Server::init(fd_set *rset, fd_set *wset, fd_set *cp_rset, fd_set *cp_wset)
 	_port = std::stoi(_conf[0]["server|"]["listen"]);
 	//std::stoi exception 처리
 
-	// std::cout << _conf[0]["server|"]["server_name"] << std::endl;
-	// std::cout << _conf[0]["server|"]["error_page"] << std::endl;
-	// std::cout << _conf[0]["server|"]["index"] << std::endl;
-
 	int opt = 1;
 
 	if ((_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)

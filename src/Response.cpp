@@ -160,7 +160,7 @@ void Response::setContentLength(const std::string &content)
 		fd = open("./www/error.html", O_RDWR, 0644);
 		if (fd == -1)
 		{
-			std::cout << "Default Error page doesn't exist." << std::endl;
+			std::cerr << "Default Error page doesn't exist." << std::endl;
 			exit(1);
 		}
 		while (read(fd, buf, 1) > 0)
@@ -288,7 +288,7 @@ std::string Response::body(const std::string &path)
 	int fd = open(path.c_str(), O_RDWR, 0644);
 	// std::cout << path.c_str() << std::endl;
 	if (fd == -1)
-		std::cout << "Error MUST be thrown!" << std::endl; // error check in _request
+		std::cerr << "Error MUST be thrown!" << std::endl; // error check in _request
 	char buf[1024];
 	int nread;
 	ft_memset(buf, 0, 1024);
@@ -618,56 +618,30 @@ std::string Response::Post() // for temporary only! to pass tester...
 	return (0);
 }
 
-
 std::string Response::Put()
 {
 	std::string url;
 	std::string filename;
 	std::string msg;
-	struct stat	info;
+
 	int fd;
 
 	url =_request.get_conf()["path"];
-	// std::cout << "path is !!!!"<< url << std::endl;
-	// std::cout << "put check return : " << _request.get_putcheck() << std::endl;
-	// std::cout << "file check return : " << _request.get_filecheck() << std::endl;
-	// filename = trim_url(url);
-	if (stat(url.c_str(), &info) == -1) //파일이 없을때 새로 만든다
+
+	msg = "HTTP/1.1 204 No Content\n";
+	if ((fd = open(url.c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0666)) == -1)
 	{
-		// std::cout << filename << std::endl;
-		fd = open(url.c_str(), O_CREAT | O_RDWR, 0666);
-		write(fd, _request.get_body().c_str(), _request.get_body().length());
-		close(fd);
-		/////msg//////
-		msg = "HTTP/1.1 201 Created\n";
-		msg += printItem("Content-Length");
+		msg = "HTTP/1.1 500 Internal Server Error\n";
 		msg += printItem("Date");
-		msg += "Content-Location: /" + filename + "\n";
 		msg += printItem("Server") + "\n";
 		return (msg);
 	}
-	else //파일을 있을 때 오픈해서 내용을 지우고 새로 입력한다
-	{
-		if ((fd = open(url.c_str(), O_TRUNC | O_RDWR, 0666)))
-		{
-			msg = "HTTP/1.1 500 Internal Server Error\n"; //혹은 200 OK
-			msg += printItem("Content-Length");
-			msg += printItem("Date");
-			msg += printItem("Server") + "\n";
-		}
-
-		write(fd, _request.get_body().c_str(), _request.get_body().length());
-		close(fd);
-		/////msg//////
-		msg = "HTTP/1.1 204 No Content\n"; //혹은 200 OK
-		msg += printItem("Content-Length");
-		msg += printItem("Date");
-		msg += "Content-Location: /" + filename + "\n";
-		msg += printItem("Server") + "\n";
-
-		return (msg);
-	}
-	return ("========PUT FAIL=============");
+	write(fd, _request.get_body().c_str(), _request.get_body().length());
+	close(fd);
+	msg += printItem("Date");
+	msg += "Content-Location: /" + filename + "\n";
+	msg += printItem("Server") + "\n";
+	return (msg);
 }
 
 std::string	Response::Delete()

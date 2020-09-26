@@ -109,7 +109,6 @@ int	Server::write_response(std::vector<Client *>::iterator it)
 	{
 		Response	response(c->_req);
 		c->_res_msg = response.exec_method();
-		std::cout << c->_res_msg << std::endl;
 		c->_status = 1;
 	}
 

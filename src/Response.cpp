@@ -173,7 +173,6 @@ void Response::setContentLength(const std::string &content)
 
 void Response::setAllow()
 {
-	//if METHOD does not match any of these, return 405 Not Allowed
 	std::string str = _request.get_conf()["method_allowed"];
 	cgi_header.insert(std::pair<std::string, std::string>("Allow", str));
 	_vars_response.insert(std::pair<std::string, std::string>("Allow", str));
@@ -225,9 +224,9 @@ void Response::set_vars_response()
 	setContentType(path);
 	setContentLocation(path);
 	setTransferEncoding();
-	setContentLength(path); // Request에서 파싱한 거 거의 그대로 넣으면 될 듯?
-	setLastModified(path); // Request에서 파싱한 거 거의 그대로 넣으면 될 듯?
-	setWWWAuthentication(); // when status is 401
+	setContentLength(path);
+	setLastModified(path);
+	setWWWAuthentication();
 }
 
 std::string Response::getStartLine(void)
@@ -257,7 +256,6 @@ std::string Response::printItem(const std::string &key)
 	return (res);
 }
 
-////////////////////***********
 std::string Response::printItem2(std::map<std::string, std::string> param, const std::string &key)
 {
 	std::string res = "";
@@ -274,15 +272,13 @@ std::string Response::printItem2(std::map<std::string, std::string> param, const
 
 	return (res);
 }
-////////////////////***********
 
 std::string Response::body(const std::string &path)
 {
 	std::string res = "";
 	int fd = open(path.c_str(), O_RDWR, 0644);
-	// std::cout << path.c_str() << std::endl;
 	if (fd == -1)
-		std::cerr << "Error MUST be thrown!" << std::endl; // error check in _request
+		std::cerr << "Error MUST be thrown!" << std::endl; 
 	char buf[1024];
 	int nread;
 	ft_memset(buf, 0, 1024);
@@ -317,18 +313,14 @@ std::string Response::exec_method()
 
 std::string	Response::cgi(std::string extension)
 {
-	// (void)extension;
-	char **env;
 	char	**args;
-	int fd, pid;
-	env = Env();
-	struct stat php;
+	pid_t	pid;
+	int		fd;
 	int		ret;
-	std::string	res;
 	int		tubes[2];
-
-	std::cout << "Ex!!!" << extension << std::endl;
-	std::cout << "conf!!!" << _request.get_conf()["cgi_test"] << std::endl;
+	std::string	res;
+	struct stat	php;
+	char **env = Env();
 
 	args = (char **)(malloc(sizeof(char *) * 3));
 	if (extension == ".php")
@@ -376,6 +368,7 @@ std::string	Response::cgi(std::string extension)
 	}
 	ft_free(args);
 	ft_free(env);
+
 	char	buf[10001];
 	std::string tmp;
 
@@ -472,7 +465,10 @@ char	**Response::Env()
 	map["GATEWAY_INTERFACE"] = "CGI/1.1";
 	map["PATH_INFO"] = _request.get_conf()["path"];
 	map["PATH_TRANSLATED"] = _request.get_conf()["path"];
-	map["QUERY_STRING"] = "";
+	if (_request.get_uri().find('?') != std::string::npos)
+		map["QUERY_STRING"] = _request.get_uri().substr(_request.get_uri().find('?') + 1);
+	else
+		map["QUERY_STRING"] = "";
 	map["REMOTE_ADDR"] = _request.get_client_ip();
 
 	if (_request.get_method() == GET)
@@ -504,6 +500,7 @@ char	**Response::Env()
 	while (it != map.end())
 	{
 		env[++i] = strdup((it->first + "=" + it->second).c_str());
+		std::cout << env[i] << std::endl;
 		++it;
 	}
 	env[i] = NULL;
@@ -516,8 +513,7 @@ std::string	Response::autoindex()
 	DIR				*dir;
 	struct dirent	*cur;
 	std::string		res;
-	// close(client.read_fd);
-	// client.read_fd = -1;
+
 	dir = opendir(_request.get_conf()["path"].c_str());
 	res += "<html>\n<body>\n";
 	res += "<h1>Directory listing</h1>\n";
@@ -600,7 +596,7 @@ std::string Response::Head(void)
 	return (res);
 }
 
-std::string Response::Post() // for temporary only! to pass tester...
+std::string Response::Post()
 {
 	std::string	res;
 	std::string extension = trim_extension(_request.get_conf()["path"]);
@@ -708,7 +704,7 @@ std::string	Response::Delete()
 std::string	Response::Options()
 {
 	std::string	msg;
-	//Get이ㅏㄹㅇ 똑같이
+
 	msg += getStartLine();
 	msg += "\n";
 	msg += printItem("Allow");

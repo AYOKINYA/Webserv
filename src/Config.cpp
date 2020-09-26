@@ -35,7 +35,6 @@ void Config::init(fd_set *rset, fd_set *wset, fd_set *cp_rset, fd_set *cp_wset)
         FD_ZERO(cp_wset);
         for (std::vector<Server>::iterator it(g_servers.begin()); it != g_servers.end(); ++it)
             it->init(rset, wset, cp_rset, cp_wset);
-
     }
 }
 
@@ -97,10 +96,12 @@ void	Config::get_conf(std::string input, std::string &context)
 
     while (ft_is_space(line[0]))
         line.erase(line.begin());
-  
-    while (line[0] != '}')
+    int j = 0;
+    int ret = 0;
+    while (line[0] != '}' && j++ < 50)
     {
-        ft_getline(_str, line);
+        if (!(ret = ft_getline_conf(_str, line)))
+            break ;
 
 		while (ft_is_space(line[0]))
 			line.erase(line.begin());
@@ -141,7 +142,7 @@ void	Config::get_conf(std::string input, std::string &context)
 		
 		if (line[i] == '}')
 		{
-			if (loc_flag)
+            if (loc_flag)
 			{
 				ft_getline(_str, line);
 				loc_flag = 0;
@@ -152,6 +153,7 @@ void	Config::get_conf(std::string input, std::string &context)
 				loc_flag = 1;
 			}
 		}
+
     }
     if (line[0] == '}')
     {
@@ -165,10 +167,7 @@ void	Config::get_conf(std::string input, std::string &context)
 			throw ConfigException();
     }
     else
-    {
-		std::cout << line[0] << std::endl;
 		throw ConfigException();
-    }
 }
 
 void	Config::parse(void)

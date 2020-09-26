@@ -92,3 +92,27 @@ void        ft_free(char **arr)
     free(arr);
 }
 
+int     ft_getline_conf(std::string &b, std::string &line)
+{
+    size_t					pos;
+
+    pos = b.find("\n");
+
+    if (pos != std::string::npos)
+    {
+        line = std::string (b, 0, pos++);
+        b = b.substr(pos);
+        return 1;
+    }
+    else
+    {
+        if (b[b.size() - 1] == '\n')
+            b = b.substr(b.size());
+        else
+        {
+            line = b;
+            b = b.substr(b.size());
+        }
+    }
+    return (0);
+}

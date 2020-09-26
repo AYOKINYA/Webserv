@@ -1,12 +1,10 @@
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
 
+# include <string>
+# include <dirent.h>
 # include "Config.hpp"
 # include "Utils.hpp"
-# include <fstream>
-#include <sstream>
-#include <string>
-#include <dirent.h>
 
 enum	method
 {
@@ -26,8 +24,6 @@ class Request
 		typedef std::map<std::string, std::string> 	elem;
 		typedef std::map<std::string, elem>			conf;
 
-		// std::map<std::string, std::string>			_headers;
-
 		int				_method;
 		std::string		_uri;
 		std::string		_body;
@@ -36,6 +32,7 @@ class Request
 		std::string		_method_str;
 		int				_chunk_len;
 		int				_limit_body_size;
+
 	public:
 		std::map<std::string, std::string>			_headers;
 		std::map<std::string, std::string>			_conf;

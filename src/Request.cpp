@@ -53,7 +53,6 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
 {
     std::map<std::string, std::string> elem;
     std::string		tmp;
-    std::string 	file;
     struct stat		info;
     conf			to_parse;
 
@@ -70,7 +69,7 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
         to_parse = conf_input[0];
     if (_uri[0] != '/')
         _uri = "/" + _uri;
-    file = _uri.substr(_uri.find_last_of('/') + 1, _uri.find('?'));
+
     tmp = _uri.substr(0, _uri.find('?'));
     do
     {

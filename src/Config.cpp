@@ -39,14 +39,11 @@ void Config::init(fd_set *rset, fd_set *wset, fd_set *cp_rset, fd_set *cp_wset)
     }
 }
 
-int Config::readfile(char *path)
+void	Config::readfile(char *path)
 {
     int fd = open(path, O_RDWR, 0644);
     if (fd == -1)
-    {
-        std::cerr << "Config open : " << strerror(errno) << std::endl;
-        return (0);
-    }
+		throw ConfigException("Config open()", std::string(strerror(errno)));
     char buf[1024];
     int ret = 0;
     while ((ret = read(fd, buf, 1023)) > 0)
@@ -56,15 +53,11 @@ int Config::readfile(char *path)
     }
 
     if (ret == -1)
-    {
-        std::cerr << "Config read : " << strerror(errno) << std::endl;
-        return (0);
-    }
+		throw ConfigException("Config read()", std::string(strerror(errno)));
     close(fd);
-    return (1);
 }
 
-int Config::set_location(std::string &line, std::string &context)
+void	Config::set_location(std::string &line, std::string &context)
 {
     std::string loc;
     int i = 0;
@@ -79,22 +72,20 @@ int Config::set_location(std::string &line, std::string &context)
     while (ft_is_space(line[i]))
         ++i;
     if (line[i] != '\0' && line[i] != '{')
-        return (0);
+		throw ConfigException();
     if (line[i] == '{')
     {
         ++i;
         while (ft_is_space(line[i]))
             ++i;
         if (line[i])
-            return (0);
+			throw ConfigException();
     }
 
     context = "server|location " + loc + "|";
-
-    return (1);
 }
 
-int Config::get_conf(std::string input, std::string &context)
+void	Config::get_conf(std::string input, std::string &context)
 {
     std::string line;
     std::string key;
@@ -111,58 +102,56 @@ int Config::get_conf(std::string input, std::string &context)
     {
         ft_getline(_str, line);
 
-        while (ft_is_space(line[0]))
-            line.erase(line.begin());
-       
-        if (line.find("location") != std::string::npos)
-        {
-            if (!set_location(line, context))
-                return (0);
-            loc_flag = 1;
-        }
-        else
-        {
-            i = 0;
-            while (line[i] != '\0' && line[i] != ';' && line[i] != '{' && line[i] != '}')
-            {
-                while (line[i] != '\0' && !ft_is_space(line[i]))
-                    key += line[i++];
-                while (ft_is_space(line[i]))
-                    ++i;
-                while (line[i] != '\0' && line[i] != ';' && line[i] != '{')
-                    value += line[i++];
-            }
-            tmp = 0;
-            if (line[i] != '\0')
-                ++tmp;
-            while (ft_is_space(line[i + tmp]))
-                ++tmp;
-            if (line[i + tmp])
-                return (0);
-            if (line[i] != '{' && line[i] != '}' && line[i] != '\0')
-            {
-                std::pair<std::string, std::string> item(key, value);
-                _conf[context].insert(item);
+		while (ft_is_space(line[0]))
+			line.erase(line.begin());
+		
+		if (line.find("location") != std::string::npos)
+		{
+			set_location(line, context);
+			loc_flag = 1;
+		}
+		else
+		{
+			i = 0;
+			while (line[i] != '\0' && line[i] != ';' && line[i] != '{' && line[i] != '}')
+			{
+				while (line[i] != '\0' && !ft_is_space(line[i]))
+					key += line[i++];
+				while (ft_is_space(line[i]))
+					++i;
+				while (line[i] != '\0' && line[i] != ';' && line[i] != '{')
+					value += line[i++];
+			}
+			tmp = 0;
+			if (line[i] != '\0')
+				++tmp;
+			while (ft_is_space(line[i + tmp]))
+				++tmp;
+			if (line[i + tmp])
+				throw ConfigException();
+			if (line[i] != '{' && line[i] != '}' && line[i] != '\0')
+			{
+				std::pair<std::string, std::string> item(key, value);
+				_conf[context].insert(item);
 
-                key.clear();
-                value.clear();
-            }
-        }
-        
-        if (line[i] == '}')
-        {
-            if (loc_flag)
-            {
-                ft_getline(_str, line);
-                loc_flag = 0;
-            }
-            if (line.find("location") != std::string::npos)
-            {
-                if (!set_location(line, context))                  
-                    return (0);
-                loc_flag = 1;
-            }
-        }
+				key.clear();
+				value.clear();
+			}
+		}
+		
+		if (line[i] == '}')
+		{
+			if (loc_flag)
+			{
+				ft_getline(_str, line);
+				loc_flag = 0;
+			}
+			if (line.find("location") != std::string::npos)
+			{
+				set_location(line, context);
+				loc_flag = 1;
+			}
+		}
     }
     if (line[0] == '}')
     {
@@ -170,20 +159,19 @@ int Config::get_conf(std::string input, std::string &context)
         while (ft_is_space(line[i]))
             ++i;
         if (line[i])
-            return (0);
+			throw ConfigException();
         ft_getline(_str, line);
         if (line[0] != '\0')
-            return (0);
+			throw ConfigException();
     }
     else
     {
-        std::cout << line[0] << std::endl;
-        return (0);
+		std::cout << line[0] << std::endl;
+		throw ConfigException();
     }
-    return (1);
 }
 
-int Config::parse(void)
+void	Config::parse(void)
 {   
     
     readfile(_conf_path);
@@ -203,22 +191,21 @@ int Config::parse(void)
             while (ft_is_space(line[6]))
                 line.erase(6, 1);
             if (line[6] != '{')
-                return (0);
+				throw ConfigException();
             if (line.compare(0, 7, "server{") == 0)
             {
                 while (ft_is_space(line[7]))
                     line.erase(7, 1);
                 if (line[7])
-                    return (0);
-                if (!get_conf(line, context))
-                    return (0);
+                    throw ConfigException();
+                get_conf(line, context);
                 std::vector<Server>::iterator it(g_servers.begin());
 				while (it != g_servers.end())
 				{
 					if (this->_conf["server|"]["listen"] == it->_conf.back()["server|"]["listen"])
 					{
 						if (this->_conf["server|"]["server_name"] == it->_conf.back()["server|"]["server_name"])
-							return (0);
+							throw ConfigException();
 						else
 							it->_conf.push_back(this->_conf);
 						break ;
@@ -235,11 +222,26 @@ int Config::parse(void)
 				context.clear();
             }
             else
-                return (0);
+                throw ConfigException();
         }
         else if (line[0])
-            return (0);
+            throw ConfigException();
     }
-    return (1);
 }
 
+Config::ConfigException::ConfigException()
+{
+    this->error = "Configuration file is not valid";
+}
+
+Config::ConfigException::ConfigException(std::string function, std::string error)
+{
+    this->error = function + ": " + error;
+}
+
+Config::ConfigException::~ConfigException() throw(){}
+
+const char	*Config::ConfigException::what() const throw()
+{
+    return (this->error.c_str());
+}

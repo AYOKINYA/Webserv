@@ -41,9 +41,16 @@ int main(int argc, char **argv)
     
     Config config(argv[1]);
 
-    if (!config.parse())
-        return (err_msg("Not a Valid Config."));
-    config.init(&rset, &wset, &cp_rset, &cp_wset);
+    try
+	{
+		config.parse();
+		config.init(&rset, &wset, &cp_rset, &cp_wset);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+		return (1);
+	}
     
     while (1)
 	{
@@ -57,7 +64,16 @@ int main(int argc, char **argv)
 		for (std::vector<Server>::iterator s(g_servers.begin()); s != g_servers.end(); ++s)
 		{
 			if (FD_ISSET(s->get_fd(), &cp_rset))
-				s->accept_client();
+			{
+				try
+				{
+					s->accept_client();	
+				}
+				catch(const std::exception& e)
+				{
+					std::cerr << e.what() << '\n';
+				}
+			}
 			for (std::vector<Client *>::iterator c(s->_clients.begin()); c != s->_clients.end(); ++c)
 			{
 				client = *c;

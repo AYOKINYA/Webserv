@@ -2,10 +2,6 @@
 # define CONFIG_HPP
 
 # include "Utils.hpp"
-// # include "Server.hpp"
-
-// # include <exception>
-// return 0들을 throw exception으로 바꾸기!
 
 class Config
 {
@@ -24,11 +20,23 @@ class Config
 
 			void init(fd_set *rset, fd_set *wset, fd_set *cp_rset, fd_set *cp_wset);
 			
-			int readfile(char *path);
-			int parse();
-			int get_conf(std::string line, std::string &context);
-			int set_location(std::string &line, std::string &context);
+			void	readfile(char *path);
+			void	parse();
+			void	get_conf(std::string line, std::string &context);
+			void	set_location(std::string &line, std::string &context);
 			void validate();
+
+			class	ConfigException : public std::exception
+			{
+				private:
+					std::string	function;
+					std::string	error;
+				public:
+					ConfigException();
+					ConfigException(std::string function, std::string error);
+					virtual ~ConfigException() throw();
+					virtual const char	*what() const throw();
+			};
 };
 
 #endif

@@ -14,10 +14,10 @@ void Server::init(fd_set *rset, fd_set *wset, fd_set *cp_rset, fd_set *cp_wset)
 	int opt = 1;
 
 	if ((_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-		exit(1); //나중에 throw로 처리
+		throw ServerException("socket()", std::string(strerror(errno)));
 
 	if( setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0 )
-		exit(EXIT_FAILURE); //나중에 throw로 처리
+		throw ServerException("setsockopt()", std::string(strerror(errno)));
 
 	ft_memset((void *)&_server_addr, 0, (unsigned long)sizeof(_server_addr));
 	_server_addr.sin_family = AF_INET;
@@ -26,11 +26,11 @@ void Server::init(fd_set *rset, fd_set *wset, fd_set *cp_rset, fd_set *cp_wset)
 
 	// Forcefully attaching socket to the port 8080
 	if (bind(_fd, (struct sockaddr *)&_server_addr, sizeof(_server_addr)) == -1)
-		exit(1); //나중에 throw로 처리
+		throw ServerException("bind()", std::string(strerror(errno)));
 	if (listen(_fd, 256) == -1)
-		exit(1); //나중에 throw로 처리
+		throw ServerException("listen()", std::string(strerror(errno)));
 	if (fcntl(_fd, F_SETFL, O_NONBLOCK) == -1)
-		exit(1); //나중에 throw로 처리
+		throw ServerException("fcntl()", std::string(strerror(errno)));
 	FD_SET(_fd, _rset);
 	_max_fd = _fd;
 }
@@ -54,9 +54,8 @@ void	Server::accept_client(void)
 	ft_memset((void *)&client_addr, 0, (unsigned long)sizeof(client_addr)); // 왜 libft ft_memset link가 안 될까?
 
 	if ((new_socket = accept(_fd, (struct sockaddr *)&client_addr, &addrlen)) == -1)
-		exit(1);
+		throw ServerException("accept()", std::string(strerror(errno)));
 		//throw 로 에러 처리하기
-
 	if (new_socket > _max_fd)
 		_max_fd = new_socket;
 	getsockname(new_socket, (struct sockaddr *)&client_addr, &addrlen);
@@ -124,4 +123,21 @@ int	Server::write_response(std::vector<Client *>::iterator it)
 		FD_CLR(c->get_fd(), _wset);
 	}
 	return (0);
+}
+
+Server::ServerException::ServerException()
+{
+	this->error = "Undefined Server Exception";
+}
+
+Server::ServerException::ServerException(std::string function, std::string error)
+{
+	this->error = function + ": " + error;
+}
+
+Server::ServerException::~ServerException() throw(){}
+
+const char	*Server::ServerException::what() const throw()
+{
+	return (this->error.c_str());
 }

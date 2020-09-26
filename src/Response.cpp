@@ -174,7 +174,7 @@ void Response::setContentLength(const std::string &content)
 void Response::setAllow()
 {
 	//if METHOD does not match any of these, return 405 Not Allowed
-	std::string str = "GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS";
+	std::string str = _request.get_conf()["method_allowed"];
 	cgi_header.insert(std::pair<std::string, std::string>("Allow", str));
 	_vars_response.insert(std::pair<std::string, std::string>("Allow", str));
 
@@ -338,7 +338,6 @@ std::string	Response::cgi(std::string extension)
 	}
 	else if (extension == _request.get_conf()["cgi_test"])
 	{
-		std::cout << "hhhhhh" << std::endl;
 		args[0] = ft_strdup(_request.get_conf()["cgi_exec"].c_str());
 		args[1] = ft_strdup(_request.get_conf()["path"].c_str());
 	}
@@ -562,7 +561,7 @@ std::string Response::Get (void)
 	res += getStartLine();
 	res += "\n";
 	res += printItem("Last-Modified");
-	if (autoidx_flag == 1)
+	if (autoidx_flag == 1 || _request.get_error_code() != 200)
 		res += "Content-Type: text/html\n";
 	else
 		res += printItem("Content-Type");
@@ -721,6 +720,46 @@ std::string	Response::Options()
 	msg += "\n";
 	if (_status.first == 200)
 		msg += body(_request.get_conf()["path"]);
+	else
+		msg += body("./www/error.html");
+	return (msg);
+}
+
+std::string	Response::Connect()
+{
+	std::string	msg;
+
+	msg += getStartLine();
+	msg += "\n";
+	msg += printItem("Server");
+	msg += printItem("Date");
+	msg += "\n\n";
+
+	return (msg);
+}
+
+std::string	Response::Trace()
+{
+	std::string	msg;
+
+	msg += getStartLine();
+	msg += "\n";
+	msg += printItem("Server");
+	msg += printItem("Date");
+	if (_status.first == 200)
+		msg += "Content-Type: message/http\n";
+	else
+		msg += printItem("Content-Type");
+	msg += printItem("Content-Length");
+	msg += "\n";
+	if (_status.first == 200)
+	{
+		msg += _request.get_method_str() + " " + _request.get_uri() + " HTTP/1.1\n";
+		for (std::map<std::string, std::string>::iterator it(_request._headers.begin());it != _request._headers.end(); ++it)
+		{
+			msg += it->first + ": " + it->second + "\r\n";
+		}
+	}
 	else
 		msg += body("./www/error.html");
 	return (msg);

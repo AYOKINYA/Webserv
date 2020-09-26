@@ -55,6 +55,8 @@ class Response
 			std::string	cgi(std::string extension);
 			char	**Env();
 			std::string	autoindex();
+			std::string	Connect();
+			std::string	Trace();
 };
 
 #endif

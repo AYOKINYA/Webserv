@@ -48,6 +48,7 @@ Request& Request::operator=(const Request& other)
     return (*this);
 }
 
+
 void	Request::feed_conf(std::vector<conf> &conf_input)
 {
     std::map<std::string, std::string> elem;
@@ -134,7 +135,7 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
         if (std::stoi(_headers["Content-Length"]) > std::stoi(_conf["limit_body_size"]))
             _error_code = 413;
     }
-  
+
 
     if (stat(_conf["path"].c_str(), &info) == -1 && _method != PUT)
         _error_code = 404;

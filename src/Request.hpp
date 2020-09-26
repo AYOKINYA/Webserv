@@ -6,6 +6,7 @@
 # include <fstream>
 #include <sstream>
 #include <string>
+#include <dirent.h>
 
 enum	method
 {

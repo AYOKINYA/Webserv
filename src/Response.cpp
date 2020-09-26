@@ -315,8 +315,9 @@ std::string Response::exec_method()
 	return (res);
 }
 
-std::string	Response::cgi (void)
+std::string	Response::cgi(std::string extension)
 {
+	(void)extension;
 	char **env;
 	char	**args;
 	int fd, pid;
@@ -327,6 +328,8 @@ std::string	Response::cgi (void)
 	int		tubes[2];
 
 	args = (char **)(malloc(sizeof(char *) * 3));
+
+	//extension pl\ php \bla
 
 	args[0] = ft_strdup(_request.get_conf()["cgi_exec"].c_str());
 	args[1] = ft_strdup(_request.get_conf()["path"].c_str());
@@ -495,30 +498,83 @@ char	**Response::Env()
 	return (env);
 }
 
+std::string	Response::autoindex()
+{
+	DIR				*dir;
+	struct dirent	*cur;
+	std::string		res;
+	// close(client.read_fd);
+	// client.read_fd = -1;
+	dir = opendir(_request.get_conf()["path"].c_str());
+	res += "<html>\n<body>\n";
+	res += "<h1>Directory listing</h1>\n";
+	while ((cur = readdir(dir)) != NULL)
+	{
+		if (cur->d_name[0] != '.')
+		{
+			res += "<a href=\"" + _request.get_uri();
+			if (_request.get_uri() != "/")
+				res += "/";
+			res += cur->d_name;
+			res += "\">";
+			res += cur->d_name;
+			res += "</a><br>\n";
+		}
+	}
+	closedir(dir);
+	res += "</body>\n</html>\n";
+	return (res);
+}
+
+
 std::string Response::Get (void)
 {
 	std::string res = "";
+	struct stat info;
+	int			autoidx_flag = 0;
+
+
+	stat(_request.get_conf()["path"].c_str(), &info);
+	if (S_ISDIR(info.st_mode) && _request.get_conf()["autoindex"] == "on")
+		autoidx_flag = 1;
 
 	std::string extension = trim_extension(_request.get_conf()["path"]);
-	if (extension == "bla" || extension == "pl" ||  extension == "php" || extension == "cgi")
-		return (cgi());
+	if (extension == "php" || (autoidx_flag == 0 && _request.get_conf().find("cgi_exec") != _request.get_conf().end()))
+		return (cgi(extension));
+
 	res += getStartLine();
 	res += "\n";
 	res += printItem("Last-Modified");
-	res += printItem("Content-Type");
+	if (autoidx_flag == 1)
+		res += "Content-Type: text/html\n";
+	else
+		res += printItem("Content-Type");
 	res += printItem("WWW-Authenticate");
 	res += printItem("Allow");
 	res += printItem("Date");
 	res += printItem("Server");
-	res += printItem("Content-Length");
+
+	if (autoidx_flag == 1)
+	{
+		int len = ft_strlen(autoindex().c_str());
+		res += "Content-Length: " + std::to_string(len) + "\n";
+	}
+	else
+		res += printItem("Content-Length");
 	res += "\n";
 	if (_request.get_method() == HEAD)
 		return (res);
 	else if (_status.first == 200)
-		res += body(_request.get_conf()["path"]);
+	{
+		if (autoidx_flag == 1)
+			res += autoindex();
+		else
+			res += body(_request.get_conf()["path"]);
+	}
 	else
 		res += (body("./www/error.html"));
 
+	std::cout << "ress!!!!" << res << std::endl;
 	return (res);
 }
 
@@ -534,8 +590,8 @@ std::string Response::Post() // for temporary only! to pass tester...
 	std::string	res;
 	std::string extension = trim_extension(_request.get_conf()["path"]);
 
-	if (extension == "bla" || extension == "pl" ||  extension == "php" || extension == "cgi")
-		return (cgi());
+	if (extension == "php" || _request.get_conf().find("cgi_exec") != _request.get_conf().end())
+		return (cgi(extension));
 	else if (_request.get_error_code() != 200)
 	{
 		setStatus(_request.get_error_code());

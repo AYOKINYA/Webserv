@@ -3,6 +3,8 @@
 
 # include <ctime>
 # include <sys/time.h>
+# include <sys/types.h>
+# include <sys/stat.h>
 # include "Request.hpp"
 
 class Response
@@ -50,8 +52,9 @@ class Response
 			std::string Put();
 			std::string	Delete();
 			std::string	Options();
-			std::string	cgi(void);
+			std::string	cgi(std::string extension);
 			char	**Env();
+			std::string	autoindex();
 };
 
 #endif

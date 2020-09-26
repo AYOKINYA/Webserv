@@ -37,7 +37,7 @@ class Server
 			Server() : _fd(-1), _max_fd(-1), _port(-1), _tmp("") {};
 			~Server() {};
 
-			void init(fd_set *rset, fd_set *wset, fd_set *cp_rset, fd_set *cp_wset);
+			void	init(fd_set *rset, fd_set *wset, fd_set *cp_rset, fd_set *cp_wset);
 			int get_max_fd(void);
 			int get_fd(void);
 			void	accept_client(void);
@@ -45,6 +45,17 @@ class Server
 			void set_request(Client &c, Request &request);
 			int	write_response(std::vector<Client *>::iterator it);
 
+			class	ServerException : public std::exception
+			{
+				private:
+					std::string	function;
+					std::string	error;
+				public:
+					ServerException();
+					ServerException(std::string function, std::string error);
+					virtual ~ServerException() throw();
+					virtual const char	*what() const throw();
+			};
 };
 
 #endif

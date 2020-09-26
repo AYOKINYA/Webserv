@@ -50,7 +50,7 @@ void	Server::accept_client(void)
 	int	new_socket;
 	struct sockaddr_in client_addr;
 	socklen_t addrlen = sizeof(client_addr);
-	
+
 	ft_memset((void *)&client_addr, 0, (unsigned long)sizeof(client_addr)); // 왜 libft ft_memset link가 안 될까?
 
 	if ((new_socket = accept(_fd, (struct sockaddr *)&client_addr, &addrlen)) == -1)

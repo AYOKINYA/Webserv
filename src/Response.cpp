@@ -317,7 +317,7 @@ std::string Response::exec_method()
 
 std::string	Response::cgi(std::string extension)
 {
-	(void)extension;
+	// (void)extension;
 	char **env;
 	char	**args;
 	int fd, pid;
@@ -327,12 +327,26 @@ std::string	Response::cgi(std::string extension)
 	std::string	res;
 	int		tubes[2];
 
+	std::cout << "Ex!!!" << extension << std::endl;
+	std::cout << "conf!!!" << _request.get_conf()["cgi_test"] << std::endl;
+
 	args = (char **)(malloc(sizeof(char *) * 3));
-
-	//extension pl\ php \bla
-
-	args[0] = ft_strdup(_request.get_conf()["cgi_exec"].c_str());
-	args[1] = ft_strdup(_request.get_conf()["path"].c_str());
+	if (extension == ".php")
+	{
+		args[0] = ft_strdup("/usr/local/bin/php-cgi");
+		args[1] = ft_strdup(_request.get_conf()["path"].c_str());
+	}
+	else if (extension == _request.get_conf()["cgi_test"])
+	{
+		std::cout << "hhhhhh" << std::endl;
+		args[0] = ft_strdup(_request.get_conf()["cgi_exec"].c_str());
+		args[1] = ft_strdup(_request.get_conf()["path"].c_str());
+	}
+	else
+	{
+		args[0] = ft_strdup(_request.get_conf()["path"].c_str());
+		args[1] = NULL;
+	}
 	args[2] = NULL;
 
 	fd = open("cgi.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
@@ -533,15 +547,18 @@ std::string Response::Get (void)
 	struct stat info;
 	int			autoidx_flag = 0;
 
-
 	stat(_request.get_conf()["path"].c_str(), &info);
 	if (S_ISDIR(info.st_mode) && _request.get_conf()["autoindex"] == "on")
 		autoidx_flag = 1;
 
-	std::string extension = trim_extension(_request.get_conf()["path"]);
-	if (extension == "php" || (autoidx_flag == 0 && _request.get_conf().find("cgi_exec") != _request.get_conf().end()))
-		return (cgi(extension));
+	std::string file_extension = "." + trim_extension(_request.get_conf()["path"]);
+	std::vector<std::string> extensions = split(_request.get_conf()["cgi_extension"], ' ');
 
+	for(unsigned long i = 0; i < extensions.size(); i++)
+	{
+		if (extensions[i] == file_extension)
+			return (cgi(extensions[i]));
+	}
 	res += getStartLine();
 	res += "\n";
 	res += printItem("Last-Modified");
@@ -574,7 +591,6 @@ std::string Response::Get (void)
 	else
 		res += (body("./www/error.html"));
 
-	std::cout << "ress!!!!" << res << std::endl;
 	return (res);
 }
 
@@ -589,10 +605,23 @@ std::string Response::Post() // for temporary only! to pass tester...
 {
 	std::string	res;
 	std::string extension = trim_extension(_request.get_conf()["path"]);
+	struct stat info;
+	int			autoidx_flag = 0;
 
-	if (extension == "php" || _request.get_conf().find("cgi_exec") != _request.get_conf().end())
-		return (cgi(extension));
-	else if (_request.get_error_code() != 200)
+	stat(_request.get_conf()["path"].c_str(), &info);
+	if (S_ISDIR(info.st_mode) && _request.get_conf()["autoindex"] == "on")
+		autoidx_flag = 1;
+
+	std::string file_extension = "." + trim_extension(_request.get_conf()["path"]);
+	std::vector<std::string> extensions = split(_request.get_conf()["cgi_extension"], ' ');
+
+	for(unsigned long i = 0; i < extensions.size(); i++)
+	{
+		if (extensions[i] == file_extension)
+			return (cgi(extensions[i]));
+	}
+
+	if (_request.get_error_code() != 200)
 	{
 		setStatus(_request.get_error_code());
 
@@ -602,10 +631,19 @@ std::string Response::Post() // for temporary only! to pass tester...
 		res += printItem("Date");
 		res += printItem("Last-Modified");
 		res += printItem("Content-Type");
-		res += "Content-Length: 14\n";
-		res += "\n";
-		res += "File modifed";
-		res += "\n\n";
+		if (autoidx_flag == 1)
+		{
+			int len = ft_strlen(autoindex().c_str());
+			res += "Content-Length: " + std::to_string(len) + "\n";
+			res += autoindex();
+		}
+		else
+		{
+			res += "Content-Length: 14\n";
+			res += "\n";
+			res += "File modifed";
+			res += "\n\n";
+		}
 		return res;
 	}
 	else
@@ -618,8 +656,10 @@ std::string Response::Post() // for temporary only! to pass tester...
 		res += printItem("Server");
 		res += printItem("Date");
 		res += printItem("Last-Modified");
-		res += printItem("Content-Type");
-
+		if (autoidx_flag == 1)
+			res += "Content-Type: text/html\n";
+		else
+			res += printItem("Content-Type");
 		res += "Content-Length: 14\n";
 		res += "\n";
 		res += "File modifed";
@@ -639,7 +679,6 @@ std::string Response::Put()
 	int fd;
 
 	url =_request.get_conf()["path"];
-
 	msg = "HTTP/1.1 204 No Content\n";
 	if ((fd = open(url.c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0666)) == -1)
 	{

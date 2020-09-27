@@ -96,11 +96,11 @@ void	Config::get_conf(std::string input, std::string &context)
 
     while (ft_is_space(line[0]))
         line.erase(line.begin());
-    int j = 0;
+
     int ret = 0;
-    while (line[0] != '}' && j++ < 50)
+    while (line[0] != '}')
     {
-        if (!(ret = ft_getline_conf(_str, line)))
+        if (!(ret = ft_getline(_str, line)))
             break ;
 
 		while (ft_is_space(line[0]))
@@ -144,7 +144,7 @@ void	Config::get_conf(std::string input, std::string &context)
 		{
             if (loc_flag)
 			{
-				ft_getline(_str, line);
+                ft_getline(_str, line);
 				loc_flag = 0;
 			}
 			if (line.find("location") != std::string::npos)
@@ -163,7 +163,7 @@ void	Config::get_conf(std::string input, std::string &context)
         if (line[i])
 			throw ConfigException();
         ft_getline(_str, line);
-        if (line[0] != '\0')
+        if (line[0] != '\0' || loc_flag == 1)
 			throw ConfigException();
     }
     else

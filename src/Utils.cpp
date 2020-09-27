@@ -7,7 +7,7 @@ int ft_is_space(char c)
     return (0);
 }
 
-void    ft_getline(std::string &b, std::string &line)
+int   ft_getline(std::string &b, std::string &line)
 {
     size_t					pos;
 
@@ -17,6 +17,7 @@ void    ft_getline(std::string &b, std::string &line)
     {
         line = std::string (b, 0, pos++);
         b = b.substr(pos);
+        return (1);
     }
     else
     {
@@ -28,6 +29,7 @@ void    ft_getline(std::string &b, std::string &line)
             b = b.substr(b.size());
         }
     }
+    return (0);
 }
 
 std::vector<std::string> split(const std::string& str, char delim)
@@ -90,29 +92,4 @@ void        ft_free(char **arr)
         ++i;
     }
     free(arr);
-}
-
-int     ft_getline_conf(std::string &b, std::string &line)
-{
-    size_t					pos;
-
-    pos = b.find("\n");
-
-    if (pos != std::string::npos)
-    {
-        line = std::string (b, 0, pos++);
-        b = b.substr(pos);
-        return 1;
-    }
-    else
-    {
-        if (b[b.size() - 1] == '\n')
-            b = b.substr(b.size());
-        else
-        {
-            line = b;
-            b = b.substr(b.size());
-        }
-    }
-    return (0);
 }

@@ -279,10 +279,10 @@ std::string Response::body(const std::string &path)
 	int fd = open(path.c_str(), O_RDWR, 0644);
 	if (fd == -1)
 		std::cerr << "Error MUST be thrown!" << std::endl; 
-	char buf[1024];
+	char buf[1025];
 	int nread;
-	ft_memset(buf, 0, 1024);
-	while ((nread = read(fd, buf, 1)) > 0)
+	ft_memset(buf, 0, 1025);
+	while ((nread = read(fd, buf, 1024)) > 0)
 	{
 		buf[nread] = '\0';
 		res += buf;
@@ -500,7 +500,6 @@ char	**Response::Env()
 	while (it != map.end())
 	{
 		env[++i] = strdup((it->first + "=" + it->second).c_str());
-		std::cout << env[i] << std::endl;
 		++it;
 	}
 	env[i] = NULL;

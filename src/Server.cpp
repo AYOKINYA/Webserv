@@ -113,6 +113,7 @@ int	Server::write_response(std::vector<Client *>::iterator it)
 	}
 
 	ret = write(c->get_fd(), c->_res_msg.c_str(), c->_res_msg.length());
+
 	if ((unsigned long)ret < c->_res_msg.length())
 		c->_res_msg = c->_res_msg.substr(ret);
 	else

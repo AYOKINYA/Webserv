@@ -275,19 +275,23 @@ std::string Response::printItem2(std::map<std::string, std::string> param, const
 
 std::string Response::body(const std::string &path)
 {
-	std::string res = "";
+	std::string res;
+
 	int fd = open(path.c_str(), O_RDWR, 0644);
+
 	if (fd == -1)
 		std::cerr << "Error MUST be thrown!" << std::endl; 
-	char buf[1025];
+	char buf[10001];
 	int nread;
-	ft_memset(buf, 0, 1025);
-	while ((nread = read(fd, buf, 1024)) > 0)
+	ft_memset(buf, 0, 10001);
+	while ((nread = read(fd, buf, 10000)) > 0)
 	{
 		buf[nread] = '\0';
-		res += buf;
+		std::string tmp(buf, nread);
+		res += tmp;
 	}
 	close(fd);
+
 	return (res);
 }
 
@@ -555,14 +559,10 @@ std::string Response::Get (void)
 	}
 	res += getStartLine();
 	res += "\n";
-	res += printItem("Last-Modified");
-	if (autoidx_flag == 1 || _request.get_error_code() != 200)
-		res += "Content-Type: text/html\n";
-	else
-		res += printItem("Content-Type");
 	res += printItem("WWW-Authenticate");
 	res += printItem("Allow");
 	res += printItem("Date");
+	res += printItem("Last-Modified");
 	res += printItem("Server");
 
 	if (autoidx_flag == 1)
@@ -572,7 +572,12 @@ std::string Response::Get (void)
 	}
 	else
 		res += printItem("Content-Length");
+	if (autoidx_flag == 1 || _request.get_error_code() != 200)
+		res += "Content-Type: text/html\n";
+	else
+		res += printItem("Content-Type");	
 	res += "\n";
+
 	if (_request.get_method() == HEAD)
 		return (res);
 	else if (_status.first == 200)

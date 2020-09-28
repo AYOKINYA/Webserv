@@ -18,13 +18,13 @@ class Config
 			Config& operator=(const Config& other);
 			virtual ~Config();
 
-			void init(fd_set *rset, fd_set *wset, fd_set *cp_rset, fd_set *cp_wset);
+			void	init(fd_set *rset, fd_set *wset, fd_set *cp_rset, fd_set *cp_wset);
 			
 			void	readfile(char *path);
 			void	parse();
 			void	get_conf(std::string line, std::string &context);
 			void	set_location(std::string &line, std::string &context);
-			void validate();
+			void	fill_conf(void);
 
 			class	ConfigException : public std::exception
 			{

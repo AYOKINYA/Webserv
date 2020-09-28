@@ -170,6 +170,18 @@ void	Config::get_conf(std::string input, std::string &context)
 		throw ConfigException();
 }
 
+void		Config::fill_conf(void)
+{
+    
+    if (this->_conf["server|"].find("server_name") == this->_conf["server|"].end())
+        this->_conf["server|"]["server_name"] = "anonymous";
+    if (this->_conf["server|"].find("error_page") == this->_conf["server|"].end())
+        this->_conf["server|"]["error_page"] = "./www/error.html;";
+    if (this->_conf["server|"].find("index") == this->_conf["server|"].end())
+        this->_conf["server|"]["index"] = "./www/index.html";
+}
+
+
 void	Config::parse(void)
 {   
     
@@ -198,6 +210,7 @@ void	Config::parse(void)
                 if (line[7])
                     throw ConfigException();
                 get_conf(line, context);
+                fill_conf();
                 std::vector<Server>::iterator it(g_servers.begin());
 				while (it != g_servers.end())
 				{

@@ -67,7 +67,6 @@ void Response::setDate()
 
 void Response::setContentType(const std::string &content)
 {
-	/* mime.types 참고. excel 텍스트 나누기로 split했다*/
 	std::string extensions[103] =
 	{
 		"html", "htm", "shtml", "css", "xml", "gif","jpeg", "jpg", "js", "atom",
@@ -153,7 +152,7 @@ void Response::setContentLength(const std::string &content)
 	}
 	else
 	{
-		fd = open("./www/error.html", O_RDWR, 0644);
+		fd = open(_request.get_conf()["error_page"].c_str(), O_RDWR, 0644);
 		if (fd == -1)
 		{
 			std::cerr << "Default Error page doesn't exist." << std::endl;
@@ -187,7 +186,7 @@ void Response::setLastModified(const std::string &content)
 
 	stat(content.c_str(), &info);
 	if (!S_ISDIR(info.st_mode))
-		stat("./www/error.html", &info);
+		stat(_request.get_conf()["error_page"].c_str(), &info);
 	strptime(std::to_string(info.st_mtime).c_str(), "%s", &time);
 	strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S KST", &time); // tm to regexp format
 
@@ -397,7 +396,7 @@ std::string	Response::cgi(std::string extension)
 	else if (_status.first == 200)
 		res += _cgi_body;
 	else
-		res += (body("./www/error.html"));
+		res += (body(_request.get_conf()["error_page"]));
 
 	return (res);
 }
@@ -464,7 +463,7 @@ char	**Response::Env()
 	std::map<std::string, std::string> map;
 
 	map["CONTENT_LENGTH"] = std::to_string(_request.get_body().size());
-	map["CONTENT_TYPE"] = "text/html";
+	map["CONTENT_TYPE"] = _vars_response["Content-Type"];
 
 	map["GATEWAY_INTERFACE"] = "CGI/1.1";
 	map["PATH_INFO"] = _request.get_conf()["path"];
@@ -484,10 +483,10 @@ char	**Response::Env()
 
 	map["SCRIPT_NAME"] = "." + _request.get_uri();
 
-	map["SERVER_NAME"] = "Carry-Please";
-	map["SERVER_PORT"] = "8080";
+	map["SERVER_NAME"] = _request.get_conf()["server_name"];
+	map["SERVER_PORT"] = _request.get_conf()["listen"];
 	map["SERVER_PROTOCOL"] = "HTTP/1.1";
-	map["SERVER_SOFTWARE"] = "HTTP/1.1";
+	map["SERVER_SOFTWARE"] = "webserv";
 
 	map["REDIRECT_STATUS"] = "200";
 
@@ -588,7 +587,7 @@ std::string Response::Get (void)
 			res += body(_request.get_conf()["path"]);
 	}
 	else
-		res += (body("./www/error.html"));
+		res += (body(_request.get_conf()["error_page"]));
 
 	return (res);
 }
@@ -721,7 +720,7 @@ std::string	Response::Options()
 	if (_status.first == 200)
 		msg += body(_request.get_conf()["path"]);
 	else
-		msg += body("./www/error.html");
+		msg += body(_request.get_conf()["error_page"]);
 	return (msg);
 }
 
@@ -761,6 +760,6 @@ std::string	Response::Trace()
 		}
 	}
 	else
-		msg += body("./www/error.html");
+		msg += body(_request.get_conf()["error_page"]);
 	return (msg);
 }

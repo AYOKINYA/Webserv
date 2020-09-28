@@ -42,7 +42,7 @@ Request& Request::operator=(const Request& other)
     _client_ip = other._client_ip;
 
     _conf = other._conf;
-
+    _chunk_len = other._chunk_len;
 	_limit_body_size = other._limit_body_size;
 
     return (*this);
@@ -67,6 +67,7 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
     }
     if (it == conf_input.end())
         to_parse = conf_input[0];
+ 
     if (_uri[0] != '/')
         _uri = "/" + _uri;
 
@@ -102,7 +103,7 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
 			else if (i == num - 1)
 			{
 				_error_code = 405;
-				return ;
+				break ;
 			}
 		}
 
@@ -117,13 +118,12 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
         if (_conf["index"][0] && _conf["autoindex"] != "on")
             _conf["path"] += "/" + elem["index"];
     }
-    if (_method == GET)
-        _conf["path_saved"] = _conf["path"];
+    if (_conf["path"] == "//")
+        _conf["path"] = _conf["index"];
 
 	if (_conf.find("limit_body_size") != _conf.end())
-    {
         _limit_body_size = std::stoi(_conf["limit_body_size"]);
-	}
+    
     // std::cout << "============"<< std::endl;
     // for(std::map<std::string, std::string>::iterator it = _conf.begin(); it != _conf.end(); ++it)
     // 	std::cout << it->first << " " << it->second << std::endl;
@@ -134,10 +134,12 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
         if (std::stoi(_headers["Content-Length"]) > std::stoi(_conf["limit_body_size"]))
             _error_code = 413;
     }
-    if (stat(_conf["path"].c_str(), &info) == -1 && _method != PUT)
+
+    if ((stat(_conf["path"].c_str(), &info) == -1 && _method != PUT))
     {
         _error_code = 404;
-    }
+    }   
+
 }
 
 void	Request::parse_header(std::string &req)

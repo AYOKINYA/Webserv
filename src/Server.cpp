@@ -1,5 +1,14 @@
 #include "Server.hpp"
 
+Server::Server() : _fd(-1), _max_fd(-1), _port(-1), _tmp("")
+{};
+
+Server::~Server()
+{
+	if (_port != -1)
+		std::cout << "[Server listening to " << _port << "] closes." << std::endl;
+}
+
 void Server::init(fd_set *rset, fd_set *wset, fd_set *cp_rset, fd_set *cp_wset)
 {
 	this->_rset = rset;
@@ -7,24 +16,20 @@ void Server::init(fd_set *rset, fd_set *wset, fd_set *cp_rset, fd_set *cp_wset)
 	this->_cp_rset = cp_rset;
 	this->_cp_wset = cp_wset;
 
-	std::cout << _conf[0]["server|"]["listen"] << std::endl;
 	_port = std::stoi(_conf[0]["server|"]["listen"]);
-	//std::stoi exception 처리
-
-	int opt = 1;
 
 	if ((_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		throw ServerException("socket()", std::string(strerror(errno)));
 
+	int opt = 1;
 	if( setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0 )
 		throw ServerException("setsockopt()", std::string(strerror(errno)));
 
 	ft_memset((void *)&_server_addr, 0, (unsigned long)sizeof(_server_addr));
 	_server_addr.sin_family = AF_INET;
 	_server_addr.sin_addr.s_addr = INADDR_ANY;
-	_server_addr.sin_port = htons(_port);
+	_server_addr.sin_port = ft_htons(_port);
 
-	// Forcefully attaching socket to the port 8080
 	if (bind(_fd, (struct sockaddr *)&_server_addr, sizeof(_server_addr)) == -1)
 		throw ServerException("bind()", std::string(strerror(errno)));
 	if (listen(_fd, 256) == -1)
@@ -33,6 +38,9 @@ void Server::init(fd_set *rset, fd_set *wset, fd_set *cp_rset, fd_set *cp_wset)
 		throw ServerException("fcntl()", std::string(strerror(errno)));
 	FD_SET(_fd, _rset);
 	_max_fd = _fd;
+
+	std::cout << "[Server listening to " << _port << "] starts running." << std::endl;
+
 }
 
 int Server::get_max_fd(void)
@@ -51,15 +59,16 @@ void	Server::accept_client(void)
 	struct sockaddr_in client_addr;
 	socklen_t addrlen = sizeof(client_addr);
 
-	ft_memset((void *)&client_addr, 0, (unsigned long)sizeof(client_addr)); // 왜 libft ft_memset link가 안 될까?
+	ft_memset((void *)&client_addr, 0, (unsigned long)sizeof(client_addr)); 
 
 	if ((new_socket = accept(_fd, (struct sockaddr *)&client_addr, &addrlen)) == -1)
 		throw ServerException("accept()", std::string(strerror(errno)));
-		//throw 로 에러 처리하기
+
 	if (new_socket > _max_fd)
 		_max_fd = new_socket;
+
 	getsockname(new_socket, (struct sockaddr *)&client_addr, &addrlen);
-	std::string client_ip = inet_ntoa(client_addr.sin_addr);
+	std::string client_ip = ft_inet_ntoa(client_addr.sin_addr.s_addr);
 	Client *client = new Client(new_socket, _rset, _wset, client_ip);
 	_clients.push_back(client); //clients_fd에 넣음
 	std::cout << "Here comes a new client at " << _conf[0]["server|"]["listen"] << std::endl;
@@ -92,11 +101,6 @@ int Server::read_request(std::vector<Client*>::iterator it)
 		return (0);
 	}
 	return (0);
-}
-
-void Server::set_request(Client &c, Request &request)
-{
-	c._req = request;
 }
 
 int	Server::write_response(std::vector<Client *>::iterator it)

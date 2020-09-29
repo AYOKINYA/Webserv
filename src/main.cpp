@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 		config.parse();
 		config.init(&rset, &wset, &cp_rset, &cp_wset);
 	}
-	catch(const std::exception& e)
+	catch (const std::exception& e)
 	{
 		std::cerr << e.what() << '\n';
 		return (1);
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
 				{
 					s->accept_client();	
 				}
-				catch(const std::exception& e)
+				catch (const std::exception& e)
 				{
 					std::cerr << e.what() << '\n';
 				}

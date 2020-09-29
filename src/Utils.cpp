@@ -93,3 +93,23 @@ void        ft_free(char **arr)
     }
     free(arr);
 }
+
+uint16_t    ft_htons(uint16_t port)
+{
+    uint16_t ret = (((((unsigned short)(port) & 0xFF)) << 8) | (((unsigned short)(port) & 0xFF00) >> 8));
+    
+    return (ret);
+}
+
+std::string ft_inet_ntoa(unsigned int addr)
+{
+    unsigned int n = addr;
+
+    std::string res = std::to_string(n % 256) + ".";
+    res += std::to_string((n / 256) % 256) + ".";
+    res += std::to_string((n / 256 / 256) % 256) + ".";
+    res += std::to_string(n / 256 / 256 / 256);
+
+    return (res);
+}
+

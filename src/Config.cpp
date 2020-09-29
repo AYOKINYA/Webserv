@@ -26,16 +26,25 @@ Config& Config::operator=(const Config& other)
 Config::~Config()
 {};
 
+void	Config::sig_handler(int signum)
+{
+    (void)signum;
+
+    std::cout << "\n" <<  "EXIT!" << std::endl;
+    g_servers.clear();
+    exit(1);
+}
+
+
 void Config::init(fd_set *rset, fd_set *wset, fd_set *cp_rset, fd_set *cp_wset)
 {
-    {
-        FD_ZERO(rset);
-        FD_ZERO(wset);
-        FD_ZERO(cp_rset);
-        FD_ZERO(cp_wset);
-        for (std::vector<Server>::iterator it(g_servers.begin()); it != g_servers.end(); ++it)
-            it->init(rset, wset, cp_rset, cp_wset);
-    }
+    signal(SIGINT, sig_handler);
+    FD_ZERO(rset);
+    FD_ZERO(wset);
+    FD_ZERO(cp_rset);
+    FD_ZERO(cp_wset);
+    for (std::vector<Server>::iterator it(g_servers.begin()); it != g_servers.end(); ++it)
+        it->init(rset, wset, cp_rset, cp_wset);
 }
 
 void	Config::readfile(char *path)

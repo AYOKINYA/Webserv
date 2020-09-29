@@ -23,6 +23,7 @@
 # include <netinet/in.h>
 # include <netinet/ip.h>
 # include <exception>
+# include <signal.h>
 # include "libft/libft.h"
 
 
@@ -36,5 +37,8 @@ std::string trim_url(const std::string& str);
 std::string trim_url_2(const std::string& str);
 std::string trim_extension(const std::string& str);
 void        ft_free(char **arr);
+uint16_t    ft_htons(uint16_t port);
+std::string ft_inet_ntoa(unsigned int addr);
+
 
 #endif

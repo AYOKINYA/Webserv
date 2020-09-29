@@ -27,6 +27,8 @@ class Config
 			void	set_location(std::string &line, std::string &context);
 			void	fill_conf(void);
 
+			static void	sig_handler(int signum);
+
 			class	ConfigException : public std::exception
 			{
 				private:

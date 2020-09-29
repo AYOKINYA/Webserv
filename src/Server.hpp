@@ -19,7 +19,7 @@ class Server
 			int						_max_fd;
 			int						_port;
 
-			struct sockaddr_in	_server_addr;
+			struct sockaddr_in		_server_addr;
 
 			std::vector<conf>		_conf;
 
@@ -34,16 +34,15 @@ class Server
 	public:
 			std::vector<Client*>	_clients;
 
-			Server() : _fd(-1), _max_fd(-1), _port(-1), _tmp("") {};
-			~Server() {};
+			Server();
+			~Server();
 
 			void	init(fd_set *rset, fd_set *wset, fd_set *cp_rset, fd_set *cp_wset);
-			int get_max_fd(void);
-			int get_fd(void);
+			int		get_max_fd(void);
+			int		get_fd(void);
 			void	accept_client(void);
-			int read_request(std::vector<Client*>::iterator it);
-			void set_request(Client &c, Request &request);
-			int	write_response(std::vector<Client *>::iterator it);
+			int		read_request(std::vector<Client*>::iterator it);
+			int		write_response(std::vector<Client *>::iterator it);
 
 			class	ServerException : public std::exception
 			{
@@ -56,6 +55,7 @@ class Server
 					virtual ~ServerException() throw();
 					virtual const char	*what() const throw();
 			};
+
 };
 
 #endif

@@ -133,10 +133,10 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
 	if (_conf.find("limit_body_size") != _conf.end())
         _limit_body_size = std::stoi(_conf["limit_body_size"]);
     
-    std::cout << "============"<< std::endl;
-    for(std::map<std::string, std::string>::iterator it = _conf.begin(); it != _conf.end(); ++it)
-    	std::cout << it->first << " " << it->second << std::endl;
-    std::cout << "============"<< std::endl;
+    // std::cout << "============"<< std::endl;
+    // for(std::map<std::string, std::string>::iterator it = _conf.begin(); it != _conf.end(); ++it)
+    // 	std::cout << it->first << " " << it->second << std::endl;
+    // std::cout << "============"<< std::endl;
 
     if (_headers.find("Content-Length") != _headers.end() && _conf.find("limit_body_size") != _conf.end())
     {

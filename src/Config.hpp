@@ -8,9 +8,10 @@ class Config
 	private:
 			char        *_conf_path;
 			std::string _str;
-			typedef std::map<std::string, std::string> elem;
-			typedef std::map<std::string, elem> conf;
-			conf _conf;
+
+			typedef std::map<std::string, std::string>	elem;
+			typedef std::map<std::string, elem> 		conf;
+			conf 										_conf;
  
 	public:
 			Config(char *conf);

@@ -59,7 +59,6 @@ int main(int argc, char **argv)
 
 		if (select(get_max_fd() + 1, &cp_rset, &cp_wset, NULL, &time) < 0)
 			printf("select error");
-		// usleep(2000);
 
 		for (std::vector<Server>::iterator s(g_servers.begin()); s != g_servers.end(); ++s)
 		{

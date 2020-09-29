@@ -61,7 +61,7 @@ void Response::setDate()
 	gettimeofday(&cur_time, 0);
 	strptime(std::to_string(cur_time.tv_sec).c_str(), "%s", &time); // seconds in tm format
 	strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S KST", &time); // tm to regexp format
-	cgi_header.insert(std::pair<std::string, std::string>("Date", buf));
+	_cgi_header.insert(std::pair<std::string, std::string>("Date", buf));
 	_vars_response.insert(std::pair<std::string, std::string>("Date", buf));
 }
 
@@ -133,7 +133,7 @@ void Response::setContentLocation(const std::string &loc)
 
 void Response::setContentLanguage()
 {
-	cgi_header.insert(std::pair<std::string, std::string>("Content-Language", "en"));
+	_cgi_header.insert(std::pair<std::string, std::string>("Content-Language", "en"));
 	_vars_response.insert(std::pair<std::string, std::string>("Content-Language", "en"));
 }
 
@@ -173,7 +173,7 @@ void Response::setContentLength(const std::string &content)
 void Response::setAllow()
 {
 	std::string str = _request.get_conf()["method_allowed"];
-	cgi_header.insert(std::pair<std::string, std::string>("Allow", str));
+	_cgi_header.insert(std::pair<std::string, std::string>("Allow", str));
 	_vars_response.insert(std::pair<std::string, std::string>("Allow", str));
 
 }
@@ -190,26 +190,26 @@ void Response::setLastModified(const std::string &content)
 	strptime(std::to_string(info.st_mtime).c_str(), "%s", &time);
 	strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S KST", &time); // tm to regexp format
 
-	cgi_header.insert(std::pair<std::string, std::string>("Last-Modified", buf));
+	_cgi_header.insert(std::pair<std::string, std::string>("Last-Modified", buf));
 	_vars_response.insert(std::pair<std::string, std::string>("Last-Modified", buf));
 
 }
 
 void Response::setServer()
 {
-	cgi_header.insert(std::pair<std::string, std::string>("Server", "Carry-Please"));
+	_cgi_header.insert(std::pair<std::string, std::string>("Server", "Carry-Please"));
 	_vars_response.insert(std::pair<std::string, std::string>("Server", "Carry-Please"));
 }
 
 void Response::setTransferEncoding()
 {
-	cgi_header.insert(std::pair<std::string, std::string>("Transfer-Encoding", "identity"));
+	_cgi_header.insert(std::pair<std::string, std::string>("Transfer-Encoding", "identity"));
 	_vars_response.insert(std::pair<std::string, std::string>("Transfer-Encoding", "identity"));
 }
 
 void Response::setWWWAuthentication()
 {
-	cgi_header.insert(std::pair<std::string, std::string>("WWW-Authentication", "Basic"));
+	_cgi_header.insert(std::pair<std::string, std::string>("WWW-Authentication", "Basic"));
 	_vars_response.insert(std::pair<std::string, std::string>("WWW-Authentication", "Basic"));
 }
 
@@ -235,7 +235,7 @@ std::string Response::getStartLine(void)
 	_start_line += " ";
 	_start_line += _status.second;
 
-	return(_start_line);
+	return (_start_line);
 }
 
 std::string Response::printItem(const std::string &key)
@@ -310,6 +310,12 @@ std::string Response::exec_method()
 		res = Post();
 	else if (method == PUT)
 		res = Put();
+	else if (method == DELETE)
+		res = Delete();
+	else if (method == OPTIONS)
+		res = Options();
+	else if (method == TRACE)
+		res = Trace();
 
 	return (res);
 }
@@ -386,10 +392,10 @@ std::string	Response::cgi(std::string extension)
 	parseCGIResult(tmp);
 	res += getStartLine();
 	res += "\n";
-	res += printItem2(cgi_header,"Content-Length");
-	res += printItem2(cgi_header, "Content-Type");
-	res += printItem2(cgi_header, "Date");
-	res += printItem2(cgi_header, "Server");
+	res += printItem2(_cgi_header,"Content-Length");
+	res += printItem2(_cgi_header, "Content-Type");
+	res += printItem2(_cgi_header, "Date");
+	res += printItem2(_cgi_header, "Server");
 	res += "\r\n";
 	if (_request.get_method() == HEAD)
 		return (res);
@@ -439,7 +445,7 @@ void		Response::parseCGIResult(std::string buf)
 			++pos;
 		}
 
-		cgi_header.insert(std::pair<std::string, std::string>(key, trim(value)));
+		_cgi_header.insert(std::pair<std::string, std::string>(key, trim(value)));
 
 		key.clear();
 		value.clear();
@@ -453,7 +459,7 @@ void		Response::parseCGIResult(std::string buf)
 
 	key = "Content-Length";
 	value = std::to_string(_cgi_body.size());
-	cgi_header.insert(std::pair<std::string, std::string>(key, value));
+	_cgi_header.insert(std::pair<std::string, std::string>(key, value));
 
 }
 
@@ -489,6 +495,14 @@ char	**Response::Env()
 	map["SERVER_SOFTWARE"] = "webserv";
 
 	map["REDIRECT_STATUS"] = "200";
+
+	if (_request._headers.find("Authorization") != _request._headers.end())
+	{
+		size_t pos = _request._headers["Authorization"].find(" ");
+		map["AUTH_TYPE"] = _request._headers["Authorization"].substr(0, pos);
+		map["REMOTE_USER"] = _request._headers["Authorization"].substr(pos + 1);
+		map["REMOTE_IDENT"] = _request._headers["Authorization"].substr(pos + 1);
+	}
 
 	std::map<std::string, std::string>::iterator b = _request._headers.begin();
 	while (b != _request._headers.end())
@@ -697,10 +711,9 @@ std::string	Response::Delete()
 {
 	std::string	msg;
 
-	if (remove(_request.get_conf()["path"].c_str()) == 0)
-	{
-		msg = getStartLine();
-	}
+	unlink(_request.get_conf()["path"].c_str());
+	msg = getStartLine() + "\n";
+
 	return (msg);
 }
 
@@ -755,9 +768,7 @@ std::string	Response::Trace()
 	{
 		msg += _request.get_method_str() + " " + _request.get_uri() + " HTTP/1.1\n";
 		for (std::map<std::string, std::string>::iterator it(_request._headers.begin());it != _request._headers.end(); ++it)
-		{
 			msg += it->first + ": " + it->second + "\r\n";
-		}
 	}
 	else
 		msg += body(_request.get_conf()["error_page"]);

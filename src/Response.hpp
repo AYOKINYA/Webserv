@@ -15,8 +15,8 @@ class Response
 			std::pair<int, std::string> 		_status;
 			std::string							_start_line;
 			std::map<int, std::string>			_status_table;
-			std::map<std::string, std::string>	cgi_header;
-			std::string _cgi_body;
+			std::map<std::string, std::string>	_cgi_header;
+			std::string							_cgi_body;
 	public:
 			Response();
 			Response(Request request);
@@ -24,20 +24,20 @@ class Response
 			Response(const Response &copy);
 			virtual ~Response();
 
-			void init_status_table();
-			void set_vars_response();
-			void setStatus(int num);
-			void setDate(void);
-			void setContentType(const std::string &content);
-			void setContentLocation(const std::string &loc);
-			void setContentLanguage();
-			void setContentLength(const std::string &content);
-			void setAllow();
-			void setLastModified(const std::string &content);
-			void setServer();
-			void setTransferEncoding();
-			void setWWWAuthentication();
-			void		parseCGIResult(std::string buf);
+			void	init_status_table();
+			void	set_vars_response();
+			void	setStatus(int num);
+			void	setDate(void);
+			void	setContentType(const std::string &content);
+			void	setContentLocation(const std::string &loc);
+			void	setContentLanguage();
+			void	setContentLength(const std::string &content);
+			void	setAllow();
+			void	setLastModified(const std::string &content);
+			void	setServer();
+			void	setTransferEncoding();
+			void	setWWWAuthentication();
+			void	parseCGIResult(std::string buf);
 
 			std::string printItem(const std::string &key);
 			std::string printItem2(std::map<std::string, std::string> param, const std::string &key);
@@ -53,7 +53,7 @@ class Response
 			std::string	Delete();
 			std::string	Options();
 			std::string	cgi(std::string extension);
-			char	**Env();
+			char **		Env();
 			std::string	autoindex();
 			std::string	Connect();
 			std::string	Trace();

@@ -1,5 +1,11 @@
 #include "Request.hpp"
 
+Request::Request()
+{}
+
+Request::~Request()
+{}
+
 void	Request::clear()
 {
     _error_code = -1;
@@ -8,6 +14,8 @@ void	Request::clear()
     _headers.clear();
     _body.clear();
     _method_str.clear();
+    _conf.clear();
+    _client_ip.clear();
     _limit_body_size = -1;
     _chunk_len = -1;
 }
@@ -89,23 +97,24 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
             elem = to_parse["server|location /|"];
     }
 	_conf = elem;
+
 	_conf["path"] = _uri.substr(0, _uri.find("?"));
 	if (elem.find("root") != elem.end())
 		_conf["path"].replace(0, tmp.size(), elem["root"]);
-/////
+
 	std::vector<std::string> tokens;
 	tokens = split(_conf["method_allowed"], ' ');
-		int num = tokens.size();
-		for (int i = 0; i < num; ++i)
-		{
-			if (tokens[i] == _method_str)
-				break ;
-			else if (i == num - 1)
-			{
-				_error_code = 405;
-				break ;
-			}
-		}
+    int num = tokens.size();
+    for (int i = 0; i < num; ++i)
+    {
+        if (tokens[i] == _method_str)
+            break ;
+        else if (i == num - 1)
+        {
+            _error_code = 405;
+            break ;
+        }
+    }
 
 	for (std::map<std::string, std::string>::iterator it(to_parse["server|"].begin()); it != to_parse["server|"].end(); ++it)
     {
@@ -124,10 +133,10 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
 	if (_conf.find("limit_body_size") != _conf.end())
         _limit_body_size = std::stoi(_conf["limit_body_size"]);
     
-    // std::cout << "============"<< std::endl;
-    // for(std::map<std::string, std::string>::iterator it = _conf.begin(); it != _conf.end(); ++it)
-    // 	std::cout << it->first << " " << it->second << std::endl;
-    // std::cout << "============"<< std::endl;
+    std::cout << "============"<< std::endl;
+    for(std::map<std::string, std::string>::iterator it = _conf.begin(); it != _conf.end(); ++it)
+    	std::cout << it->first << " " << it->second << std::endl;
+    std::cout << "============"<< std::endl;
 
     if (_headers.find("Content-Length") != _headers.end() && _conf.find("limit_body_size") != _conf.end())
     {
@@ -136,10 +145,18 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
     }
 
     if ((stat(_conf["path"].c_str(), &info) == -1 && _method != PUT))
-    {
         _error_code = 404;
-    }   
 
+    if (_conf.find("auth") != _conf.end())
+    {
+        _error_code = 401;
+        if (_headers.find("Authorization") != _headers.end())
+        {
+            std::string credentials = decode_base_64(_headers["Authorization"].c_str());
+            if (credentials == _conf["auth"])
+                _error_code = 200;
+        }
+    }
 }
 
 void	Request::parse_header(std::string &req)
@@ -159,15 +176,12 @@ void	Request::parse_header(std::string &req)
             value = trim(line.substr(pos + 1));
 
             if (key.empty() || value.empty())
-            {
                 break ;
-            }
+            
             _headers[key] = value;
         }
         else
-        {
-            break;
-        }
+            break ;
     }
 }
 
@@ -277,6 +291,48 @@ void	Request::parse_first_line(std::string &line)
     }
 }
 
+static const int B64index[256] = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 62, 63, 62, 62, 63, 52, 53, 54, 55,
+56, 57, 58, 59, 60, 61,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  3,  4,  5,  6,
+7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,  0,
+0,  0,  0, 63,  0, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 };
+
+std::string Request::decode_base_64(const char *data)
+{
+    while (*data != ' ')
+		data++;
+	data++;
+	unsigned int len = strlen(data);
+	unsigned char* p = (unsigned char*)data;
+    int pad = len > 0 && (len % 4 || p[len - 1] == '=');
+    const size_t L = ((len + 3) / 4 - pad) * 4;
+    std::string str(L / 4 * 3 + pad, '\0');
+
+    for (size_t i = 0, j = 0; i < L; i += 4)
+    {
+        int n = B64index[p[i]] << 18 | B64index[p[i + 1]] << 12 | B64index[p[i + 2]] << 6 | B64index[p[i + 3]];
+        str[j++] = n >> 16;
+        str[j++] = n >> 8 & 0xFF;
+        str[j++] = n & 0xFF;
+    }
+    if (pad)
+    {
+        int n = B64index[p[L]] << 18 | B64index[p[L + 1]] << 12;
+        str[str.size() - 1] = n >> 16;
+
+        if (len > L + 2 && p[L + 2] != '=')
+        {
+            n |= B64index[p[L + 2]] << 6;
+            str.push_back(n >> 8 & 0xFF);
+        }
+    }
+    if (str.back() == 0)
+    	str.pop_back();
+
+    return (str);
+}
 
 int Request::get_method(){return (_method);}
 std::string Request::get_method_str(){return (_method_str);}

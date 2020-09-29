@@ -85,8 +85,8 @@ int Server::read_request(std::vector<Client*>::iterator it)
 	if ((valread = read(c->get_fd(), buf, BUFFER_SIZE)) > 0)
 	{
 		buf[valread] = '\0';
-		c->_tmp += buf;
-		if (c->_req.parse_request(c->_tmp, _conf))
+		c->_rbuf += buf;
+		if (c->_req.parse_request(c->_rbuf, _conf))
 		{
 			FD_SET(c->_fd, _wset);
 			return (1);

@@ -17,37 +17,17 @@ class Client
 
 		int		_status;
 
-		std::string	_tmp;
+		std::string	_rbuf;
 		std::string	_res_msg;
 
 	
-		Client(int fd, fd_set *rset, fd_set *wset, std::string ip) : _req(ip)
-		{
-			_fd = fd;
-			_rset = rset;
-			_wset = wset;
+		Client(int fd, fd_set *rset, fd_set *wset, std::string ip);
+		~Client();
+		Client(const Client &copy);
+		Client& operator=(const Client &other);
 
-			fcntl(fd, F_SETFL, O_NONBLOCK);
-			FD_SET(fd, _rset);
+		int get_fd(void);
 
-			_tmp = ""; 
-			_status = 0;
-		}
-		~Client()
-		{
-			if (_fd != -1)
-			{
-				close(_fd);
-				FD_CLR(_fd, _rset);
-				FD_CLR(_fd, _wset);
-			}
-			std::cout << "Bye bye Client~" << std::endl;
-		};
-
-		int get_fd(void)
-		{
-			return (_fd);
-		}
 };
 
 #endif

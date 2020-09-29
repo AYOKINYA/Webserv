@@ -36,6 +36,7 @@ void Response::init_status_table(void)
 	_status_table.insert(std::make_pair(201, "CREATED"));
 	_status_table.insert(std::make_pair(204, "No Content"));
 	_status_table.insert(std::make_pair(400, "Bad Request"));
+	_status_table.insert(std::make_pair(401, "Unauthorized"));
 	_status_table.insert(std::make_pair(404, "Not Found"));
 	_status_table.insert(std::make_pair(405, "Not Allowed Method"));
 	_status_table.insert(std::make_pair(411, "Length Required"));

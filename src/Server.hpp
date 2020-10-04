@@ -43,6 +43,10 @@ class Server
 			void	accept_client(void);
 			int		read_request(std::vector<Client*>::iterator it);
 			int		write_response(std::vector<Client *>::iterator it);
+			int		get_time_diff(long start_sec);
+			int		disconnect_client(std::vector<Client*>::iterator it);
+
+
 
 			class	ServerException : public std::exception
 			{

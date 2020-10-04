@@ -143,13 +143,19 @@ void Response::setContentLength(const std::string &content)
 	const char *dir = content.c_str();
 	int fd = open(dir, O_RDWR, 0644);
 	int count = 0;
+	int ret = 0;
 	char buf[2];
 	ft_memset(buf, 0, 2);
 
 	if (fd > 0)
 	{
-		while (read(fd, buf, 1) > 0)
+		while ((ret = read(fd, buf, 1)) > 0)
 			++count;
+		if (ret == -1)
+		{
+			std::cerr << "An error on reading a fd." << std::endl;
+			exit(1);
+		}
 	}
 	else
 	{
@@ -159,8 +165,13 @@ void Response::setContentLength(const std::string &content)
 			std::cerr << "Default Error page doesn't exist." << std::endl;
 			exit(1);
 		}
-		while (read(fd, buf, 1) > 0)
+		while ((ret = read(fd, buf, 1)) > 0)
 			++count;
+		if (ret == -1)
+		{
+			std::cerr << "An error on reading a fd." << std::endl;
+			exit(1);
+		}
 	}
 	close(fd);
 
@@ -290,6 +301,11 @@ std::string Response::body(const std::string &path)
 		std::string tmp(buf, nread);
 		res += tmp;
 	}
+	if (nread == -1)
+	{
+		std::cerr << "An error on reading a fd." << std::endl;
+		exit(1);
+	}
 	close(fd);
 
 	return (res);
@@ -387,6 +403,11 @@ std::string	Response::cgi(std::string extension)
 	{
 		buf[ret] = '\0';
 		tmp += buf;
+	}
+	if (ret == -1)
+	{
+		std::cerr << "An error on reading a fd." << std::endl;
+		exit(1);
 	}
 	close(fd);
 

@@ -76,6 +76,7 @@ int main(int argc, char **argv)
 			for (std::vector<Client *>::iterator c(s->_clients.begin()); c != s->_clients.end(); ++c)
 			{
 				client = *c;
+
 				if (FD_ISSET(client->get_fd(), &cp_rset))
 				{
 					if (!s->read_request(c))
@@ -85,6 +86,11 @@ int main(int argc, char **argv)
 				{
 					if (!s->write_response(c))
 						break ;
+				}
+				if (!client->_status && s->get_time_diff(client->_time) > 10)
+				{
+					s->disconnect_client(c);
+					break ;
 				}
 			}
 		}

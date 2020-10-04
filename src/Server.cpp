@@ -59,19 +59,20 @@ void	Server::accept_client(void)
 	struct sockaddr_in client_addr;
 	socklen_t addrlen = sizeof(client_addr);
 
-	ft_memset((void *)&client_addr, 0, (unsigned long)sizeof(client_addr)); 
+	ft_memset(&client_addr, 0, sizeof(client_addr)); 
 
 	if ((new_socket = accept(_fd, (struct sockaddr *)&client_addr, &addrlen)) == -1)
 		throw ServerException("accept()", std::string(strerror(errno)));
-
+	
 	if (new_socket > _max_fd)
 		_max_fd = new_socket;
 
 	getsockname(new_socket, (struct sockaddr *)&client_addr, &addrlen);
 	std::string client_ip = ft_inet_ntoa(client_addr.sin_addr.s_addr);
 	Client *client = new Client(new_socket, _rset, _wset, client_ip);
-	_clients.push_back(client); //clients_fd에 넣음
-	std::cout << "Here comes a new client at " << _conf[0]["server|"]["listen"] << std::endl;
+	_clients.push_back(client);
+	
+	std::cout << "Here comes a new client at " << _conf[0]["server|"]["listen"] << " count : " << _clients.size() << std::endl;
 }
 
 int Server::read_request(std::vector<Client*>::iterator it)
@@ -84,6 +85,8 @@ int Server::read_request(std::vector<Client*>::iterator it)
 
 	if ((valread = read(c->get_fd(), buf, BUFFER_SIZE)) > 0)
 	{
+		c->_time = get_time();
+
 		buf[valread] = '\0';
 		c->_rbuf += buf;
 		if (c->_req.parse_request(c->_rbuf, _conf))
@@ -92,14 +95,15 @@ int Server::read_request(std::vector<Client*>::iterator it)
 			return (1);
 		}
 	}
-	if (valread == 0)
-	{
+	else
+	{	
 		*it = NULL;
 		_clients.erase(it);
 		if (c)
 			delete (c);
 		return (0);
 	}
+
 	return (0);
 }
 
@@ -114,9 +118,19 @@ int	Server::write_response(std::vector<Client *>::iterator it)
 		Response	response(c->_req);
 		c->_res_msg = response.exec_method();
 		c->_status = 1;
+		c->_time = get_time();
 	}
 
 	ret = write(c->get_fd(), c->_res_msg.c_str(), c->_res_msg.length());
+
+	if (ret <= 0)
+	{
+		*it = NULL;
+		_clients.erase(it);
+		if (c)
+			delete (c);
+		return (0);
+	}
 
 	if ((unsigned long)ret < c->_res_msg.length())
 		c->_res_msg = c->_res_msg.substr(ret);
@@ -127,6 +141,7 @@ int	Server::write_response(std::vector<Client *>::iterator it)
 		c->_res_msg.clear();
 		FD_CLR(c->get_fd(), _wset);
 	}
+	c->_time = get_time();
 	return (0);
 }
 
@@ -145,4 +160,24 @@ Server::ServerException::~ServerException() throw(){}
 const char	*Server::ServerException::what() const throw()
 {
 	return (this->error.c_str());
+}
+
+int		Server::get_time_diff(long start_sec)
+{
+	struct timeval	time;
+
+	gettimeofday(&time, NULL);
+	//std::cout << time.tv_sec - start_sec << std::endl;
+	return (time.tv_sec - start_sec);
+}
+
+int		Server::disconnect_client(std::vector<Client*>::iterator it)
+{
+	Client *c;
+	c = *it;
+	*it = NULL;
+	_clients.erase(it);
+	if (c)
+		delete (c);
+	return (1);
 }

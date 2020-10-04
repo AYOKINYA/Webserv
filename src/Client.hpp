@@ -20,7 +20,8 @@ class Client
 		std::string	_rbuf;
 		std::string	_res_msg;
 
-	
+		long _time;
+
 		Client(int fd, fd_set *rset, fd_set *wset, std::string ip);
 		~Client();
 		Client(const Client &copy);

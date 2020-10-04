@@ -113,3 +113,11 @@ std::string ft_inet_ntoa(unsigned int addr)
     return (res);
 }
 
+long get_time(void)
+{
+	struct timeval 	cur_time;
+
+	gettimeofday(&cur_time, 0);
+
+	return (cur_time.tv_sec);
+}

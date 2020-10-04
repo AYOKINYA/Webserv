@@ -2,6 +2,7 @@
 # define UTILS_HPP
 
 # include <sys/wait.h>
+# include <sys/time.h>
 # include <string.h>
 # include <iostream>
 # include <fcntl.h>
@@ -39,6 +40,8 @@ std::string trim_extension(const std::string& str);
 void        ft_free(char **arr);
 uint16_t    ft_htons(uint16_t port);
 std::string ft_inet_ntoa(unsigned int addr);
+long get_time(void);
+
 
 
 #endif

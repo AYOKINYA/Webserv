@@ -9,7 +9,8 @@ Client::Client(int fd, fd_set *rset, fd_set *wset, std::string ip) : _req(ip)
     fcntl(fd, F_SETFL, O_NONBLOCK);
     FD_SET(fd, _rset);
 
-    _rbuf = ""; 
+    _rbuf = "";
+    _time = get_time();
     _status = 0;
 }
 
@@ -40,6 +41,7 @@ Client& Client::operator=(const Client &other)
     _wset = other._wset;
     _rbuf = other._rbuf;
     _res_msg = other._res_msg;
+    _time = other._time;
 
     return (*this);
 }

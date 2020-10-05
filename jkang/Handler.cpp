@@ -179,7 +179,7 @@ void Handler::Get (Client &client)
                 return ;
             }
         }
-        
+		std::cout << client._req.get_error_code() << std::endl;
         if (client._req.get_error_code() == 200)
         {
             if (client.autoidx_flag == 1)
@@ -188,7 +188,7 @@ void Handler::Get (Client &client)
                 client.read_fd = open(client._req.get_conf()["path"].c_str(), O_RDONLY);
         }
         else
-            client._res._body = open(client._req.get_conf()["error_page"].c_str(), O_RDONLY);
+            client.read_fd = open(client._req.get_conf()["error_page"].c_str(), O_RDONLY);
     
         client._status = Client::HEADERS;
         client.set_read_file(true);
@@ -239,8 +239,6 @@ void Handler::Get (Client &client)
 void	Handler::cgi(std::string extension, Client &client)
 {
 	char	**args;
-	pid_t	pid;
-
 	int		ret;
 	int		tubes[2];
 	std::string	res;
@@ -267,9 +265,10 @@ void	Handler::cgi(std::string extension, Client &client)
 
 	client.tmp_fd = open("cgi.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
 	pipe(tubes);
-	if ((pid = fork()) == 0)
+	if ((client.cgi_pid = fork()) == 0)
 	{
 		close(tubes[1]);
+		dup2(tubes[0], 0);
 		dup2(client.tmp_fd, 1);
 		if (stat(client._req.get_conf()["path"].c_str(), &php) != 0 ||
 		!(php.st_mode & S_IFREG))
@@ -277,7 +276,7 @@ void	Handler::cgi(std::string extension, Client &client)
 			std::cerr << "Error CGI" << std::endl;
 			exit(1);
 		}
-		dup2(tubes[0], 0);
+		
 		if ((ret = execve(args[0], args, env)) == -1)
 		{
 			std::cerr << std::string(strerror(errno)) << std::endl;

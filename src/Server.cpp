@@ -22,7 +22,7 @@ void Server::init(fd_set *rset, fd_set *wset, fd_set *cp_rset, fd_set *cp_wset)
 		throw ServerException("socket()", std::string(strerror(errno)));
 
 	int opt = 1;
-	if( setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0 )
+	if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0)
 		throw ServerException("setsockopt()", std::string(strerror(errno)));
 
 	ft_memset((void *)&_server_addr, 0, (unsigned long)sizeof(_server_addr));
@@ -97,10 +97,7 @@ int Server::read_request(std::vector<Client*>::iterator it)
 	}
 	else
 	{	
-		*it = NULL;
-		_clients.erase(it);
-		if (c)
-			delete (c);
+		disconnect_client(it);
 		return (0);
 	}
 
@@ -125,10 +122,7 @@ int	Server::write_response(std::vector<Client *>::iterator it)
 
 	if (ret <= 0)
 	{
-		*it = NULL;
-		_clients.erase(it);
-		if (c)
-			delete (c);
+		disconnect_client(it);
 		return (0);
 	}
 

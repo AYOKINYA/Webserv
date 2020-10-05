@@ -58,7 +58,7 @@ int main(int argc, char **argv)
 		cp_wset = wset;
 
 		if (select(get_max_fd() + 1, &cp_rset, &cp_wset, NULL, &time) < 0)
-			printf("select error");
+			std::cerr << "select error" << std::endl;
 
 		for (std::vector<Server>::iterator s(g_servers.begin()); s != g_servers.end(); ++s)
 		{

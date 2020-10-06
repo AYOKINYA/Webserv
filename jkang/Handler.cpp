@@ -168,7 +168,6 @@ void Handler::Get (Client &client)
 
 	if (client._status == Client::START)
     {
-		std::cout << client._req.get_conf()["path"]<< std::endl;
 		stat(client._req.get_conf()["path"].c_str(), &info);
         if (S_ISDIR(info.st_mode) && client._req.get_conf()["autoindex"] == "on")
             client.autoidx_flag = 1;
@@ -185,7 +184,7 @@ void Handler::Get (Client &client)
                 return ;
             }
         }
-		std::cout << client._req.get_error_code() << std::endl;
+
         if (client._req.get_error_code() == 200)
         {
             if (client.autoidx_flag == 1)
@@ -242,12 +241,10 @@ void Handler::Head(Client &client)
 
 	if (client._status == Client::START)
     {
-		std::cout << client._req.get_conf()["path"]<< std::endl;
 		stat(client._req.get_conf()["path"].c_str(), &info);
         if (S_ISDIR(info.st_mode) && client._req.get_conf()["autoindex"] == "on")
             client.autoidx_flag = 1;
 
-		std::cout << client._req.get_error_code() << std::endl;
         if (client._req.get_error_code() == 200)
         {
             if (client.autoidx_flag == 1)
@@ -284,7 +281,7 @@ void Handler::Head(Client &client)
 		if (client.read_fd == -1)
         {
             client._res._header["Content-Length"] = std::to_string(client._res._body.size());
-			client._res._body = '\n';
+			client._res._body.clear();
             create_response(client);
             client._status = Client::RESPONSE;
         }
@@ -297,7 +294,6 @@ void Handler::Post (Client &client)
 
 	if (client._status == Client::START)
     {
-		std::cout << client._req.get_conf()["path"]<< std::endl;
 
         std::string file_extension = "." + trim_extension(client._req.get_conf()["path"]);
         std::vector<std::string> extensions = split(client._req.get_conf()["cgi_extension"], ' ');
@@ -311,7 +307,7 @@ void Handler::Post (Client &client)
                 return ;
             }
         }
-		std::cout << client._req.get_error_code() << std::endl;
+
         if (client._req.get_error_code() == 200)
 		{
  			client.write_fd = open(client._req.get_conf()["path"].c_str(), O_WRONLY | O_APPEND | O_CREAT, 0666);
@@ -328,9 +324,11 @@ void Handler::Post (Client &client)
     }
     else if (client._status == Client::CGI)
     {
-        parseCGIResult(client);
-        client._status = Client::HEADERS;
-		client._res._body = "File modified\n";
+		if (client.read_fd == -1)
+		{
+			parseCGIResult(client);
+			client._status = Client::HEADERS;
+		}
         return ;
     }
     else if (client._status == Client::HEADERS)
@@ -355,7 +353,7 @@ void Handler::Post (Client &client)
 		if (client.read_fd == -1 && client.write_fd == -1)
         {
             client._res._header["Content-Length"] = std::to_string(client._res._body.size());
-            create_response(client);
+			create_response(client);
             client._status = Client::RESPONSE;
         }
     }
@@ -454,7 +452,6 @@ void		Handler::parseCGIResult(Client &client)
 			++pos;
 		}
 		++pos;
-
 		while (headers[pos] && headers[pos] != '\r')
 		{
 			value += headers[pos];
@@ -470,6 +467,7 @@ void		Handler::parseCGIResult(Client &client)
 		if (headers[pos] == '\n')
 			pos++;
 	}
+
 	pos = buf.find("\r\n\r\n") + 4;
 	client._res._body = buf.substr(pos);
 
@@ -533,7 +531,7 @@ char	**Handler::Env(Client &client)
 	while (it != map.end())
 	{
 		env[++i] = strdup((it->first + "=" + it->second).c_str());
-		std::cout << env[i] << std::endl;
+		// std::cout << env[i] << std::endl;
 		++it;
 	}
 	env[i] = NULL;
@@ -550,9 +548,6 @@ void Handler::Put(Client &client)
 
 	if (client._status == Client::START)
     {
-		std::cout << url << std::endl;
-
-		std::cout << client._req.get_error_code() << std::endl;
         client.write_fd = open(url.c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0666);
     
         client._status = Client::HEADERS;
@@ -561,7 +556,7 @@ void Handler::Put(Client &client)
     }
     else if (client._status == Client::HEADERS)
     {
-		client._res._start_line = "HTTP/1.1 204 No Content\n";
+		client._res._start_line = "HTTP/1.1 204 No Content";
 
         if (client._req.get_error_code() == 401)
             setWWWAuthentication(client);
@@ -576,7 +571,7 @@ void Handler::Put(Client &client)
 		if (client.write_fd == -1)
         {
             //client._res._header["Content-Length"] = std::to_string(client._res._body.size());
-			client._res._body = '\n';
+			client._res._body.clear();
             create_response(client);
             client._status = Client::RESPONSE;
         }
@@ -625,9 +620,8 @@ void Handler::create_response(Client& client)
 			client._res_msg += b->first + ": " + b->second + "\r\n";
 		++b;
 	}
-	std::cout << client._res_msg << std::endl;
+	
 	client._res_msg += "\r\n";
 	client._res_msg += client._res._body;
-	//std::cout << client._res_msg << std::endl;
 	client._res.clear();
 }

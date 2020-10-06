@@ -102,11 +102,11 @@ int main(int argc, char **argv)
 						client->read_file();
 				}
 				
-				if (!client->_status && s->get_time_diff(client->_time) > 10)
-				{
-					s->disconnect_client(c);
-					break ;
-				}
+				// if (!client->_status && s->get_time_diff(client->_time) > 10)
+				// {
+				// 	s->disconnect_client(c);
+				// 	break ;
+				// }
 			}
 		}
 

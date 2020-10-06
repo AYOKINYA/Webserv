@@ -97,9 +97,7 @@ void Client::write_file(void)
     int ret = 0;
 
 	ret = write(write_fd, _req.get_body().c_str(), _req.get_body().size());
-	std::cout << "ret " << ret << std::endl;
-	std::cout << "original " << _req.get_body().size() << std::endl;
-	usleep(1000);
+	
 	if ((unsigned long)ret < _req.get_body().size())
 		_req.get_body() = _req.get_body().substr(ret);
 	else

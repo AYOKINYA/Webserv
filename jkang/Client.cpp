@@ -133,16 +133,19 @@ void Client::read_file(void)
 			}
 		}
 	}
-	close(tmp_fd);
-	tmp_fd = -1;
-    int ret = read(read_fd, buffer, BUFFER_SIZE);
-	if (ret >= 0)
+
+    int ret = 0;
+	while ((ret = read(read_fd, buffer, BUFFER_SIZE)) > 0)
+	{
 		buffer[ret] = '\0';
-	std::string	tmp(buffer, ret);
-	_res._body += tmp;
+		std::string	tmp(buffer, ret);
+		_res._body += tmp;
+	}
 	if (ret == 0)
 	{
+		std::cout << _res._body.size() << std::endl;
 		close(read_fd);
+		unlink("cgi.txt");
 		FD_CLR(read_fd, _rset);
 		read_fd = -1;
 	}

@@ -201,8 +201,11 @@ void Handler::Get (Client &client)
     }
     else if (client._status == Client::CGI)
     {
-        parseCGIResult(client);
-        client._status = Client::HEADERS;
+        if (client.read_fd == -1)
+		{
+			parseCGIResult(client);
+			client._status = Client::HEADERS;
+		}
         return ;
     }
     else if (client._status == Client::HEADERS)

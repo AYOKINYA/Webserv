@@ -100,6 +100,7 @@ int Server::read_request(std::vector<Client*>::iterator it)
 
 		buf[valread] = '\0';
 		c->_rbuf += buf;
+
 		if (c->_req.parse_request(c->_rbuf, _conf))
 		{
 			FD_SET(c->_fd, _wset);

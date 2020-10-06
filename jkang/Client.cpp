@@ -13,7 +13,6 @@ Client::Client(int fd, fd_set *rset, fd_set *wset, std::string ip) : _req(ip)
 
     fcntl(fd, F_SETFL, O_NONBLOCK);
     FD_SET(fd, _rset);
-    //FD_SET(fd, _wset); //added.......
 
     _rbuf = "";
     _time = get_time();
@@ -144,7 +143,6 @@ void Client::read_file(void)
 	}
 	if (ret == 0)
 	{
-		std::cout << _res._body.size() << std::endl;
 		close(read_fd);
 		unlink("cgi.txt");
 		FD_CLR(read_fd, _rset);

@@ -19,6 +19,12 @@ void    Handler::exec_method(Client &client)
 		Post(client);
 	else if (method == PUT)
 		Put(client);
+	else if (method == DELETE)
+		Delete(client);
+	else if (method == TRACE)
+		Trace(client);
+	else if (method == OPTIONS)
+		Options(client);
 }
 
 void Handler::setDate(Client &client)
@@ -283,7 +289,8 @@ void Handler::Head(Client &client)
     {
 		if (client.read_fd == -1)
         {
-            client._res._header["Content-Length"] = std::to_string(client._res._body.size());
+            //client._res._header["Content-Length"] = std::to_string(client._res._body.size());
+            client._res._header["Content-Length"] = "0";
 			client._res._body.clear();
             create_response(client);
             client._status = Client::RESPONSE;
@@ -618,11 +625,11 @@ char	**Handler::Env(Client &client)
 
 	env = (char **)malloc(sizeof(char *) * (map.size() + 1));
 	std::map<std::string, std::string>::iterator it = map.begin();
-	int i = -1;
+	int i = 0;
 	while (it != map.end())
 	{
-		env[++i] = strdup((it->first + "=" + it->second).c_str());
-		// std::cout << env[i] << std::endl;
+		env[i] = strdup((it->first + "=" + it->second).c_str());
+		++i;
 		++it;
 	}
 	env[i] = NULL;
@@ -661,7 +668,6 @@ void Handler::Put(Client &client)
     {
 		if (client.write_fd == -1)
         {
-            //client._res._header["Content-Length"] = std::to_string(client._res._body.size());
 			client._res._body.clear();
             create_response(client);
             client._status = Client::RESPONSE;
@@ -714,6 +720,7 @@ void Handler::create_response(Client& client)
 	
 	client._res_msg += "\r\n";
 	client._res_msg += client._res._body;
+	// std::cout << client._res_msg << std::endl;
 	client._res.clear();
 }
 

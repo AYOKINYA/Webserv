@@ -192,6 +192,7 @@ int		Request::parse_request(std::string &req, std::vector<conf> &conf)
 
 	if (_error_code == -1)
 	{
+        
 		if ((pos = req.find("\r\n\r\n")) == std::string::npos)
 			return (0);
 		line = req.substr(0, pos);
@@ -216,12 +217,13 @@ int		Request::parse_body(std::string &req)
         return parse_chunk(req);
     else if (_headers.find("Content-Length") != _headers.end())
     {
-        if (req.find("\r\n\r\n") != std::string::npos)
+        //if (req.find("\r\n\r\n") != std::string::npos)
         {
             unsigned long len = std::stoi(_headers["Content-Length"]);
             _body += req.substr(0, len);
             return (1);
         }
+
         return (0);
     }
     else

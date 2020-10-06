@@ -97,7 +97,9 @@ void Client::write_file(void)
     int ret = 0;
 
 	ret = write(write_fd, _req.get_body().c_str(), _req.get_body().size());
-
+	std::cout << "ret " << ret << std::endl;
+	std::cout << "original " << _req.get_body().size() << std::endl;
+	usleep(1000);
 	if ((unsigned long)ret < _req.get_body().size())
 		_req.get_body() = _req.get_body().substr(ret);
 	else
@@ -116,7 +118,7 @@ void Client::read_file(void)
 
 	if (cgi_pid != -1)
 	{
-		if (waitpid((pid_t)cgi_pid, (int *)&status, (int)WNOHANG) == 0)
+		if (waitpid(cgi_pid, &status, 0) == 0)
 			return ;
 		else
 		{
@@ -133,6 +135,8 @@ void Client::read_file(void)
 			}
 		}
 	}
+	close(tmp_fd);
+	tmp_fd = -1;
     int ret = read(read_fd, buffer, BUFFER_SIZE);
 	if (ret >= 0)
 		buffer[ret] = '\0';

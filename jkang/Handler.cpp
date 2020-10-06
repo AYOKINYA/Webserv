@@ -291,6 +291,94 @@ void Handler::Head(Client &client)
     }
 }
 
+void Handler::Delete(Client &client)
+{
+	unlink(client._req.get_conf()["path"].c_str());
+	client._res._start_line = getStartLine(client);
+	create_response(client);
+	client._status = Client::RESPONSE;
+}
+
+void Handler::Options(Client &client)
+{
+	if (client._status == Client::START)
+	{
+		if (client._req.get_error_code() == 200)
+			client.read_fd = open(client._req.get_conf()["path"].c_str(), O_RDONLY);
+		else
+			client.read_fd = open(client._req.get_conf()["error_page"].c_str(), O_RDONLY);
+		client._status = Client::HEADERS;
+		client.set_read_file(true);
+		return ;	
+	}
+	else if (client._status == Client::HEADERS)
+	{
+		client._res._start_line = getStartLine(client);
+		setAllow(client);
+		setServer(client);
+		setDate(client);
+		setLastModified(client);
+		setContentType(client);
+		client._status = Client::BODY;
+	}
+	else if	(client._status == Client::BODY)
+	{
+		if (client.read_fd == -1)
+		{
+            client._res._header["Content-Length"] = std::to_string(client._res._body.size());
+            create_response(client);
+            client._status = Client::RESPONSE;
+        }
+	}
+}
+
+void Handler::Connect(Client &client)
+{
+	client._res._start_line = getStartLine(client);
+	setServer(client);
+	setDate(client);
+	create_response(client);
+	client._status = Client::RESPONSE;
+}
+
+void Handler::Trace(Client &client)
+{
+	if (client._status == Client::START)
+	{
+		if (client._req.get_error_code() == 200)
+		{
+			client._res._body += client._req.get_method_str() + " " + client._req.get_uri() + " HTTP/1.1\n";
+			for (std::map<std::string, std::string>::iterator it(client._req._headers.begin());it != client._req._headers.end(); ++it)
+				client._res._body += it->first + ": " + it->second + "\r\n";
+		}
+		else
+			client.read_fd = open(client._req.get_conf()["error_page"].c_str(), O_RDONLY);
+		client._status = Client::HEADERS;
+		client.set_read_file(true);
+		return ;	
+	}
+	else if (client._status == Client::HEADERS)
+	{
+		client._res._start_line = getStartLine(client);
+		setServer(client);
+		setDate(client);
+		if (client._req.get_error_code() == 200)
+			client._res_msg += "Content-Type: message/http\n";
+		else
+			setContentType(client);
+		client._status = Client::BODY;
+	}
+	else if	(client._status == Client::BODY)
+	{
+		if (client.read_fd == -1)
+		{
+            create_response(client);
+            client._status = Client::RESPONSE;
+        }
+	}
+}
+
+
 void Handler::Post (Client &client)
 {
 	std::string res;
@@ -628,3 +716,4 @@ void Handler::create_response(Client& client)
 	client._res_msg += client._res._body;
 	client._res.clear();
 }
+

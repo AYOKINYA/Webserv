@@ -478,7 +478,7 @@ void	Handler::cgi(std::string extension, Client &client)
 	}
 	args[2] = NULL;
 
-	client.tmp_fd = open("cgi.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
+	client.tmp_fd = open("cgi.txt", O_RDWR | O_CREAT, 0666);
 	pipe(tubes);
 	if ((client.cgi_pid = fork()) == 0)
 	{

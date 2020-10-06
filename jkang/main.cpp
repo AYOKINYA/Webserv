@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 		cp_wset = wset;
 
 		if (select(get_max_fd() + 1, &cp_rset, &cp_wset, NULL, &time) < 0)
-			printf("select error");
+			std::cerr << "select error" << std::endl;
 
 		for (std::vector<Server>::iterator s(g_servers.begin()); s != g_servers.end(); ++s)
 		{
@@ -102,11 +102,11 @@ int main(int argc, char **argv)
 						client->read_file();
 				}
 				
-				// if (!client->_status && s->get_time_diff(client->_time) > 10)
-				// {
-				// 	s->disconnect_client(c);
-				// 	break ;
-				// }
+				if (!client->_status && s->get_time_diff(client->_time) > 10)
+				{
+					s->disconnect_client(c);
+					break ;
+				}
 			}
 		}
 

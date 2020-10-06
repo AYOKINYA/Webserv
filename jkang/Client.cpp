@@ -125,6 +125,7 @@ void Client::read_file(void)
 				close(tmp_fd);
 				tmp_fd = -1;
 				cgi_pid = -1;
+				unlink("cgi.txt");
 				close(read_fd);
 				FD_CLR(read_fd, _rset);
 				read_fd = -1;

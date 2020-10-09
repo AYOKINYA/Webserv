@@ -96,7 +96,15 @@ void Client::write_file(void)
     int ret = 0;
 
 	ret = write(write_fd, _req.get_body().c_str(), _req.get_body().size());
-	
+	if (ret == -1)
+	{
+		std::cerr << "WRITE ERROR" << std::endl;
+		_req.get_body().clear();
+		close(write_fd);
+		FT_FD_CLR(write_fd, _wset);
+		write_fd = -1;
+	}
+
 	if ((unsigned long)ret < _req.get_body().size())
 		_req.get_body() = _req.get_body().substr(ret);
 	else
@@ -146,5 +154,14 @@ void Client::read_file(void)
 		unlink("cgi.txt");
 		FT_FD_CLR(read_fd, _rset);
 		read_fd = -1;
+	}
+	else if (ret == -1)
+	{
+		close(read_fd);
+		unlink("cgi.txt");
+		FT_FD_CLR(read_fd, _rset);
+		read_fd = -1;
+		std::cerr << "READ ERROR!" << std::endl;
+		_res._body = "READ_ERROR\n";
 	}
 }

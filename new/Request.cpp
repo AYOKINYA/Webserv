@@ -144,7 +144,7 @@ void	Request::feed_conf(std::vector<conf> &conf_input)
             _error_code = 413;
     }
 
-    if ((stat(_conf["path"].c_str(), &info) == -1 && _method != PUT))
+    if (stat(_conf["path"].c_str(), &info) == -1 && _method != PUT && _method != PUT)
         _error_code = 404;
 
     if (_conf.find("auth") != _conf.end())

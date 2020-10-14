@@ -43,6 +43,7 @@ void Response::init_status_table(void)
 	_status_table.insert(std::make_pair(411, "Length Required"));
 	_status_table.insert(std::make_pair(413, "Request Entity Too Large"));
 	_status_table.insert(std::make_pair(415, "Unsupported Media Type"));
+	_status_table.insert(std::make_pair(500, "Internal Server Error"));
 	_status_table.insert(std::make_pair(501, "Not Implemented"));
 	_status_table.insert(std::make_pair(505, "HTTP Version Not Supported"));
 }

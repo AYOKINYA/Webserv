@@ -5,7 +5,7 @@ Server::Server() : _fd(-1), _max_fd(-1), _port(-1), _tmp("")
 
 Server::~Server()
 {
-	if (_port != -1)
+	if (_port > -1)
 		std::cout << "[Server listening to " << _port << "] closes." << std::endl;
 }
 
@@ -33,6 +33,8 @@ void Server::init(fd_set *rset, fd_set *wset, fd_set *cp_rset, fd_set *cp_wset)
 	this->_cp_wset = cp_wset;
 
 	_port = std::stoi(_conf[0]["server|"]["listen"]);
+	if (_port < 0)
+		throw ServerException("port", "Invalid Port Number");
 
 	if ((_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		throw ServerException("socket()", std::string(strerror(errno)));
@@ -101,8 +103,17 @@ int Server::read_request(std::vector<Client*>::iterator it)
 		buf[valread] = '\0';
 		c->_rbuf += buf;
 
-		if (c->_req.parse_request(c->_rbuf, _conf))
+		try
 		{
+			if (c->_req.parse_request(c->_rbuf, _conf))
+			{
+				FT_FD_SET(c->_fd, _wset);
+				return (1);
+			}
+		}
+		catch (const std::exception& e)
+		{
+			c->_req.set_error_code(500);
 			FT_FD_SET(c->_fd, _wset);
 			return (1);
 		}

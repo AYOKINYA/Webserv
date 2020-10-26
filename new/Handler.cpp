@@ -620,7 +620,7 @@ char **Handler::Env(Client &client)
 	int i = 0;
 	while (it != map.end())
 	{
-		env[i] = strdup((it->first + "=" + it->second).c_str());
+		env[i] = ft_strdup((it->first + "=" + it->second).c_str());
 		++i;
 		++it;
 	}
